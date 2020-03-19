@@ -64,8 +64,8 @@ public class DownloadTask {
 
     @Generated(hash = 1089079576)
     public DownloadTask(@NotNull String downloadUrl, String shortName,
-                        String absolutePath, String paramData, TaskStatus taskStatus, Date date,
-                        long currentOffset, long totalLength, int flag, String desc) {
+            String absolutePath, String paramData, TaskStatus taskStatus, Date date,
+            long currentOffset, long totalLength, int flag, String desc) {
         this.downloadUrl = downloadUrl;
         this.shortName = shortName;
         this.absolutePath = absolutePath;
