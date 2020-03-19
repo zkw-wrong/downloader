@@ -2,6 +2,7 @@ package com.apkpure.components.downloader.db
 
 import android.content.Context
 import com.apkpure.components.downloader.db.bean.DownloadTask
+import com.apkpure.components.downloader.db.other.Helper
 import com.apkpure.components.greendao.db.DaoMaster
 import com.apkpure.components.greendao.db.DaoSession
 import io.reactivex.Observable

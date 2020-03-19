@@ -24,6 +24,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    android.libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFileName1 = output.outputFileName
+            if (outputFileName1 != null && outputFileName1.endsWith('.aar')) {
+                output.outputFileName = "download-library" +
+                        "_${variant.buildType.name}" +
+                        "_v${defaultConfig.versionName}.aar"
+            }
+        }
+    }
 }
 
 greendao {
