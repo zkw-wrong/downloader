@@ -5,7 +5,6 @@ import com.apkpure.components.downloader.db.other.TaskStatusConverter;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
@@ -13,6 +12,7 @@ import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Transient;
 
 import java.util.Date;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * 下载任务
@@ -21,7 +21,7 @@ import java.util.Date;
  * @date 2018/11/5
  */
 @Entity(nameInDb = "downloadTask")
-public class DownloadTask {
+public class DownloadTask2 {
     @Id
     @NotNull
     @Property(nameInDb = "_download_url")
@@ -62,8 +62,9 @@ public class DownloadTask {
     @Transient
     private String downloadPercent;
 
-    @Generated(hash = 1089079576)
-    public DownloadTask(@NotNull String downloadUrl, String shortName,
+
+    @Generated(hash = 604974447)
+    public DownloadTask2(@NotNull String downloadUrl, String shortName,
             String absolutePath, String paramData, TaskStatus taskStatus, Date date,
             long currentOffset, long totalLength, int flag, String desc) {
         this.downloadUrl = downloadUrl;
@@ -78,9 +79,10 @@ public class DownloadTask {
         this.desc = desc;
     }
 
-    @Generated(hash = 1999398913)
-    public DownloadTask() {
+    @Generated(hash = 1235251122)
+    public DownloadTask2() {
     }
+
 
     public String getDownloadUrl() {
         return this.downloadUrl;
