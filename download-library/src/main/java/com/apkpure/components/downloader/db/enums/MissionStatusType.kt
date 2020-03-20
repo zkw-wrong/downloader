@@ -1,10 +1,10 @@
-package com.apkpure.components.downloader.db.other
+package com.apkpure.components.downloader.db.enums
 
 /**
  * @author xiongke
  * @date 2018/11/6
  */
-enum class TaskStatus(val typeId: Int) {
+enum class MissionStatusType(val typeId: Int) {
     Waiting(0),
     Preparing(1),
     Stop(2),
