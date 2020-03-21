@@ -1,4 +1,4 @@
-package com.xk.gvido.app.model.db.convert
+package com.apkpure.components.downloader.db.convert
 
 import com.apkpure.components.downloader.db.enums.MissionStatusType
 import org.greenrobot.greendao.converter.PropertyConverter

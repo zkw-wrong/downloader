@@ -3,9 +3,9 @@ package com.apkpure.components.downloader.db.bean;
 import androidx.annotation.Nullable;
 
 import com.apkpure.components.downloader.db.convert.MissionScoreTypeConverter;
+import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
 import com.apkpure.components.downloader.db.enums.MissionScoreType;
 import com.apkpure.components.downloader.db.enums.MissionStatusType;
-import com.xk.gvido.app.model.db.convert.MissionStatusTypeConverter;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
@@ -16,6 +16,7 @@ import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Transient;
 
 import java.util.Date;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * 下载任务
@@ -69,6 +70,28 @@ public class MissionDbBean {
 
     @Transient
     private String downloadPercent;
+
+    @Generated(hash = 969895327)
+    public MissionDbBean(@NotNull String url, String shortName, String absolutePath,
+            String paramData, MissionScoreType missionScoreType,
+            MissionStatusType missionStatusType, Date date, long currentOffset,
+            long totalLength, boolean showNotification, int notificationId) {
+        this.url = url;
+        this.shortName = shortName;
+        this.absolutePath = absolutePath;
+        this.paramData = paramData;
+        this.missionScoreType = missionScoreType;
+        this.missionStatusType = missionStatusType;
+        this.date = date;
+        this.currentOffset = currentOffset;
+        this.totalLength = totalLength;
+        this.showNotification = showNotification;
+        this.notificationId = notificationId;
+    }
+
+    @Generated(hash = 1258890486)
+    public MissionDbBean() {
+    }
 
     public String getUrl() {
         return this.url;

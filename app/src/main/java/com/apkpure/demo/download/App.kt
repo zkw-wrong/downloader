@@ -1,7 +1,7 @@
 package com.apkpure.demo.download
 
 import android.app.Application
-import com.apkpure.components.downloader.DownloadManager
+import com.apkpure.components.downloader.service.misc.DownloadManager
 
 /**
  * author: mr.xiong
