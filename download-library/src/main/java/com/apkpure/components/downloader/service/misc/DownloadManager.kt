@@ -11,7 +11,6 @@ import com.apkpure.components.downloader.utils.NotifyHelper
 import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
 import com.apkpure.components.downloader.utils.rx.RxObservableTransformer
 import com.apkpure.components.downloader.utils.rx.RxSubscriber
-import com.xk.gvido.app.ui.service.misc.TaskManager
 
 /**
  * @author xiongke

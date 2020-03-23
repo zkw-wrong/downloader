@@ -1,13 +1,10 @@
-package com.xk.gvido.app.ui.service.misc
+package com.apkpure.components.downloader.service.misc
 
-import com.apkpure.components.downloader.service.misc.DownloadListener
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
 import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
-import com.xk.gvido.app.app.App
-import com.xk.gvido.app.model.net.api.manager.ApiManager
 import java.io.File
 
 /**
