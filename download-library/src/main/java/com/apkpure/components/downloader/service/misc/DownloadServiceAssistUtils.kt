@@ -211,8 +211,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                                     MissionStatusType.Downloading -> hintTaskIngNotify(missionDbBean)
                                     MissionStatusType.Success -> {
                                         hintDownloadCompleteNotify(missionDbBean)
-                                        if (missionDbBean.missionScoreType == MissionScoreType.APK) {
-                                        }
                                     }
                                     MissionStatusType.Failed -> hintDownloadFailed(missionDbBean)
                                     else -> {

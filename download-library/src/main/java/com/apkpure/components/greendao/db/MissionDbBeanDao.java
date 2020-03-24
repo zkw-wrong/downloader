@@ -9,9 +9,7 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
-import com.apkpure.components.downloader.db.convert.MissionScoreTypeConverter;
 import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
-import com.apkpure.components.downloader.db.enums.MissionScoreType;
 import com.apkpure.components.downloader.db.enums.MissionStatusType;
 
 import com.apkpure.components.downloader.db.bean.MissionDbBean;
@@ -30,19 +28,18 @@ public class MissionDbBeanDao extends AbstractDao<MissionDbBean, String> {
      */
     public static class Properties {
         public final static Property Url = new Property(0, String.class, "url", true, "_download_url");
-        public final static Property ShortName = new Property(1, String.class, "shortName", false, "_short_name");
-        public final static Property AbsolutePath = new Property(2, String.class, "absolutePath", false, "_absolute_path");
-        public final static Property ParamData = new Property(3, String.class, "paramData", false, "_param_date");
-        public final static Property MissionScoreType = new Property(4, Integer.class, "missionScoreType", false, "_mission_score_type");
-        public final static Property MissionStatusType = new Property(5, Integer.class, "missionStatusType", false, "_mission_status_type");
-        public final static Property Date = new Property(6, java.util.Date.class, "date", false, "_date");
-        public final static Property CurrentOffset = new Property(7, long.class, "currentOffset", false, "_current_offset");
-        public final static Property TotalLength = new Property(8, long.class, "totalLength", false, "_total_length");
-        public final static Property ShowNotification = new Property(9, boolean.class, "showNotification", false, "_show_notification");
-        public final static Property NotificationId = new Property(10, int.class, "notificationId", false, "_notification_id");
+        public final static Property AbsolutePath = new Property(1, String.class, "absolutePath", false, "_absolute_path");
+        public final static Property ParamData = new Property(2, String.class, "paramData", false, "_param_date");
+        public final static Property MissionStatusType = new Property(3, Integer.class, "missionStatusType", false, "_mission_status_type");
+        public final static Property Date = new Property(4, java.util.Date.class, "date", false, "_date");
+        public final static Property CurrentOffset = new Property(5, long.class, "currentOffset", false, "_current_offset");
+        public final static Property TotalLength = new Property(6, long.class, "totalLength", false, "_total_length");
+        public final static Property ShowNotification = new Property(7, boolean.class, "showNotification", false, "_show_notification");
+        public final static Property Flag = new Property(8, int.class, "flag", false, "_flag");
+        public final static Property NotificationId = new Property(9, int.class, "notificationId", false, "_notification_id");
+        public final static Property ShortName = new Property(10, String.class, "shortName", false, "_short_name");
     }
 
-    private final MissionScoreTypeConverter missionScoreTypeConverter = new MissionScoreTypeConverter();
     private final MissionStatusTypeConverter missionStatusTypeConverter = new MissionStatusTypeConverter();
 
     public MissionDbBeanDao(DaoConfig config) {
@@ -58,16 +55,16 @@ public class MissionDbBeanDao extends AbstractDao<MissionDbBean, String> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"mission\" (" + //
                 "\"_download_url\" TEXT PRIMARY KEY NOT NULL ," + // 0: url
-                "\"_short_name\" TEXT," + // 1: shortName
-                "\"_absolute_path\" TEXT," + // 2: absolutePath
-                "\"_param_date\" TEXT," + // 3: paramData
-                "\"_mission_score_type\" INTEGER," + // 4: missionScoreType
-                "\"_mission_status_type\" INTEGER," + // 5: missionStatusType
-                "\"_date\" INTEGER," + // 6: date
-                "\"_current_offset\" INTEGER NOT NULL ," + // 7: currentOffset
-                "\"_total_length\" INTEGER NOT NULL ," + // 8: totalLength
-                "\"_show_notification\" INTEGER NOT NULL ," + // 9: showNotification
-                "\"_notification_id\" INTEGER NOT NULL );"); // 10: notificationId
+                "\"_absolute_path\" TEXT," + // 1: absolutePath
+                "\"_param_date\" TEXT," + // 2: paramData
+                "\"_mission_status_type\" INTEGER," + // 3: missionStatusType
+                "\"_date\" INTEGER," + // 4: date
+                "\"_current_offset\" INTEGER NOT NULL ," + // 5: currentOffset
+                "\"_total_length\" INTEGER NOT NULL ," + // 6: totalLength
+                "\"_show_notification\" INTEGER NOT NULL ," + // 7: showNotification
+                "\"_flag\" INTEGER NOT NULL ," + // 8: flag
+                "\"_notification_id\" INTEGER NOT NULL ," + // 9: notificationId
+                "\"_short_name\" TEXT);"); // 10: shortName
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_mission__download_url ON \"mission\"" +
                 " (\"_download_url\" ASC);");
@@ -84,39 +81,35 @@ public class MissionDbBeanDao extends AbstractDao<MissionDbBean, String> {
         stmt.clearBindings();
         stmt.bindString(1, entity.getUrl());
  
-        String shortName = entity.getShortName();
-        if (shortName != null) {
-            stmt.bindString(2, shortName);
-        }
- 
         String absolutePath = entity.getAbsolutePath();
         if (absolutePath != null) {
-            stmt.bindString(3, absolutePath);
+            stmt.bindString(2, absolutePath);
         }
  
         String paramData = entity.getParamData();
         if (paramData != null) {
-            stmt.bindString(4, paramData);
-        }
- 
-        MissionScoreType missionScoreType = entity.getMissionScoreType();
-        if (missionScoreType != null) {
-            stmt.bindLong(5, missionScoreTypeConverter.convertToDatabaseValue(missionScoreType));
+            stmt.bindString(3, paramData);
         }
  
         MissionStatusType missionStatusType = entity.getMissionStatusType();
         if (missionStatusType != null) {
-            stmt.bindLong(6, missionStatusTypeConverter.convertToDatabaseValue(missionStatusType));
+            stmt.bindLong(4, missionStatusTypeConverter.convertToDatabaseValue(missionStatusType));
         }
  
         java.util.Date date = entity.getDate();
         if (date != null) {
-            stmt.bindLong(7, date.getTime());
+            stmt.bindLong(5, date.getTime());
         }
-        stmt.bindLong(8, entity.getCurrentOffset());
-        stmt.bindLong(9, entity.getTotalLength());
-        stmt.bindLong(10, entity.getShowNotification() ? 1L: 0L);
-        stmt.bindLong(11, entity.getNotificationId());
+        stmt.bindLong(6, entity.getCurrentOffset());
+        stmt.bindLong(7, entity.getTotalLength());
+        stmt.bindLong(8, entity.getShowNotification() ? 1L: 0L);
+        stmt.bindLong(9, entity.getFlag());
+        stmt.bindLong(10, entity.getNotificationId());
+ 
+        String shortName = entity.getShortName();
+        if (shortName != null) {
+            stmt.bindString(11, shortName);
+        }
     }
 
     @Override
@@ -124,39 +117,35 @@ public class MissionDbBeanDao extends AbstractDao<MissionDbBean, String> {
         stmt.clearBindings();
         stmt.bindString(1, entity.getUrl());
  
-        String shortName = entity.getShortName();
-        if (shortName != null) {
-            stmt.bindString(2, shortName);
-        }
- 
         String absolutePath = entity.getAbsolutePath();
         if (absolutePath != null) {
-            stmt.bindString(3, absolutePath);
+            stmt.bindString(2, absolutePath);
         }
  
         String paramData = entity.getParamData();
         if (paramData != null) {
-            stmt.bindString(4, paramData);
-        }
- 
-        MissionScoreType missionScoreType = entity.getMissionScoreType();
-        if (missionScoreType != null) {
-            stmt.bindLong(5, missionScoreTypeConverter.convertToDatabaseValue(missionScoreType));
+            stmt.bindString(3, paramData);
         }
  
         MissionStatusType missionStatusType = entity.getMissionStatusType();
         if (missionStatusType != null) {
-            stmt.bindLong(6, missionStatusTypeConverter.convertToDatabaseValue(missionStatusType));
+            stmt.bindLong(4, missionStatusTypeConverter.convertToDatabaseValue(missionStatusType));
         }
  
         java.util.Date date = entity.getDate();
         if (date != null) {
-            stmt.bindLong(7, date.getTime());
+            stmt.bindLong(5, date.getTime());
         }
-        stmt.bindLong(8, entity.getCurrentOffset());
-        stmt.bindLong(9, entity.getTotalLength());
-        stmt.bindLong(10, entity.getShowNotification() ? 1L: 0L);
-        stmt.bindLong(11, entity.getNotificationId());
+        stmt.bindLong(6, entity.getCurrentOffset());
+        stmt.bindLong(7, entity.getTotalLength());
+        stmt.bindLong(8, entity.getShowNotification() ? 1L: 0L);
+        stmt.bindLong(9, entity.getFlag());
+        stmt.bindLong(10, entity.getNotificationId());
+ 
+        String shortName = entity.getShortName();
+        if (shortName != null) {
+            stmt.bindString(11, shortName);
+        }
     }
 
     @Override
@@ -168,16 +157,16 @@ public class MissionDbBeanDao extends AbstractDao<MissionDbBean, String> {
     public MissionDbBean readEntity(Cursor cursor, int offset) {
         MissionDbBean entity = new MissionDbBean( //
             cursor.getString(offset + 0), // url
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // shortName
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // absolutePath
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // paramData
-            cursor.isNull(offset + 4) ? null : missionScoreTypeConverter.convertToEntityProperty(cursor.getInt(offset + 4)), // missionScoreType
-            cursor.isNull(offset + 5) ? null : missionStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 5)), // missionStatusType
-            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)), // date
-            cursor.getLong(offset + 7), // currentOffset
-            cursor.getLong(offset + 8), // totalLength
-            cursor.getShort(offset + 9) != 0, // showNotification
-            cursor.getInt(offset + 10) // notificationId
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // absolutePath
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // paramData
+            cursor.isNull(offset + 3) ? null : missionStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 3)), // missionStatusType
+            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // date
+            cursor.getLong(offset + 5), // currentOffset
+            cursor.getLong(offset + 6), // totalLength
+            cursor.getShort(offset + 7) != 0, // showNotification
+            cursor.getInt(offset + 8), // flag
+            cursor.getInt(offset + 9), // notificationId
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // shortName
         );
         return entity;
     }
@@ -185,16 +174,16 @@ public class MissionDbBeanDao extends AbstractDao<MissionDbBean, String> {
     @Override
     public void readEntity(Cursor cursor, MissionDbBean entity, int offset) {
         entity.setUrl(cursor.getString(offset + 0));
-        entity.setShortName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setAbsolutePath(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setParamData(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setMissionScoreType(cursor.isNull(offset + 4) ? null : missionScoreTypeConverter.convertToEntityProperty(cursor.getInt(offset + 4)));
-        entity.setMissionStatusType(cursor.isNull(offset + 5) ? null : missionStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 5)));
-        entity.setDate(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
-        entity.setCurrentOffset(cursor.getLong(offset + 7));
-        entity.setTotalLength(cursor.getLong(offset + 8));
-        entity.setShowNotification(cursor.getShort(offset + 9) != 0);
-        entity.setNotificationId(cursor.getInt(offset + 10));
+        entity.setAbsolutePath(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setParamData(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setMissionStatusType(cursor.isNull(offset + 3) ? null : missionStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 3)));
+        entity.setDate(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
+        entity.setCurrentOffset(cursor.getLong(offset + 5));
+        entity.setTotalLength(cursor.getLong(offset + 6));
+        entity.setShowNotification(cursor.getShort(offset + 7) != 0);
+        entity.setFlag(cursor.getInt(offset + 8));
+        entity.setNotificationId(cursor.getInt(offset + 9));
+        entity.setShortName(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
      }
     
     @Override

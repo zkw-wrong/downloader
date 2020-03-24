@@ -5,9 +5,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-import com.apkpure.components.downloader.db.convert.MissionScoreTypeConverter;
 import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
-import com.apkpure.components.downloader.db.enums.MissionScoreType;
 import com.apkpure.components.downloader.db.enums.MissionStatusType;
 
 import org.greenrobot.greendao.annotation.Convert;
@@ -36,18 +34,11 @@ public class MissionDbBean implements Parcelable {
     @Index(unique = true)
     private String url;
 
-    @Property(nameInDb = "_short_name")
-    private String shortName;
-
     @Property(nameInDb = "_absolute_path")
     private String absolutePath;
 
     @Property(nameInDb = "_param_date")
     private String paramData;
-
-    @Convert(converter = MissionScoreTypeConverter.class, columnType = Integer.class)
-    @Property(nameInDb = "_mission_score_type")
-    private MissionScoreType missionScoreType = MissionScoreType.UNKNOWN;
 
     @Convert(converter = MissionStatusTypeConverter.class, columnType = Integer.class)
     @Property(nameInDb = "_mission_status_type")
@@ -65,8 +56,14 @@ public class MissionDbBean implements Parcelable {
     @Property(nameInDb = "_show_notification")
     private boolean showNotification;
 
+    @Property(nameInDb = "_flag")
+    private int flag;
+
     @Property(nameInDb = "_notification_id")
-    private int notificationId = -1;
+    private int notificationId;
+
+    @Property(nameInDb = "_short_name")
+    private String shortName;
 
     @Transient
     private String taskSpeed;
@@ -74,22 +71,22 @@ public class MissionDbBean implements Parcelable {
     @Transient
     private String downloadPercent;
 
-    @Generated(hash = 969895327)
-    public MissionDbBean(@NotNull String url, String shortName, String absolutePath,
-            String paramData, MissionScoreType missionScoreType,
+    @Generated(hash = 557116872)
+    public MissionDbBean(@NotNull String url, String absolutePath, String paramData,
             MissionStatusType missionStatusType, Date date, long currentOffset,
-            long totalLength, boolean showNotification, int notificationId) {
+            long totalLength, boolean showNotification, int flag, int notificationId,
+            String shortName) {
         this.url = url;
-        this.shortName = shortName;
         this.absolutePath = absolutePath;
         this.paramData = paramData;
-        this.missionScoreType = missionScoreType;
         this.missionStatusType = missionStatusType;
         this.date = date;
         this.currentOffset = currentOffset;
         this.totalLength = totalLength;
         this.showNotification = showNotification;
+        this.flag = flag;
         this.notificationId = notificationId;
+        this.shortName = shortName;
     }
 
     @Generated(hash = 1258890486)
@@ -98,13 +95,14 @@ public class MissionDbBean implements Parcelable {
 
     protected MissionDbBean(Parcel in) {
         url = in.readString();
-        shortName = in.readString();
         absolutePath = in.readString();
         paramData = in.readString();
         currentOffset = in.readLong();
         totalLength = in.readLong();
         showNotification = in.readByte() != 0;
+        flag = in.readInt();
         notificationId = in.readInt();
+        shortName = in.readString();
         taskSpeed = in.readString();
         downloadPercent = in.readString();
     }
@@ -112,13 +110,14 @@ public class MissionDbBean implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(url);
-        dest.writeString(shortName);
         dest.writeString(absolutePath);
         dest.writeString(paramData);
         dest.writeLong(currentOffset);
         dest.writeLong(totalLength);
         dest.writeByte((byte) (showNotification ? 1 : 0));
+        dest.writeInt(flag);
         dest.writeInt(notificationId);
+        dest.writeString(shortName);
         dest.writeString(taskSpeed);
         dest.writeString(downloadPercent);
     }
@@ -166,14 +165,6 @@ public class MissionDbBean implements Parcelable {
         this.paramData = paramData;
     }
 
-    public MissionScoreType getMissionScoreType() {
-        return this.missionScoreType;
-    }
-
-    public void setMissionScoreType(MissionScoreType missionScoreType) {
-        this.missionScoreType = missionScoreType;
-    }
-
     public MissionStatusType getMissionStatusType() {
         return this.missionStatusType;
     }
@@ -215,21 +206,28 @@ public class MissionDbBean implements Parcelable {
         this.taskSpeed = taskSpeed;
     }
 
-    @Nullable
-    public String getShortName() {
-        return this.shortName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
     public boolean getShowNotification() {
         return this.showNotification;
     }
 
     public void setShowNotification(boolean showNotification) {
         this.showNotification = showNotification;
+    }
+
+    public String getDownloadPercent() {
+        return downloadPercent;
+    }
+
+    public void setDownloadPercent(String downloadPercent) {
+        this.downloadPercent = downloadPercent;
+    }
+
+    public int getFlag() {
+        return this.flag;
+    }
+
+    public void setFlag(int flag) {
+        this.flag = flag;
     }
 
     public int getNotificationId() {
@@ -240,11 +238,11 @@ public class MissionDbBean implements Parcelable {
         this.notificationId = notificationId;
     }
 
-    public String getDownloadPercent() {
-        return downloadPercent;
+    public String getShortName() {
+        return this.shortName;
     }
 
-    public void setDownloadPercent(String downloadPercent) {
-        this.downloadPercent = downloadPercent;
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }

@@ -15,7 +15,7 @@ class AppDbHelper private constructor() : DbHelper {
 
     companion object {
         private var appDbHelper: AppDbHelper? = null
-        private const val DATABASE_NAME = "download-library"
+        private const val DATABASE_NAME = "download-library.db"
         private lateinit var mDaoSession: DaoSession
 
         val instance: AppDbHelper
