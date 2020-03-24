@@ -1,5 +1,8 @@
 package com.apkpure.components.downloader.db.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.Nullable;
 
 import com.apkpure.components.downloader.db.convert.MissionScoreTypeConverter;
@@ -25,7 +28,7 @@ import org.greenrobot.greendao.annotation.Generated;
  * @date 2018/11/5
  */
 @Entity(nameInDb = "mission")
-public class MissionDbBean {
+public class MissionDbBean implements Parcelable {
 
     @Id
     @NotNull
@@ -92,6 +95,50 @@ public class MissionDbBean {
     @Generated(hash = 1258890486)
     public MissionDbBean() {
     }
+
+    protected MissionDbBean(Parcel in) {
+        url = in.readString();
+        shortName = in.readString();
+        absolutePath = in.readString();
+        paramData = in.readString();
+        currentOffset = in.readLong();
+        totalLength = in.readLong();
+        showNotification = in.readByte() != 0;
+        notificationId = in.readInt();
+        taskSpeed = in.readString();
+        downloadPercent = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(url);
+        dest.writeString(shortName);
+        dest.writeString(absolutePath);
+        dest.writeString(paramData);
+        dest.writeLong(currentOffset);
+        dest.writeLong(totalLength);
+        dest.writeByte((byte) (showNotification ? 1 : 0));
+        dest.writeInt(notificationId);
+        dest.writeString(taskSpeed);
+        dest.writeString(downloadPercent);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<MissionDbBean> CREATOR = new Creator<MissionDbBean>() {
+        @Override
+        public MissionDbBean createFromParcel(Parcel in) {
+            return new MissionDbBean(in);
+        }
+
+        @Override
+        public MissionDbBean[] newArray(int size) {
+            return new MissionDbBean[size];
+        }
+    };
 
     public String getUrl() {
         return this.url;

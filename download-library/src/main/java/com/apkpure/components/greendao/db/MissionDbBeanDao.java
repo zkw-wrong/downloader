@@ -10,9 +10,9 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
 import com.apkpure.components.downloader.db.convert.MissionScoreTypeConverter;
+import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
 import com.apkpure.components.downloader.db.enums.MissionScoreType;
 import com.apkpure.components.downloader.db.enums.MissionStatusType;
-import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
 
 import com.apkpure.components.downloader.db.bean.MissionDbBean;
 

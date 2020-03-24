@@ -17,6 +17,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name="com.apkpure.components.downloader.service.services.DownloadServiceV14" />
+        <service
+            android:name="com.apkpure.components.downloader.service.services.DownloadServiceV21"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name="com.apkpure.components.downloader.service.services.KeepAliveJobService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>

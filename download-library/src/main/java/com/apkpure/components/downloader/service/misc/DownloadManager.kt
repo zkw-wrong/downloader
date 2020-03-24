@@ -5,6 +5,7 @@ import android.os.Build
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.MissionDbBean
 import com.apkpure.components.downloader.db.enums.MissionStatusType
+import com.apkpure.components.downloader.service.services.KeepAliveJobService
 import com.apkpure.components.downloader.utils.EventManager
 import com.apkpure.components.downloader.utils.FsUtils
 import com.apkpure.components.downloader.utils.NotifyHelper
@@ -20,7 +21,7 @@ class DownloadManager {
     private val appDbHelper by lazy { AppDbHelper.instance }
     private val notifyHelper by lazy { NotifyHelper(application) }
     private val missionDbBeanList by lazy { mutableListOf<MissionDbBean>() }
-    private val taskManager by lazy { TaskManager.getInstance() }
+    private val taskManager by lazy { TaskManager.getInstance(application) }
     private val downloadListener by lazy { DownloadListener() }
     private var taskListener: DownloadListener.TaskListener? = null
 
@@ -30,8 +31,9 @@ class DownloadManager {
 
         fun initial(application: Application) {
             this.application = application
+            AppDbHelper.init(application)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-               // KeepAliveJobService.startJob(application)
+               KeepAliveJobService.startJob(application)
             }
             instance.initialData()
         }
@@ -170,12 +172,7 @@ class DownloadManager {
                     if (isCancelNotify) {
                         notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
                     }
-                    EventManager.post(
-                        TaskDeleteStatusEvent(
-                            TaskDeleteStatusEvent.Status.DELETE_SINGLE,
-                            missionDbBean
-                        )
-                    )
+                    EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, missionDbBean))
                     EventManager.post(missionDbBean.apply {
                         this.missionStatusType = MissionStatusType.Delete
                     })

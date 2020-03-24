@@ -1,5 +1,6 @@
 package com.apkpure.components.downloader.service.misc
 
+import android.content.Context
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.OkDownload
@@ -17,14 +18,13 @@ class TaskManager {
 
     companion object {
         private var taskManager: TaskManager? = null
-        fun getInstance(): TaskManager {
+        fun getInstance(mContext: Context): TaskManager {
             if (taskManager == null) {
                 synchronized(TaskManager::class.java) {
                     if (taskManager == null) {
-                        taskManager = TaskManager()
-                                .apply {
-                                    initial()
-                                }
+                        taskManager = TaskManager().apply {
+                            initial(mContext)
+                        }
                     }
                 }
             }
@@ -32,12 +32,14 @@ class TaskManager {
         }
     }
 
-    private fun initial() {
-        OkDownload.setSingletonInstance(OkDownload.Builder(App.mContext)
-                .connectionFactory(DownloadOkHttp3Connection
-                        .Factory()
-                        .setBuilder(ApiManager.instance.newOkHttpClientBuilder(false)))
-                .build())
+    private fun initial(mContext: Context) {
+        OkDownload.setSingletonInstance(
+            OkDownload.Builder(mContext).connectionFactory(
+                    DownloadOkHttp3Connection.Factory()
+                )
+                // .setBuilder(ApiManager.instance.newOkHttpClientBuilder(false)))
+                .build()
+        )
         DownloadDispatcher.setMaxParallelRunningCount(TaskConfig.maxRunningCount)
         DownloadContext.QueueSet().apply {
             this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
@@ -78,11 +80,11 @@ class TaskManager {
             }
         } else {
             downloadBuilder
-                    .bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
-                    .apply {
-                        this.tag = TaskActionTag.Default
-                        this.enqueue(downloadListener)
-                    }
+                .bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
+                .apply {
+                    this.tag = TaskActionTag.Default
+                    this.enqueue(downloadListener)
+                }
         }
     }
 

@@ -36,7 +36,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
         if (task.tag == TaskActionTag.DELETE) {
             return
         }
-        taskListener?.onStart(DownloadManager.getInstance().getMissionTask(task.url), task, MissionStatusType.Waiting)
+        taskListener?.onStart(DownloadManager.instance.getMissionTask(task.url), task, MissionStatusType.Waiting)
     }
 
     override fun blockEnd(task: DownloadTask, blockIndex: Int, info: BlockInfo?, blockSpeed: SpeedCalculator) = Unit
@@ -48,7 +48,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
         if (task.tag == TaskActionTag.PROGRESS_100) {
             return
         }
-        val missionDbBean = DownloadManager.getInstance().getMissionTask(task.url)
+        val missionDbBean = DownloadManager.instance.getMissionTask(task.url)
         when (cause) {
             EndCause.COMPLETED -> taskListener?.onSuccess(missionDbBean, task, MissionStatusType.Success)
             EndCause.CANCELED -> taskListener?.onCancel(missionDbBean, task, MissionStatusType.Stop)
@@ -81,7 +81,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
         if (task.tag == TaskActionTag.PAUSED) {
             return
         }
-        val missionDbBean = DownloadManager.getInstance().getMissionTask(task.url)
+        val missionDbBean = DownloadManager.instance.getMissionTask(task.url)
         if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd
             task.tag = TaskActionTag.PROGRESS_100
             taskListener?.onSuccess(missionDbBean, task, MissionStatusType.Success)
@@ -98,7 +98,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
         if (task.tag == TaskActionTag.DELETE) {
             return
         }
-        taskListener?.onInfoReady(DownloadManager.getInstance().getMissionTask(task.url), task, MissionStatusType.Preparing, info.totalLength)
+        taskListener?.onInfoReady(DownloadManager.instance.getMissionTask(task.url), task, MissionStatusType.Preparing, info.totalLength)
     }
 
     override fun progressBlock(task: DownloadTask, blockIndex: Int, currentBlockOffset: Long, blockSpeed: SpeedCalculator) = Unit
