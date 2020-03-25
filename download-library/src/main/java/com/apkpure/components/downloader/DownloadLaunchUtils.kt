@@ -47,17 +47,6 @@ object DownloadLaunchUtils {
         }
     }
 
-    fun startNotCompatTask(mContext: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newStartNotCompatIntent(mContext, DownloadServiceV21::class.java).apply {
-                DownloadServiceV21.enqueueWorkService(mContext, this)
-            }
-        } else {
-            startService(mContext, DownloadServiceAssistUtils.newStartNotCompatIntent(mContext,
-                DownloadServiceV14::class.java))
-        }
-    }
-
     fun deleteAllTask(mContext: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             DownloadServiceAssistUtils.newDeleteAllIntent(mContext, DownloadServiceV21::class.java).apply {
