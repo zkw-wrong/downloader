@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
-import com.apkpure.components.downloader.db.bean.MissionDbBean
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.MissionStatusType
 import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
 import com.apkpure.components.downloader.service.misc.DownloadManager
@@ -36,10 +36,10 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             const val ACTION_DELETE_ALL = "delete_all"
         }
 
-        fun newStartIntent(mContext: Context, clazz: Class<*>, missionDbBean: MissionDbBean): Intent {
+        fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTaskBean: DownloadTaskBean): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_START
-                this.putExtra(EXTRA_PARAM_ACTION, missionDbBean)
+                this.putExtra(EXTRA_PARAM_ACTION, downloadTaskBean)
             }
         }
 
@@ -73,8 +73,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         DownloadManager.instance.apply {
             this.setTaskListener(object :
                     CustomDownloadListener4WithSpeed.TaskListener {
-                override fun onStart(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
-                    missionDbBean?.apply {
+                override fun onStart(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
+                    downloadTaskBean?.apply {
                         this.absolutePath = task.file?.path
                         this.taskSpeed = String()
                         this.notificationId = this.url.hashCode()
@@ -84,62 +84,62 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                             this.totalLength = 0
                         }
                         updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onStart ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
+                        AppLogger.d(logTag, "onStart ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
                     }
                 }
 
-                override fun onInfoReady(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType, totalLength: Long) {
-                    missionDbBean?.apply {
+                override fun onInfoReady(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType, totalLength: Long) {
+                    downloadTaskBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.totalLength = totalLength
                         this.absolutePath = task.file?.path
                         updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onInfoReady ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
+                        AppLogger.d(logTag, "onInfoReady ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
                     }
                 }
 
-                override fun onProgress(missionDbBean: MissionDbBean?, task: DownloadTask, taskSpeed: String, missionStatusType: MissionStatusType, currentOffset: Long) {
-                    missionDbBean?.apply {
+                override fun onProgress(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, taskSpeed: String, missionStatusType: MissionStatusType, currentOffset: Long) {
+                    downloadTaskBean?.apply {
                         this.taskSpeed = taskSpeed
                         this.currentOffset = currentOffset
                         this.absolutePath = task.file?.path
                         this.missionStatusType = missionStatusType
-                        this.downloadPercent = FormatUtils.formatPercentInfo(this.currentOffset, this.totalLength)
+                        val downloadPercent = FormatUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                         updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onProgress ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
+                        AppLogger.d(logTag, "onProgress ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
                     }
                 }
 
-                override fun onCancel(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
-                    missionDbBean?.apply {
+                override fun onCancel(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
+                    downloadTaskBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.absolutePath = task.file?.path
                         updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onCancel ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
+                        AppLogger.d(logTag, "onCancel ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
                     }
                 }
 
-                override fun onSuccess(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
-                    missionDbBean?.apply {
+                override fun onSuccess(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
+                    downloadTaskBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.absolutePath = task.file?.path
                         updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onSuccess ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
+                        AppLogger.d(logTag, "onSuccess ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
                     }
                 }
 
-                override fun onError(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
-                    missionDbBean?.apply {
+                override fun onError(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
+                    downloadTaskBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.absolutePath = task.file?.path
                         updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onError ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
+                        AppLogger.d(logTag, "onError ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
                     }
                 }
 
-                override fun onRetry(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType, retryCount: Int) {
-                    missionDbBean?.apply {
-                        AppLogger.d(logTag, "onRetry ${this.shortName} ${this.downloadPercent}  $retryCount")
+                override fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType, retryCount: Int) {
+                    downloadTaskBean?.apply {
+                        AppLogger.d(logTag, "onRetry ${this.shortName}  $retryCount")
                     }
                 }
             })
@@ -149,7 +149,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     fun handlerIntent(intent: Intent) {
         when (intent.action) {
             ActionType.ACTION_START -> {
-                intent.getParcelableExtra<MissionDbBean>(EXTRA_PARAM_ACTION)?.apply {
+                intent.getParcelableExtra<DownloadTaskBean>(EXTRA_PARAM_ACTION)?.apply {
                     DownloadManager.instance.start(this)
                 }
             }
@@ -176,26 +176,26 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
-    private fun updateDbDataAndNotify(missionDbBean: MissionDbBean) {
+    private fun updateDbDataAndNotify(downloadTaskBean: DownloadTaskBean) {
         AppDbHelper.instance
-                .createOrUpdateMission(missionDbBean)
+                .createOrUpdateMission(downloadTaskBean)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        EventManager.post(missionDbBean)
-                        if (missionDbBean.showNotification && missionDbBean.notificationId != -1) {
-                            missionDbBean.missionStatusType?.let {
+                        EventManager.post(downloadTaskBean)
+                        if (downloadTaskBean.showNotification && downloadTaskBean.notificationId != -1) {
+                            downloadTaskBean.missionStatusType?.let {
                                 when (it) {
-                                    MissionStatusType.Waiting -> hintTaskIngNotify(missionDbBean)
-                                    MissionStatusType.Preparing -> hintTaskIngNotify(missionDbBean)
+                                    MissionStatusType.Waiting -> hintTaskIngNotify(downloadTaskBean)
+                                    MissionStatusType.Preparing -> hintTaskIngNotify(downloadTaskBean)
                                     MissionStatusType.Stop -> {
                                     }
-                                    MissionStatusType.Downloading -> hintTaskIngNotify(missionDbBean)
+                                    MissionStatusType.Downloading -> hintTaskIngNotify(downloadTaskBean)
                                     MissionStatusType.Success -> {
-                                        hintDownloadCompleteNotify(missionDbBean)
+                                        hintDownloadCompleteNotify(downloadTaskBean)
                                     }
-                                    MissionStatusType.Failed -> hintDownloadFailed(missionDbBean)
+                                    MissionStatusType.Failed -> hintDownloadFailed(downloadTaskBean)
                                     else -> {
                                     }
                                 }
@@ -207,7 +207,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun hintTaskIngNotify(missionDbBean: MissionDbBean) {
+    private fun hintTaskIngNotify(downloadTaskBean: DownloadTaskBean) {
         downloadIngNotification = downloadIngNotification
                 ?: NotificationCompat.Builder(mContext1, IdentifierUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.download_status_downloading)
@@ -216,16 +216,16 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setCategory(NotificationCompat.CATEGORY_PROGRESS)
                         .setShowWhen(false)
         downloadIngNotification?.apply {
-            missionDbBean.shortName?.let {
+            downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
             // this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
-            this.setProgress(missionDbBean.totalLength.toInt(), missionDbBean.currentOffset.toInt(), false)
-            notifyHelper.notificationManager.notify(missionDbBean.notificationId, this.build())
+            this.setProgress(downloadTaskBean.totalLength.toInt(), downloadTaskBean.currentOffset.toInt(), false)
+            notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
     }
 
-    private fun hintDownloadCompleteNotify(missionDbBean: MissionDbBean) {
+    private fun hintDownloadCompleteNotify(downloadTaskBean: DownloadTaskBean) {
         downloadCompatNotification = downloadCompatNotification
                 ?: NotificationCompat.Builder(mContext1, IdentifierUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.ic_apk_status_complete)
@@ -233,28 +233,28 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
-            missionDbBean.shortName?.let {
+            downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
             //this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
-            notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
-            notifyHelper.notificationManager.notify(missionDbBean.notificationId, this.build())
+            notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
+            notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
     }
 
-    private fun hintDownloadFailed(missionDbBean: MissionDbBean) {
+    private fun hintDownloadFailed(downloadTaskBean: DownloadTaskBean) {
         downloadFailedNotification = downloadFailedNotification
                 ?: NotificationCompat.Builder(mContext1, IdentifierUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.download_status_failed)
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadFailedNotification?.apply {
-            missionDbBean.shortName?.let {
+            downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
             //this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
-            notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
-            notifyHelper.notificationManager.notify(missionDbBean.notificationId, this.build())
+            notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
+            notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
     }
 }

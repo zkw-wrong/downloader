@@ -3,7 +3,7 @@ package com.apkpure.components.downloader
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.apkpure.components.downloader.db.bean.MissionDbBean
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
 import com.apkpure.components.downloader.service.services.DownloadServiceV21
@@ -14,14 +14,14 @@ import com.apkpure.components.downloader.service.services.DownloadServiceV21
  */
 object DownloadLaunchUtils {
 
-    fun startClickTask(mContext: Context, missionDbBean: MissionDbBean) {
+    fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newStartIntent(mContext, DownloadServiceV21::class.java, missionDbBean).apply {
+            DownloadServiceAssistUtils.newStartIntent(mContext, DownloadServiceV21::class.java, downloadTaskBean).apply {
                 DownloadServiceV21.enqueueWorkService(mContext, this)
             }
         } else {
             startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext,
-                    DownloadServiceV14::class.java, missionDbBean))
+                    DownloadServiceV14::class.java, downloadTaskBean))
         }
     }
 

@@ -3,7 +3,7 @@ package com.apkpure.components.downloader.service.misc
 import android.app.Application
 import android.os.Build
 import com.apkpure.components.downloader.db.AppDbHelper
-import com.apkpure.components.downloader.db.bean.MissionDbBean
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.MissionStatusType
 import com.apkpure.components.downloader.service.services.KeepAliveJobService
 import com.apkpure.components.downloader.utils.*
@@ -16,7 +16,7 @@ import okhttp3.OkHttpClient
 class DownloadManager {
     private val appDbHelper by lazy { AppDbHelper.instance }
     private val notifyHelper by lazy { NotifyHelper(application) }
-    private val missionDbBeanList by lazy { mutableListOf<MissionDbBean>() }
+    private val downloadTaskLists by lazy { mutableListOf<DownloadTaskBean>() }
     private val taskManager by lazy { TaskManager.getInstance() }
     private val customDownloadListener4WithSpeed by lazy { CustomDownloadListener4WithSpeed() }
     private var customTaskListener: CustomDownloadListener4WithSpeed.TaskListener? = null
@@ -52,9 +52,9 @@ class DownloadManager {
         this.appDbHelper.queryAllMission()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
-                .subscribe(object : RxSubscriber<List<MissionDbBean>>() {
-                    override fun rxOnNext(t: List<MissionDbBean>) {
-                        missionDbBeanList.apply {
+                .subscribe(object : RxSubscriber<List<DownloadTaskBean>>() {
+                    override fun rxOnNext(t: List<DownloadTaskBean>) {
+                        downloadTaskLists.apply {
                             this.clear()
                             this.addAll(t)
                         }
@@ -70,37 +70,37 @@ class DownloadManager {
         this.customDownloadListener4WithSpeed.setTaskListener(customTaskListener)
     }
 
-    fun start(missionDbBean: MissionDbBean) {
-        if (getMissionTask(missionDbBean.url) == null) {
-            missionDbBeanList.add(0, missionDbBean)
+    fun start(downloadTaskBean: DownloadTaskBean) {
+        if (getDownloadTask(downloadTaskBean.url) == null) {
+            downloadTaskLists.add(0, downloadTaskBean)
         }
-        taskManager.start(missionDbBean.url, missionDbBean.absolutePath)
+        taskManager.start(downloadTaskBean.url, downloadTaskBean.absolutePath)
     }
 
-    fun getCompletedDownloadTask(): MutableList<MissionDbBean> {
-        val completedPosts: MutableList<MissionDbBean> = mutableListOf()
-        for (index in 0 until missionDbBeanList.size) {
-            val missionDbBean = missionDbBeanList[index]
-            if (missionDbBean.missionStatusType == MissionStatusType.Success) {
-                completedPosts.add(missionDbBean)
+    fun getCompletedDownloadTask(): MutableList<DownloadTaskBean> {
+        val completedPosts: MutableList<DownloadTaskBean> = mutableListOf()
+        for (index in 0 until downloadTaskLists.size) {
+            val downloadTaskBean = downloadTaskLists[index]
+            if (downloadTaskBean.missionStatusType == MissionStatusType.Success) {
+                completedPosts.add(downloadTaskBean)
             }
         }
         return completedPosts
     }
 
-    fun getMissionTask(taskUrl: String): MissionDbBean? {
-        var missionDbBean: MissionDbBean? = null
-        missionDbBeanList.iterator().forEach {
+    fun getDownloadTask(taskUrl: String): DownloadTaskBean? {
+        var downloadTaskBean: DownloadTaskBean? = null
+        downloadTaskLists.iterator().forEach {
             if (it.url == taskUrl) {
-                missionDbBean = it
+                downloadTaskBean = it
             }
         }
-        return missionDbBean
+        return downloadTaskBean
     }
 
-    fun getDownloadTask() = this.missionDbBeanList
+    fun getDownloadTask() = this.downloadTaskLists
 
-    fun getNotCompatDownloadTask() = this.missionDbBeanList.filter {
+    fun getNotCompatDownloadTask() = this.downloadTaskLists.filter {
         it.missionStatusType == MissionStatusType.Waiting
                 || it.missionStatusType == MissionStatusType.Preparing
                 || it.missionStatusType == MissionStatusType.Downloading
@@ -113,7 +113,7 @@ class DownloadManager {
     fun stop(taskUrl: String, isCancelNotify: Boolean) {
         this.taskManager.stop(taskUrl)
         if (isCancelNotify) {
-            getMissionTask(taskUrl)?.let {
+            getDownloadTask(taskUrl)?.let {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
         }
@@ -158,22 +158,22 @@ class DownloadManager {
     }
 
     fun delete(taskUrl: String, isDeleteFile: Boolean, isCancelNotify: Boolean) {
-        val missionDbBean = getMissionTask(taskUrl) ?: return
-        this.missionDbBeanList.remove(missionDbBean)
-        this.taskManager.delete(missionDbBean.url)
-        this.appDbHelper.deleteSingleMission(missionDbBean)
+        val downloadTaskBean = getDownloadTask(taskUrl) ?: return
+        this.downloadTaskLists.remove(downloadTaskBean)
+        this.taskManager.delete(downloadTaskBean.url)
+        this.appDbHelper.deleteSingleMission(downloadTaskBean)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
                         if (isDeleteFile) {
-                            FsUtils.deleteFileOrDir(missionDbBean.absolutePath)
+                            FsUtils.deleteFileOrDir(downloadTaskBean.absolutePath)
                         }
                         if (isCancelNotify) {
-                            notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
+                            notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
                         }
-                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, missionDbBean))
-                        EventManager.post(missionDbBean.apply {
+                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, downloadTaskBean))
+                        EventManager.post(downloadTaskBean.apply {
                             this.missionStatusType = MissionStatusType.Delete
                         })
                     }

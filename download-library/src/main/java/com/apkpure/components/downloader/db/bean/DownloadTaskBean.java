@@ -26,7 +26,7 @@ import org.greenrobot.greendao.annotation.Generated;
  * @date 2018/11/5
  */
 @Entity(nameInDb = "mission")
-public class MissionDbBean implements Parcelable {
+public class DownloadTaskBean implements Parcelable {
 
     @Id
     @NotNull
@@ -68,11 +68,22 @@ public class MissionDbBean implements Parcelable {
     @Transient
     private String taskSpeed;
 
-    @Transient
-    private String downloadPercent;
 
-    @Generated(hash = 557116872)
-    public MissionDbBean(@NotNull String url, String absolutePath, String paramData,
+    protected DownloadTaskBean(Parcel in) {
+        url = in.readString();
+        absolutePath = in.readString();
+        paramData = in.readString();
+        currentOffset = in.readLong();
+        totalLength = in.readLong();
+        showNotification = in.readByte() != 0;
+        flag = in.readInt();
+        notificationId = in.readInt();
+        shortName = in.readString();
+        taskSpeed = in.readString();
+    }
+
+    @Generated(hash = 1635293400)
+    public DownloadTaskBean(@NotNull String url, String absolutePath, String paramData,
             MissionStatusType missionStatusType, Date date, long currentOffset,
             long totalLength, boolean showNotification, int flag, int notificationId,
             String shortName) {
@@ -89,22 +100,8 @@ public class MissionDbBean implements Parcelable {
         this.shortName = shortName;
     }
 
-    @Generated(hash = 1258890486)
-    public MissionDbBean() {
-    }
-
-    protected MissionDbBean(Parcel in) {
-        url = in.readString();
-        absolutePath = in.readString();
-        paramData = in.readString();
-        currentOffset = in.readLong();
-        totalLength = in.readLong();
-        showNotification = in.readByte() != 0;
-        flag = in.readInt();
-        notificationId = in.readInt();
-        shortName = in.readString();
-        taskSpeed = in.readString();
-        downloadPercent = in.readString();
+    @Generated(hash = 2123101309)
+    public DownloadTaskBean() {
     }
 
     @Override
@@ -119,7 +116,6 @@ public class MissionDbBean implements Parcelable {
         dest.writeInt(notificationId);
         dest.writeString(shortName);
         dest.writeString(taskSpeed);
-        dest.writeString(downloadPercent);
     }
 
     @Override
@@ -127,15 +123,15 @@ public class MissionDbBean implements Parcelable {
         return 0;
     }
 
-    public static final Creator<MissionDbBean> CREATOR = new Creator<MissionDbBean>() {
+    public static final Creator<DownloadTaskBean> CREATOR = new Creator<DownloadTaskBean>() {
         @Override
-        public MissionDbBean createFromParcel(Parcel in) {
-            return new MissionDbBean(in);
+        public DownloadTaskBean createFromParcel(Parcel in) {
+            return new DownloadTaskBean(in);
         }
 
         @Override
-        public MissionDbBean[] newArray(int size) {
-            return new MissionDbBean[size];
+        public DownloadTaskBean[] newArray(int size) {
+            return new DownloadTaskBean[size];
         }
     };
 
@@ -212,14 +208,6 @@ public class MissionDbBean implements Parcelable {
 
     public void setShowNotification(boolean showNotification) {
         this.showNotification = showNotification;
-    }
-
-    public String getDownloadPercent() {
-        return downloadPercent;
-    }
-
-    public void setDownloadPercent(String downloadPercent) {
-        this.downloadPercent = downloadPercent;
     }
 
     public int getFlag() {

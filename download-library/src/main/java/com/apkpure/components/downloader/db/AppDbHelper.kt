@@ -1,7 +1,7 @@
 package com.apkpure.components.downloader.db
 
 import android.app.Application
-import com.apkpure.components.downloader.db.bean.MissionDbBean
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.greendao.db.DaoMaster
 import com.apkpure.components.greendao.db.DaoSession
 import com.apkpure.components.greendao.db.MissionDbBeanDao
@@ -41,16 +41,16 @@ class AppDbHelper private constructor() : DbHelper {
         }
     }
 
-    override fun createOrUpdateMission(missionDbBean: MissionDbBean): Observable<Long> {
+    override fun createOrUpdateMission(downloadTaskBean: DownloadTaskBean): Observable<Long> {
         return Observable.fromCallable {
             mDaoSession.missionDbBeanDao.apply {
-                this.insertOrReplaceInTx(missionDbBean)
+                this.insertOrReplaceInTx(downloadTaskBean)
             }
             1L
         }
     }
 
-    override fun queryAllMission(): Observable<List<MissionDbBean>> {
+    override fun queryAllMission(): Observable<List<DownloadTaskBean>> {
         return Observable.fromCallable {
             mDaoSession.missionDbBeanDao
                     .queryBuilder()
@@ -60,10 +60,10 @@ class AppDbHelper private constructor() : DbHelper {
         }
     }
 
-    override fun deleteSingleMission(missionDbBean: MissionDbBean): Observable<Long> {
+    override fun deleteSingleMission(downloadTaskBean: DownloadTaskBean): Observable<Long> {
         return Observable.fromCallable {
             mDaoSession.missionDbBeanDao.apply {
-                this.delete(missionDbBean)
+                this.delete(downloadTaskBean)
             }
             1L
         }

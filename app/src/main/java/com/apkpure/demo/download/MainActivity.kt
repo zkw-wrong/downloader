@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.apkpure.components.downloader.DownloadLaunchUtils
-import com.apkpure.components.downloader.db.bean.MissionDbBean
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.MissionStatusType
 import com.apkpure.components.downloader.utils.FormatUtils
 import com.apkpure.components.downloader.utils.FsUtils
@@ -46,9 +46,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun changeDownload(missionDbBean: MissionDbBean) {
+    fun changeDownload(downloadTaskBean: DownloadTaskBean) {
         apkBt.isEnabled = false
-        val info = when (missionDbBean.missionStatusType) {
+        val info = when (downloadTaskBean.missionStatusType) {
             MissionStatusType.Waiting -> {
                 "等待中..."
             }
@@ -57,8 +57,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             MissionStatusType.Downloading -> {
                 val progressInfo = FormatUtils.formatPercentInfo(
-                    missionDbBean.currentOffset,
-                    missionDbBean.totalLength
+                    downloadTaskBean.currentOffset,
+                    downloadTaskBean.totalLength
                 )
                 "下载中($progressInfo)..."
             }
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun clickDownload() {
         AppFolder.apkFolder?.absolutePath?.let {
-            DownloadLaunchUtils.startClickTask(this, MissionDbBean().apply {
+            DownloadLaunchUtils.startClickTask(this, DownloadTaskBean().apply {
                 val fileName = "test.apk"
                 this.url = apkUrl1
                 this.absolutePath = "$it${File.separator}$fileName"
