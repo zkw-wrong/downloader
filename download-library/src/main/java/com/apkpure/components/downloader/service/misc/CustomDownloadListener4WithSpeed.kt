@@ -14,7 +14,7 @@ import com.liulishuo.okdownload.core.listener.assist.Listener4SpeedAssistExtend
  * @author xiongke
  * @date 2018/11/16
  */
-class DownloadListener : DownloadListener4WithSpeed() {
+class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
     private var taskListener: TaskListener? = null
     private val retryTagKey = 999
 
@@ -33,7 +33,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
     }
 
     override fun taskStart(task: DownloadTask) {
-        if (task.tag == TaskActionTag.DELETE) {
+        if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
         taskListener?.onStart(DownloadManager.instance.getMissionTask(task.url), task, MissionStatusType.Waiting)
@@ -42,10 +42,10 @@ class DownloadListener : DownloadListener4WithSpeed() {
     override fun blockEnd(task: DownloadTask, blockIndex: Int, info: BlockInfo?, blockSpeed: SpeedCalculator) = Unit
 
     override fun taskEnd(task: DownloadTask, cause: EndCause, realCause: Exception?, taskSpeed: SpeedCalculator) {
-        if (task.tag == TaskActionTag.DELETE) {
+        if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        if (task.tag == TaskActionTag.PROGRESS_100) {
+        if (task.tag == DownloadTaskActionTag.PROGRESS_100) {
             return
         }
         val missionDbBean = DownloadManager.instance.getMissionTask(task.url)
@@ -63,7 +63,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
                 } else if (retryObj is Int) {
                     retryObj += 1
                     task.addTag(retryTagKey, retryObj)
-                    if (retryObj >= TaskConfig.failedRetryCount) {
+                    if (retryObj >= DownloadTaskConfig.failedRetryCount) {
                         taskListener?.onError(missionDbBean, task, MissionStatusType.Failed)
                     } else {
                         task.enqueue(this)
@@ -75,15 +75,15 @@ class DownloadListener : DownloadListener4WithSpeed() {
     }
 
     override fun progress(task: DownloadTask, currentOffset: Long, taskSpeed: SpeedCalculator) {
-        if (task.tag == TaskActionTag.DELETE) {
+        if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        if (task.tag == TaskActionTag.PAUSED) {
+        if (task.tag == DownloadTaskActionTag.PAUSED) {
             return
         }
         val missionDbBean = DownloadManager.instance.getMissionTask(task.url)
         if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd
-            task.tag = TaskActionTag.PROGRESS_100
+            task.tag = DownloadTaskActionTag.PROGRESS_100
             taskListener?.onSuccess(missionDbBean, task, MissionStatusType.Success)
         } else {
             taskListener?.onProgress(missionDbBean, task, taskSpeed.speed(), MissionStatusType.Downloading, currentOffset)
@@ -95,7 +95,7 @@ class DownloadListener : DownloadListener4WithSpeed() {
     override fun connectStart(task: DownloadTask, blockIndex: Int, requestHeaderFields: MutableMap<String, MutableList<String>>) = Unit
 
     override fun infoReady(task: DownloadTask, info: BreakpointInfo, fromBreakpoint: Boolean, model: Listener4SpeedAssistExtend.Listener4SpeedModel) {
-        if (task.tag == TaskActionTag.DELETE) {
+        if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
         taskListener?.onInfoReady(DownloadManager.instance.getMissionTask(task.url), task, MissionStatusType.Preparing, info.totalLength)

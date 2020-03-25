@@ -13,7 +13,7 @@ import java.io.File
  * @date 2018/11/19
  */
 class TaskManager {
-    private var downloadListener: DownloadListener? = null
+    private var customDownloadListener4WithSpeed: CustomDownloadListener4WithSpeed? = null
     private lateinit var downloadBuilder: DownloadContext.Builder
 
     companion object {
@@ -34,17 +34,16 @@ class TaskManager {
 
     private fun initial(mContext: Context) {
         OkDownload.setSingletonInstance(
-            OkDownload.Builder(mContext).connectionFactory(
-                    DownloadOkHttp3Connection.Factory()
-                )
+            OkDownload.Builder(mContext).connectionFactory(DownloadOkHttp3Connection.Factory())
                 // .setBuilder(ApiManager.instance.newOkHttpClientBuilder(false)))
                 .build()
         )
-        DownloadDispatcher.setMaxParallelRunningCount(TaskConfig.maxRunningCount)
+        DownloadDispatcher.setMaxParallelRunningCount(DownloadTaskConfig.maxRunningCount)
         DownloadContext.QueueSet().apply {
-            this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
-            this.isWifiRequired = TaskConfig.isWifiRequired
-            this.isAutoCallbackToUIThread = TaskConfig.isAutoCallbackToUIThread
+            this.minIntervalMillisCallbackProcess =
+                DownloadTaskConfig.minIntervalMillisCallbackProcess
+            this.isWifiRequired = DownloadTaskConfig.isWifiRequired
+            this.isAutoCallbackToUIThread = DownloadTaskConfig.isAutoCallbackToUIThread
             downloadBuilder = this.commit()
         }
     }
@@ -67,23 +66,23 @@ class TaskManager {
         return downloadTask
     }
 
-    fun setDownloadListener(downloadListener: DownloadListener) {
-        this.downloadListener = downloadListener
+    fun setDownloadListener(customDownloadListener4WithSpeed: CustomDownloadListener4WithSpeed) {
+        this.customDownloadListener4WithSpeed = customDownloadListener4WithSpeed
     }
 
     fun start(downloadUrl: String, absolutePath: String) {
         if (isExistsTask(downloadUrl)) {
             getTask(downloadUrl)?.apply {
                 downloadBuilder.bindSetTask(this)
-                this.tag = TaskActionTag.Default
-                this.enqueue(downloadListener)
+                this.tag = DownloadTaskActionTag.Default
+                this.enqueue(customDownloadListener4WithSpeed)
             }
         } else {
             downloadBuilder
                 .bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
                 .apply {
-                    this.tag = TaskActionTag.Default
-                    this.enqueue(downloadListener)
+                    this.tag = DownloadTaskActionTag.Default
+                    this.enqueue(customDownloadListener4WithSpeed)
                 }
         }
     }
@@ -91,22 +90,22 @@ class TaskManager {
     fun startOnParallel() {
         this.downloadBuilder.build().apply {
             this.tasks.iterator().forEach {
-                it.tag = TaskActionTag.Default
+                it.tag = DownloadTaskActionTag.Default
             }
-            this.startOnParallel(downloadListener)
+            this.startOnParallel(customDownloadListener4WithSpeed)
         }
     }
 
     fun stop(downloadUrl: String) {
         getTask(downloadUrl)?.apply {
-            this.tag = TaskActionTag.PAUSED
+            this.tag = DownloadTaskActionTag.PAUSED
             this.cancel()
         }
     }
 
     fun delete(downloadUrl: String) {
         getTask(downloadUrl)?.apply {
-            this.tag = TaskActionTag.DELETE
+            this.tag = DownloadTaskActionTag.DELETE
             this.cancel()
         }
     }
@@ -114,7 +113,7 @@ class TaskManager {
     fun deleteAll() {
         val downloadContext = downloadBuilder.build().apply {
             this.tasks.iterator().forEach {
-                it.tag = TaskActionTag.DELETE
+                it.tag = DownloadTaskActionTag.DELETE
             }
         }
         if (downloadContext.isStarted) {
@@ -125,7 +124,7 @@ class TaskManager {
     fun stopAll() {
         val downloadContext = downloadBuilder.build().apply {
             this.tasks.iterator().forEach {
-                it.tag = TaskActionTag.PAUSED
+                it.tag = DownloadTaskActionTag.PAUSED
             }
         }
         if (downloadContext.isStarted) {

@@ -7,12 +7,11 @@ import android.util.Log
  * date: 2020/3/23
  */
 object AppLogger {
+    var isDebug = true
 
     fun d(message: String, msg: String) {
-        Log.d(message, msg)
-    }
-
-    fun i(message: String, msg: String) {
-        Log.d(message, msg)
+        if (isDebug) {
+            Log.d(message, msg)
+        }
     }
 }

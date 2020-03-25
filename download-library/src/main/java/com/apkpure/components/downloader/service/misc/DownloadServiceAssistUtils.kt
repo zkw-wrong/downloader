@@ -6,7 +6,6 @@ import androidx.core.app.NotificationCompat
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.MissionDbBean
-import com.apkpure.components.downloader.db.enums.MissionScoreType
 import com.apkpure.components.downloader.db.enums.MissionStatusType
 import com.apkpure.components.downloader.utils.*
 import com.apkpure.components.downloader.utils.rx.RxObservableTransformer
@@ -79,7 +78,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun initDownloadTask() {
         DownloadManager.instance.apply {
-            this.setTaskListener(object : DownloadListener.TaskListener {
+            this.setTaskListener(object : CustomDownloadListener4WithSpeed.TaskListener {
                 override fun onStart(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
                     missionDbBean?.apply {
                         this.absolutePath = task.file?.path
@@ -147,7 +146,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 override fun onRetry(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType, retryCount: Int) {
                     missionDbBean?.apply {
                         AppLogger.d(logTag, "onRetry ${this.shortName} ${this.downloadPercent}  $retryCount")
-                        //hintDownloadRetryNotify(this, retryCount)
                     }
                 }
             })
@@ -236,7 +234,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             missionDbBean.shortName?.let {
                 this.setContentTitle(it)
             }
-           // this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            // this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
             this.setProgress(missionDbBean.totalLength.toInt(), missionDbBean.currentOffset.toInt(), false)
             notifyHelper.notificationManager.notify(missionDbBean.notificationId, this.build())
         }

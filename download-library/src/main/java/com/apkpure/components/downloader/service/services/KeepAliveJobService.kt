@@ -24,12 +24,10 @@ class KeepAliveJobService : JobService() {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         fun startJob(context: Context) {
             val jobScheduler =
-                context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            val builder = JobInfo.Builder(
-                    10,
-                    ComponentName(context.packageName, KeepAliveJobService::class.java.name)
-                )
-                .setPersisted(true)
+                    context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val builder = JobInfo.Builder(10, ComponentName(context.packageName,
+                            KeepAliveJobService::class.java.name))
+                    .setPersisted(true)
             //小于7.0
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 // 每隔3s 执行一次 job

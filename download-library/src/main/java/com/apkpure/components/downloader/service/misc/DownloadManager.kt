@@ -22,8 +22,8 @@ class DownloadManager {
     private val notifyHelper by lazy { NotifyHelper(application) }
     private val missionDbBeanList by lazy { mutableListOf<MissionDbBean>() }
     private val taskManager by lazy { TaskManager.getInstance(application) }
-    private val downloadListener by lazy { DownloadListener() }
-    private var taskListener: DownloadListener.TaskListener? = null
+    private val customDownloadListener4WithSpeed by lazy { CustomDownloadListener4WithSpeed() }
+    private var customTaskListener: CustomDownloadListener4WithSpeed.TaskListener? = null
 
     companion object {
         private var downloadManager: DownloadManager? = null
@@ -65,12 +65,12 @@ class DownloadManager {
 
                 override fun rxOnError(e: Exception) = Unit
             })
-        this.taskManager.setDownloadListener(downloadListener)
+        this.taskManager.setDownloadListener(customDownloadListener4WithSpeed)
     }
 
-    fun setTaskListener(taskListener: DownloadListener.TaskListener) {
-        this.taskListener = taskListener
-        this.downloadListener.setTaskListener(taskListener)
+    fun setTaskListener(customTaskListener: CustomDownloadListener4WithSpeed.TaskListener) {
+        this.customTaskListener = customTaskListener
+        this.customDownloadListener4WithSpeed.setTaskListener(customTaskListener)
     }
 
     fun start(missionDbBean: MissionDbBean) {
