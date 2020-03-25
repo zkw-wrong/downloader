@@ -6,12 +6,9 @@ import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.MissionDbBean
 import com.apkpure.components.downloader.db.enums.MissionStatusType
 import com.apkpure.components.downloader.service.services.KeepAliveJobService
-import com.apkpure.components.downloader.utils.EventManager
-import com.apkpure.components.downloader.utils.FsUtils
-import com.apkpure.components.downloader.utils.NotifyHelper
-import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
-import com.apkpure.components.downloader.utils.RxObservableTransformer
-import com.apkpure.components.downloader.utils.RxSubscriber
+import com.apkpure.components.downloader.utils.*
+import okhttp3.OkHttpClient
+import java.lang.StringBuilder
 
 /**
  * @author xiongke
@@ -21,7 +18,7 @@ class DownloadManager {
     private val appDbHelper by lazy { AppDbHelper.instance }
     private val notifyHelper by lazy { NotifyHelper(application) }
     private val missionDbBeanList by lazy { mutableListOf<MissionDbBean>() }
-    private val taskManager by lazy { TaskManager.getInstance(application) }
+    private val taskManager by lazy { TaskManager.getInstance() }
     private val customDownloadListener4WithSpeed by lazy { CustomDownloadListener4WithSpeed() }
     private var customTaskListener: CustomDownloadListener4WithSpeed.TaskListener? = null
 
@@ -29,11 +26,12 @@ class DownloadManager {
         private var downloadManager: DownloadManager? = null
         private lateinit var application: Application
 
-        fun initial(application: Application) {
+        fun initial(application: Application, builder: OkHttpClient.Builder) {
             this.application = application
             AppDbHelper.init(application)
+            TaskManager.init(application,builder)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-               KeepAliveJobService.startJob(application)
+                KeepAliveJobService.startJob(application)
             }
             instance.initialData()
         }
@@ -172,7 +170,12 @@ class DownloadManager {
                     if (isCancelNotify) {
                         notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
                     }
-                    EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, missionDbBean))
+                    EventManager.post(
+                        TaskDeleteStatusEvent(
+                            TaskDeleteStatusEvent.Status.DELETE_SINGLE,
+                            missionDbBean
+                        )
+                    )
                     EventManager.post(missionDbBean.apply {
                         this.missionStatusType = MissionStatusType.Delete
                     })

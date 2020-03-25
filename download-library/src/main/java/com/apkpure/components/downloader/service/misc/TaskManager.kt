@@ -6,6 +6,7 @@ import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
 import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
+import okhttp3.OkHttpClient
 import java.io.File
 
 /**
@@ -18,24 +19,32 @@ class TaskManager {
 
     companion object {
         private var taskManager: TaskManager? = null
-        fun getInstance(mContext: Context): TaskManager {
+        private var isInitial = false
+        fun getInstance(): TaskManager {
             if (taskManager == null) {
                 synchronized(TaskManager::class.java) {
                     if (taskManager == null) {
                         taskManager = TaskManager().apply {
-                            initial(mContext)
+                            if (!isInitial) {
+                                throw Exception("TaskManager not is initial!")
+                            }
                         }
                     }
                 }
             }
             return taskManager!!
         }
+
+        fun init(mContext: Context, builder: OkHttpClient.Builder) {
+            isInitial = true
+            getInstance().initial(mContext, builder)
+        }
     }
 
-    private fun initial(mContext: Context) {
+    fun initial(mContext: Context, builder: OkHttpClient.Builder) {
         OkDownload.setSingletonInstance(
-            OkDownload.Builder(mContext).connectionFactory(DownloadOkHttp3Connection.Factory())
-                // .setBuilder(ApiManager.instance.newOkHttpClientBuilder(false)))
+            OkDownload.Builder(mContext)
+                .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
                 .build()
         )
         DownloadDispatcher.setMaxParallelRunningCount(DownloadTaskConfig.maxRunningCount)

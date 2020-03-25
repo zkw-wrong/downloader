@@ -17,13 +17,18 @@ class AppDbHelper private constructor() : DbHelper {
         private var appDbHelper: AppDbHelper? = null
         private const val DATABASE_NAME = "download-library.db"
         private lateinit var mDaoSession: DaoSession
+        private var isInitial = false
 
         val instance: AppDbHelper
             get() {
                 if (appDbHelper == null) {
                     synchronized(AppDbHelper::class.java) {
                         if (appDbHelper == null) {
-                            appDbHelper = AppDbHelper()
+                            appDbHelper = AppDbHelper().apply {
+                                if (!isInitial) {
+                                    throw Exception("AppDbHelper not is initial!")
+                                }
+                            }
                         }
                     }
                 }
@@ -31,6 +36,7 @@ class AppDbHelper private constructor() : DbHelper {
             }
 
         fun init(application: Application) {
+            isInitial = true
             mDaoSession = DaoMaster(DaoMaster.DevOpenHelper(application, DATABASE_NAME).writableDb).newSession()
         }
     }
@@ -47,10 +53,10 @@ class AppDbHelper private constructor() : DbHelper {
     override fun queryAllMission(): Observable<List<MissionDbBean>> {
         return Observable.fromCallable {
             mDaoSession.missionDbBeanDao
-                .queryBuilder()
-                .orderDesc(MissionDbBeanDao.Properties.Date)
-                .build()
-                .list()
+                    .queryBuilder()
+                    .orderDesc(MissionDbBeanDao.Properties.Date)
+                    .build()
+                    .list()
         }
     }
 
