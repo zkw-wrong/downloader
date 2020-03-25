@@ -8,7 +8,6 @@ import com.apkpure.components.downloader.db.enums.MissionStatusType
 import com.apkpure.components.downloader.service.services.KeepAliveJobService
 import com.apkpure.components.downloader.utils.*
 import okhttp3.OkHttpClient
-import java.lang.StringBuilder
 
 /**
  * @author xiongke
@@ -29,7 +28,7 @@ class DownloadManager {
         fun initial(application: Application, builder: OkHttpClient.Builder) {
             this.application = application
             AppDbHelper.init(application)
-            TaskManager.init(application,builder)
+            TaskManager.init(application, builder)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 KeepAliveJobService.startJob(application)
             }
@@ -51,18 +50,18 @@ class DownloadManager {
 
     private fun initialData() {
         this.appDbHelper.queryAllMission()
-            .compose(RxObservableTransformer.io_main())
-            .compose(RxObservableTransformer.errorResult())
-            .subscribe(object : RxSubscriber<List<MissionDbBean>>() {
-                override fun rxOnNext(t: List<MissionDbBean>) {
-                    missionDbBeanList.apply {
-                        this.clear()
-                        this.addAll(t)
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<List<MissionDbBean>>() {
+                    override fun rxOnNext(t: List<MissionDbBean>) {
+                        missionDbBeanList.apply {
+                            this.clear()
+                            this.addAll(t)
+                        }
                     }
-                }
 
-                override fun rxOnError(e: Exception) = Unit
-            })
+                    override fun rxOnError(e: Exception) = Unit
+                })
         this.taskManager.setDownloadListener(customDownloadListener4WithSpeed)
     }
 
@@ -111,10 +110,12 @@ class DownloadManager {
         this.taskManager.startOnParallel()
     }
 
-    fun stop(missionDbBean: MissionDbBean, isCancelNotify: Boolean) {
-        this.taskManager.stop(missionDbBean.url)
+    fun stop(taskUrl: String, isCancelNotify: Boolean) {
+        this.taskManager.stop(taskUrl)
         if (isCancelNotify) {
-            notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
+            getMissionTask(taskUrl)?.let {
+                notifyHelper.notificationManager.cancel(it.notificationId)
+            }
         }
     }
 
@@ -131,57 +132,53 @@ class DownloadManager {
         this.taskManager.deleteAll()
         val missionList = getDownloadTask()
         this.appDbHelper.deleteAllMission()
-            .compose(RxObservableTransformer.io_main())
-            .compose(RxObservableTransformer.errorResult())
-            .subscribe(object : RxSubscriber<Long>() {
-                override fun rxOnNext(t: Long) {
-                    missionList.forEach {
-                        if (isCancelNotify) {
-                            notifyHelper.notificationManager.cancel(it.notificationId)
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<Long>() {
+                    override fun rxOnNext(t: Long) {
+                        missionList.forEach {
+                            if (isCancelNotify) {
+                                notifyHelper.notificationManager.cancel(it.notificationId)
+                            }
+                            if (isDeleteFile) {
+                                FsUtils.deleteFileOrDir(it.absolutePath)
+                            }
                         }
-                        if (isDeleteFile) {
-                            FsUtils.deleteFileOrDir(it.absolutePath)
+                        missionList.forEach {
+                            EventManager.post(it.apply {
+                                this.missionStatusType = MissionStatusType.Delete
+                            })
                         }
+                        missionList.clear()
+                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_ALL))
                     }
-                    missionList.forEach {
-                        EventManager.post(it.apply {
-                            this.missionStatusType = MissionStatusType.Delete
-                        })
-                    }
-                    missionList.clear()
-                    EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_ALL))
-                }
 
-                override fun rxOnError(e: Exception) = Unit
-            })
+                    override fun rxOnError(e: Exception) = Unit
+                })
     }
 
-    fun delete(missionDbBean: MissionDbBean, isDeleteFile: Boolean, isCancelNotify: Boolean) {
+    fun delete(taskUrl: String, isDeleteFile: Boolean, isCancelNotify: Boolean) {
+        val missionDbBean = getMissionTask(taskUrl) ?: return
         this.missionDbBeanList.remove(missionDbBean)
         this.taskManager.delete(missionDbBean.url)
         this.appDbHelper.deleteSingleMission(missionDbBean)
-            .compose(RxObservableTransformer.io_main())
-            .compose(RxObservableTransformer.errorResult())
-            .subscribe(object : RxSubscriber<Long>() {
-                override fun rxOnNext(t: Long) {
-                    if (isDeleteFile) {
-                        FsUtils.deleteFileOrDir(missionDbBean.absolutePath)
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<Long>() {
+                    override fun rxOnNext(t: Long) {
+                        if (isDeleteFile) {
+                            FsUtils.deleteFileOrDir(missionDbBean.absolutePath)
+                        }
+                        if (isCancelNotify) {
+                            notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
+                        }
+                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, missionDbBean))
+                        EventManager.post(missionDbBean.apply {
+                            this.missionStatusType = MissionStatusType.Delete
+                        })
                     }
-                    if (isCancelNotify) {
-                        notifyHelper.notificationManager.cancel(missionDbBean.notificationId)
-                    }
-                    EventManager.post(
-                        TaskDeleteStatusEvent(
-                            TaskDeleteStatusEvent.Status.DELETE_SINGLE,
-                            missionDbBean
-                        )
-                    )
-                    EventManager.post(missionDbBean.apply {
-                        this.missionStatusType = MissionStatusType.Delete
-                    })
-                }
 
-                override fun rxOnError(e: Exception) = Unit
-            })
+                    override fun rxOnError(e: Exception) = Unit
+                })
     }
 }

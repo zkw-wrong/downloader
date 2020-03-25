@@ -21,29 +21,29 @@ object DownloadLaunchUtils {
             }
         } else {
             startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext,
-                DownloadServiceV14::class.java, missionDbBean))
+                    DownloadServiceV14::class.java, missionDbBean))
         }
     }
 
-    fun stopTask(mContext: Context, missionDbBean: MissionDbBean) {
+    fun stopTask(mContext: Context, taskUrl: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newStopIntent(mContext, DownloadServiceV21::class.java, missionDbBean).apply {
+            DownloadServiceAssistUtils.newStopIntent(mContext, DownloadServiceV21::class.java, taskUrl).apply {
                 DownloadServiceV21.enqueueWorkService(mContext, this)
             }
         } else {
             startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext,
-                DownloadServiceV14::class.java, missionDbBean))
+                    DownloadServiceV14::class.java, taskUrl))
         }
     }
 
-    fun deleteTask(mContext: Context, missionDbBean: MissionDbBean, isDeleteFile: Boolean) {
+    fun deleteTask(mContext: Context, taskUrl: String, isDeleteFile: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadServiceV21::class.java, missionDbBean, isDeleteFile).apply {
+            DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadServiceV21::class.java, taskUrl, isDeleteFile).apply {
                 DownloadServiceV21.enqueueWorkService(mContext, this)
             }
         } else {
             startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext,
-                DownloadServiceV14::class.java, missionDbBean, isDeleteFile))
+                    DownloadServiceV14::class.java, taskUrl, isDeleteFile))
         }
     }
 
@@ -54,12 +54,12 @@ object DownloadLaunchUtils {
             }
         } else {
             startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext,
-                DownloadServiceV14::class.java))
+                    DownloadServiceV14::class.java))
         }
     }
 
 
-   private fun startService(mContext: Context, intent: Intent) {
+    private fun startService(mContext: Context, intent: Intent) {
         mContext.startService(intent)
     }
 

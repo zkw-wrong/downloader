@@ -43,17 +43,17 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newStopIntent(mContext: Context, clazz: Class<*>, missionDbBean: MissionDbBean): Intent {
+        fun newStopIntent(mContext: Context, clazz: Class<*>, taskUrl: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_STOP
-                this.putExtra(EXTRA_PARAM_ACTION, missionDbBean)
+                this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
             }
         }
 
-        fun newDeleteIntent(mContext: Context, clazz: Class<*>, missionDbBean: MissionDbBean, isDeleteFile: Boolean): Intent {
+        fun newDeleteIntent(mContext: Context, clazz: Class<*>, taskUrl: String, isDeleteFile: Boolean): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_DELETE
-                this.putExtra(EXTRA_PARAM_ACTION, missionDbBean)
+                this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
                 this.putExtra(EXTRA_PARAM_IS_DELETE, isDeleteFile)
             }
         }
@@ -83,7 +83,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                             this.currentOffset = 0
                             this.totalLength = 0
                         }
-                        updateDbDataAndNotify(this, true)
+                        updateDbDataAndNotify(this)
                         AppLogger.d(logTag, "onStart ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
                     }
                 }
@@ -93,7 +93,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         this.missionStatusType = missionStatusType
                         this.totalLength = totalLength
                         this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this, true)
+                        updateDbDataAndNotify(this)
                         AppLogger.d(logTag, "onInfoReady ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
                     }
                 }
@@ -105,7 +105,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         this.absolutePath = task.file?.path
                         this.missionStatusType = missionStatusType
                         this.downloadPercent = FormatUtils.formatPercentInfo(this.currentOffset, this.totalLength)
-                        updateDbDataAndNotify(this, true)
+                        updateDbDataAndNotify(this)
                         AppLogger.d(logTag, "onProgress ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
                     }
                 }
@@ -114,7 +114,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     missionDbBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this, true)
+                        updateDbDataAndNotify(this)
                         AppLogger.d(logTag, "onCancel ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
                     }
                 }
@@ -123,7 +123,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     missionDbBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this, true)
+                        updateDbDataAndNotify(this)
                         AppLogger.d(logTag, "onSuccess ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
                     }
                 }
@@ -132,7 +132,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     missionDbBean?.apply {
                         this.missionStatusType = missionStatusType
                         this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this, true)
+                        updateDbDataAndNotify(this)
                         AppLogger.d(logTag, "onError ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} ${this.downloadPercent}")
                     }
                 }
@@ -154,13 +154,13 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 }
             }
             ActionType.ACTION_STOP -> {
-                intent.getParcelableExtra<MissionDbBean>(EXTRA_PARAM_ACTION)?.apply {
+                intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
                     DownloadManager.instance.stop(this, true)
                 }
             }
             ActionType.ACTION_DELETE -> {
                 val isDeleteFile = intent.getBooleanExtra(EXTRA_PARAM_IS_DELETE, false)
-                intent.getParcelableExtra<MissionDbBean>(EXTRA_PARAM_ACTION)?.apply {
+                intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
                     DownloadManager.instance.delete(this, isDeleteFile, true)
                 }
             }
@@ -176,16 +176,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
-    private fun updateDbDataAndNotify(missionDbBean: MissionDbBean, isSenderEvent: Boolean = false) {
+    private fun updateDbDataAndNotify(missionDbBean: MissionDbBean) {
         AppDbHelper.instance
                 .createOrUpdateMission(missionDbBean)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        if (isSenderEvent) {
-                            EventManager.post(missionDbBean)
-                        }
+                        EventManager.post(missionDbBean)
                         if (missionDbBean.showNotification && missionDbBean.notificationId != -1) {
                             missionDbBean.missionStatusType?.let {
                                 when (it) {
