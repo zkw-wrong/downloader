@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.utils.rx
+package com.apkpure.components.downloader.utils
 
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer

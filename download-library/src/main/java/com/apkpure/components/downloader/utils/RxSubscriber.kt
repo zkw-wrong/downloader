@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.utils.rx
+package com.apkpure.components.downloader.utils
 
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable

@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service.misc
+package com.apkpure.components.downloader.service.services
 
 import android.content.Context
 import android.content.Intent
@@ -7,9 +7,11 @@ import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.MissionDbBean
 import com.apkpure.components.downloader.db.enums.MissionStatusType
+import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
+import com.apkpure.components.downloader.service.misc.DownloadManager
 import com.apkpure.components.downloader.utils.*
-import com.apkpure.components.downloader.utils.rx.RxObservableTransformer
-import com.apkpure.components.downloader.utils.rx.RxSubscriber
+import com.apkpure.components.downloader.utils.RxObservableTransformer
+import com.apkpure.components.downloader.utils.RxSubscriber
 import com.liulishuo.okdownload.DownloadTask
 
 /**
@@ -39,27 +41,31 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
         fun newStartIntent(mContext: Context, clazz: Class<*>, missionDbBean: MissionDbBean): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_START
+                this.action =
+                    ActionType.ACTION_START
                 this.putExtra(EXTRA_PARAM_ACTION, missionDbBean)
             }
         }
 
         fun newStartNotCompatIntent(mContext: Context, clazz: Class<*>): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_START_NOT_COMPAT
+                this.action =
+                    ActionType.ACTION_START_NOT_COMPAT
             }
         }
 
         fun newStopIntent(mContext: Context, clazz: Class<*>, missionDbBean: MissionDbBean): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_STOP
+                this.action =
+                    ActionType.ACTION_STOP
                 this.putExtra(EXTRA_PARAM_ACTION, missionDbBean)
             }
         }
 
         fun newDeleteIntent(mContext: Context, clazz: Class<*>, missionDbBean: MissionDbBean, isDeleteFile: Boolean): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_DELETE
+                this.action =
+                    ActionType.ACTION_DELETE
                 this.putExtra(EXTRA_PARAM_ACTION, missionDbBean)
                 this.putExtra(EXTRA_PARAM_IS_DELETE, isDeleteFile)
             }
@@ -67,7 +73,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
         fun newDeleteAllIntent(mContext: Context, clazz: Class<*>): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_DELETE_ALL
+                this.action =
+                    ActionType.ACTION_DELETE_ALL
             }
         }
     }
@@ -78,7 +85,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun initDownloadTask() {
         DownloadManager.instance.apply {
-            this.setTaskListener(object : CustomDownloadListener4WithSpeed.TaskListener {
+            this.setTaskListener(object :
+                CustomDownloadListener4WithSpeed.TaskListener {
                 override fun onStart(missionDbBean: MissionDbBean?, task: DownloadTask, missionStatusType: MissionStatusType) {
                     missionDbBean?.apply {
                         this.absolutePath = task.file?.path
