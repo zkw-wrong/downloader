@@ -43,14 +43,14 @@ class TaskManager {
 
     fun initial(mContext: Context, builder: OkHttpClient.Builder) {
         OkDownload.setSingletonInstance(
-            OkDownload.Builder(mContext)
-                .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
-                .build()
+                OkDownload.Builder(mContext)
+                        .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
+                        .build()
         )
         DownloadDispatcher.setMaxParallelRunningCount(DownloadTaskConfig.maxRunningCount)
         DownloadContext.QueueSet().apply {
             this.minIntervalMillisCallbackProcess =
-                DownloadTaskConfig.minIntervalMillisCallbackProcess
+                    DownloadTaskConfig.minIntervalMillisCallbackProcess
             this.isWifiRequired = DownloadTaskConfig.isWifiRequired
             this.isAutoCallbackToUIThread = DownloadTaskConfig.isAutoCallbackToUIThread
             downloadBuilder = this.commit()
@@ -58,11 +58,12 @@ class TaskManager {
     }
 
     private fun isExistsTask(taskUrl: String): Boolean {
-        var flag = false
         downloadBuilder.build().tasks.iterator().forEach {
-            flag = it.url == taskUrl
+            if (it.url == taskUrl) {
+                return true
+            }
         }
-        return flag
+        return false
     }
 
     private fun getTask(taskUrl: String): DownloadTask? {
@@ -88,10 +89,10 @@ class TaskManager {
             }
         } else {
             downloadBuilder.bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
-                .apply {
-                    this.tag = DownloadTaskActionTag.Default
-                    this.enqueue(customDownloadListener4WithSpeed)
-                }
+                    .apply {
+                        this.tag = DownloadTaskActionTag.Default
+                        this.enqueue(customDownloadListener4WithSpeed)
+                    }
         }
     }
 
