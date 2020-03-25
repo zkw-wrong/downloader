@@ -87,8 +87,7 @@ class TaskManager {
                 this.enqueue(customDownloadListener4WithSpeed)
             }
         } else {
-            downloadBuilder
-                .bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
+            downloadBuilder.bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
                 .apply {
                     this.tag = DownloadTaskActionTag.Default
                     this.enqueue(customDownloadListener4WithSpeed)

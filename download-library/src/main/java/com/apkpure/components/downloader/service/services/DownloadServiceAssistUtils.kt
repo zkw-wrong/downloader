@@ -17,7 +17,7 @@ import com.liulishuo.okdownload.DownloadTask
  * @date 2019/1/23
  */
 class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>) {
-    private val logTag by lazy { clazz.name }
+    private val logTag by lazy { clazz.simpleName }
     private val notifyHelper by lazy { NotifyHelper(mContext1) }
     private var downloadIngNotification: NotificationCompat.Builder? = null
     private var downloadCompatNotification: NotificationCompat.Builder? = null
