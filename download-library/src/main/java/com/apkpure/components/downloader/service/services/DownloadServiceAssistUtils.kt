@@ -7,10 +7,12 @@ import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
+import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
-import com.apkpure.components.downloader.service.misc.DownloadManager
+import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.utils.*
 import com.liulishuo.okdownload.DownloadTask
+import io.reactivex.disposables.Disposable
 
 /**
  * @author xiongke
@@ -22,6 +24,10 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private var downloadIngNotification: NotificationCompat.Builder? = null
     private var downloadCompatNotification: NotificationCompat.Builder? = null
     private var downloadFailedNotification: NotificationCompat.Builder? = null
+    private val customDownloadListener4WithSpeed by lazy {
+        CustomDownloadListener4WithSpeed()
+                .apply { this.setTaskListener(getCustomTaskListener()) }
+    }
 
     companion object {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
@@ -66,83 +72,79 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     fun initial() {
-        initDownloadTask()
+        initialData()
+        TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
     }
 
-    private fun initDownloadTask() {
-        DownloadManager.instance.apply {
-            this.setTaskListener(object :
-                    CustomDownloadListener4WithSpeed.TaskListener {
-                override fun onStart(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
-                    downloadTaskBean?.apply {
-                        this.absolutePath = task.file?.path
-                        this.taskSpeed = String()
-                        this.notificationId = this.url.hashCode()
-                        this.downloadTaskStatusType = downloadTaskStatusType
-                        if (!FsUtils.exists(this.absolutePath)) {
-                            this.currentOffset = 0
-                            this.totalLength = 0
-                        }
-                        updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onStart ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
-                    }
+    private fun getCustomTaskListener() = object : CustomDownloadListener4WithSpeed.TaskListener {
+        override fun onStart(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
+            downloadTaskBean?.apply {
+                this.absolutePath = task.file?.path
+                this.taskSpeed = String()
+                this.notificationId = this.url.hashCode()
+                this.downloadTaskStatusType = downloadTaskStatusType
+                if (!FsUtils.exists(this.absolutePath)) {
+                    this.currentOffset = 0
+                    this.totalLength = 0
                 }
+                updateDbDataAndNotify(this)
+                AppLogger.d(logTag, "onStart ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+            }
+        }
 
-                override fun onInfoReady(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, totalLength: Long) {
-                    downloadTaskBean?.apply {
-                        this.downloadTaskStatusType = downloadTaskStatusType
-                        this.totalLength = totalLength
-                        this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onInfoReady ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
-                    }
-                }
+        override fun onInfoReady(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, totalLength: Long) {
+            downloadTaskBean?.apply {
+                this.downloadTaskStatusType = downloadTaskStatusType
+                this.totalLength = totalLength
+                this.absolutePath = task.file?.path
+                updateDbDataAndNotify(this)
+                AppLogger.d(logTag, "onInfoReady ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+            }
+        }
 
-                override fun onProgress(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, taskSpeed: String, downloadTaskStatusType: DownloadTaskStatusType, currentOffset: Long) {
-                    downloadTaskBean?.apply {
-                        this.taskSpeed = taskSpeed
-                        this.currentOffset = currentOffset
-                        this.absolutePath = task.file?.path
-                        this.downloadTaskStatusType = downloadTaskStatusType
-                        val downloadPercent = FormatUtils.formatPercentInfo(this.currentOffset, this.totalLength)
-                        updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onProgress ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
-                    }
-                }
+        override fun onProgress(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, taskSpeed: String, downloadTaskStatusType: DownloadTaskStatusType, currentOffset: Long) {
+            downloadTaskBean?.apply {
+                this.taskSpeed = taskSpeed
+                this.currentOffset = currentOffset
+                this.absolutePath = task.file?.path
+                this.downloadTaskStatusType = downloadTaskStatusType
+                val downloadPercent = FormatUtils.formatPercentInfo(this.currentOffset, this.totalLength)
+                updateDbDataAndNotify(this)
+                AppLogger.d(logTag, "onProgress ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
+            }
+        }
 
-                override fun onCancel(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
-                    downloadTaskBean?.apply {
-                        this.downloadTaskStatusType = downloadTaskStatusType
-                        this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onCancel ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
-                    }
-                }
+        override fun onCancel(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
+            downloadTaskBean?.apply {
+                this.downloadTaskStatusType = downloadTaskStatusType
+                this.absolutePath = task.file?.path
+                updateDbDataAndNotify(this)
+                AppLogger.d(logTag, "onCancel ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+            }
+        }
 
-                override fun onSuccess(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
-                    downloadTaskBean?.apply {
-                        this.downloadTaskStatusType = downloadTaskStatusType
-                        this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onSuccess ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
-                    }
-                }
+        override fun onSuccess(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
+            downloadTaskBean?.apply {
+                this.downloadTaskStatusType = downloadTaskStatusType
+                this.absolutePath = task.file?.path
+                updateDbDataAndNotify(this)
+                AppLogger.d(logTag, "onSuccess ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+            }
+        }
 
-                override fun onError(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
-                    downloadTaskBean?.apply {
-                        this.downloadTaskStatusType = downloadTaskStatusType
-                        this.absolutePath = task.file?.path
-                        updateDbDataAndNotify(this)
-                        AppLogger.d(logTag, "onError ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
-                    }
-                }
+        override fun onError(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType) {
+            downloadTaskBean?.apply {
+                this.downloadTaskStatusType = downloadTaskStatusType
+                this.absolutePath = task.file?.path
+                updateDbDataAndNotify(this)
+                AppLogger.d(logTag, "onError ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+            }
+        }
 
-                override fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, retryCount: Int) {
-                    downloadTaskBean?.apply {
-                        AppLogger.d(logTag, "onRetry ${this.shortName}  $retryCount")
-                    }
-                }
-            })
+        override fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, retryCount: Int) {
+            downloadTaskBean?.apply {
+                AppLogger.d(logTag, "onRetry ${this.shortName}  $retryCount")
+            }
         }
     }
 
@@ -150,30 +152,133 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         when (intent.action) {
             ActionType.ACTION_START -> {
                 intent.getParcelableExtra<DownloadTaskBean>(EXTRA_PARAM_ACTION)?.apply {
-                    DownloadManager.instance.start(this)
+                    start(this)
                 }
             }
             ActionType.ACTION_STOP -> {
                 intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
-                    DownloadManager.instance.stop(this, true)
+                    stop(this, true)
                 }
             }
             ActionType.ACTION_DELETE -> {
                 val isDeleteFile = intent.getBooleanExtra(EXTRA_PARAM_IS_DELETE, false)
                 intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
-                    DownloadManager.instance.delete(this, isDeleteFile, true)
+                    delete(this, isDeleteFile, true)
                 }
             }
             ActionType.ACTION_START_ALL -> {
-                DownloadManager.instance.startAll()
+                startAll()
             }
             ActionType.ACTION_STOP_ALL -> {
-                DownloadManager.instance.stopAll(true)
+                stopAll(true)
             }
             ActionType.ACTION_DELETE_ALL -> {
-                DownloadManager.instance.deleteAll(isDeleteFile = true, isCancelNotify = true)
+                deleteAll(isDeleteFile = true, isCancelNotify = true)
             }
         }
+    }
+
+    private fun initialData() {
+        AppDbHelper.instance.queryAllDownloadTask()
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<List<DownloadTaskBean>>() {
+                    override fun onSubscribe(d: Disposable) {
+                        super.onSubscribe(d)
+                        DownloadManager.instance.downloadTaskLists.clear()
+                    }
+
+                    override fun rxOnNext(t: List<DownloadTaskBean>) {
+                        DownloadManager.instance.downloadTaskLists.apply {
+                            this.addAll(t)
+                        }
+                    }
+
+                    override fun rxOnError(e: Exception) = Unit
+                })
+    }
+
+    private fun start(downloadTaskBean: DownloadTaskBean) {
+        DownloadManager.instance.getDownloadTask(downloadTaskBean.url) ?: let {
+            DownloadManager.instance.downloadTaskLists.add(0, downloadTaskBean)
+        }
+        TaskManager.instance.start(downloadTaskBean.url, downloadTaskBean.absolutePath)
+    }
+
+    private fun startAll() {
+        TaskManager.instance.startOnParallel()
+    }
+
+    private fun stop(taskUrl: String, isCancelNotify: Boolean) {
+        TaskManager.instance.stop(taskUrl)
+        if (isCancelNotify) {
+            DownloadManager.instance.getDownloadTask(taskUrl)?.let {
+                notifyHelper.notificationManager.cancel(it.notificationId)
+            }
+        }
+    }
+
+    private fun stopAll(isCancelNotify: Boolean) {
+        TaskManager.instance.stopAll()
+        DownloadManager.instance.downloadTaskLists.forEach {
+            if (isCancelNotify) {
+                notifyHelper.notificationManager.cancel(it.notificationId)
+            }
+        }
+    }
+
+    private fun deleteAll(isDeleteFile: Boolean, isCancelNotify: Boolean) {
+        TaskManager.instance.deleteAll()
+        AppDbHelper.instance.deleteAllTasks()
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<Long>() {
+                    override fun rxOnNext(t: Long) {
+                        val missionList = DownloadManager.instance.downloadTaskLists
+                        missionList.forEach {
+                            if (isCancelNotify) {
+                                notifyHelper.notificationManager.cancel(it.notificationId)
+                            }
+                            if (isDeleteFile) {
+                                FsUtils.deleteFileOrDir(it.absolutePath)
+                            }
+                        }
+                        missionList.forEach {
+                            EventManager.post(it.apply {
+                                this.downloadTaskStatusType = DownloadTaskStatusType.Delete
+                            })
+                        }
+                        missionList.clear()
+                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_ALL))
+                    }
+
+                    override fun rxOnError(e: Exception) = Unit
+                })
+    }
+
+    private fun delete(taskUrl: String, isDeleteFile: Boolean, isCancelNotify: Boolean) {
+        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl) ?: return
+        DownloadManager.instance.downloadTaskLists.remove(downloadTaskBean)
+        TaskManager.instance.delete(downloadTaskBean.url)
+        AppDbHelper.instance.deleteSingleMission(downloadTaskBean)
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<Long>() {
+                    override fun rxOnNext(t: Long) {
+                        if (isDeleteFile) {
+                            FsUtils.deleteFileOrDir(downloadTaskBean.absolutePath)
+                        }
+                        if (isCancelNotify) {
+                            notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
+                        }
+                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, downloadTaskBean))
+                        EventManager.post(downloadTaskBean.apply {
+                            this.downloadTaskStatusType = DownloadTaskStatusType.Delete
+                        })
+                    }
+
+                    override fun rxOnError(e: Exception) = Unit
+                })
     }
 
     private fun updateDbDataAndNotify(downloadTaskBean: DownloadTaskBean) {

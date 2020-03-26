@@ -9,9 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.apkpure.components.downloader.DownloadLaunchUtils
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
+import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.utils.FormatUtils
 import com.apkpure.components.downloader.utils.FsUtils
 import org.greenrobot.eventbus.Subscribe
@@ -20,8 +20,7 @@ import java.io.File
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    private val apkUrl1 =
-        "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
+    private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
     private val call_write_storage = 1
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
@@ -57,8 +56,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             DownloadTaskStatusType.Downloading -> {
                 val progressInfo = FormatUtils.formatPercentInfo(
-                    downloadTaskBean.currentOffset,
-                    downloadTaskBean.totalLength
+                        downloadTaskBean.currentOffset,
+                        downloadTaskBean.totalLength
                 )
                 "下载中($progressInfo)..."
             }
@@ -94,27 +93,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun clickDownload() {
         AppFolder.apkFolder?.absolutePath?.let {
-            DownloadLaunchUtils.startClickTask(this, DownloadTaskBean().apply {
+            DownloadManager.instance.startClickTask(this, DownloadTaskBean().apply {
                 val fileName = "test.apk"
                 this.url = apkUrl1
                 this.absolutePath = "$it${File.separator}$fileName"
                 this.showNotification = true
                 this.flag = 1//file type
                 this.shortName = "test.apk"
+                this.paramData="JSON 参数信息"
             })
         }
     }
 
     private fun checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
+                != PackageManager.PERMISSION_GRANTED) {
             apkBt.isEnabled = false
             clearBt.isEnabled = false
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                call_write_storage
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    call_write_storage
             )
         } else {
             apkBt.isEnabled = true
@@ -122,11 +121,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == call_write_storage) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

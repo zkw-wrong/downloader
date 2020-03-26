@@ -1,18 +1,60 @@
-package com.apkpure.components.downloader
+package com.apkpure.components.downloader.service
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
+import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
 import com.apkpure.components.downloader.service.services.DownloadServiceV21
+import com.apkpure.components.downloader.service.services.KeepAliveJobService
+import okhttp3.OkHttpClient
 
 /**
  * author: mr.xiong
- * date: 2020/3/25
+ * date: 2020/3/26
  */
-object DownloadLaunchUtils {
+class DownloadManager {
+    val downloadTaskLists by lazy { mutableListOf<DownloadTaskBean>() }
+
+    companion object {
+        private var downloadManager: DownloadManager? = null
+        private lateinit var application: Application
+
+        fun initial(application: Application, builder: OkHttpClient.Builder) {
+            this.application = application
+            AppDbHelper.init(application)
+            TaskManager.init(application, builder)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                KeepAliveJobService.startJob(application)
+            }
+        }
+
+        val instance: DownloadManager
+            get() {
+                if (downloadManager == null) {
+                    synchronized(DownloadManager::class.java) {
+                        if (downloadManager == null) {
+                            downloadManager = DownloadManager()
+                        }
+                    }
+                }
+                return downloadManager!!
+            }
+    }
+
+    fun getDownloadTask(taskUrl: String): DownloadTaskBean? {
+        var downloadTaskBean: DownloadTaskBean? = null
+        downloadTaskLists.iterator().forEach {
+            if (it.url == taskUrl) {
+                downloadTaskBean = it
+            }
+        }
+        return downloadTaskBean
+    }
 
     fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -57,7 +99,6 @@ object DownloadLaunchUtils {
                     DownloadServiceV14::class.java))
         }
     }
-
 
     private fun startService(mContext: Context, intent: Intent) {
         mContext.startService(intent)

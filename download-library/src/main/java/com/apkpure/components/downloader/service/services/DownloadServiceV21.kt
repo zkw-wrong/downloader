@@ -16,14 +16,12 @@ class DownloadServiceV21 : JobIntentService() {
     private val logTag: String by lazy { javaClass.simpleName }
     private val mContext by lazy { this }
     private val downloadServiceAssistUtils by lazy {
-        DownloadServiceAssistUtils(
-            mContext,
-            DownloadServiceV21::class.java
-        )
+        DownloadServiceAssistUtils(mContext, DownloadServiceV21::class.java)
     }
 
     companion object {
         private val serviceId = DownloadServiceV21::javaClass.name.hashCode()
+
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         fun enqueueWorkService(mContext: Context, intent: Intent) {
             enqueueWork(mContext, DownloadServiceV21::class.java, serviceId, intent)

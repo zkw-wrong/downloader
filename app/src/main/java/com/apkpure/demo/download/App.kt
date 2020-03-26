@@ -1,7 +1,7 @@
 package com.apkpure.demo.download
 
 import android.app.Application
-import com.apkpure.components.downloader.service.misc.DownloadManager
+import com.apkpure.components.downloader.service.DownloadManager
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 

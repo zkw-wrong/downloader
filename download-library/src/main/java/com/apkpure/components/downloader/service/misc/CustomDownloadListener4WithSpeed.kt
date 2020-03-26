@@ -2,6 +2,7 @@ package com.apkpure.components.downloader.service.misc
 
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
+import com.apkpure.components.downloader.service.DownloadManager
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.SpeedCalculator
 import com.liulishuo.okdownload.core.breakpoint.BlockInfo
