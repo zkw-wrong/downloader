@@ -1,0 +1,3 @@
+rootProject.name='ApkpureDownloadDemo'
+include ':app'
+include ':download-library'
