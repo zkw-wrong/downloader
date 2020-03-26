@@ -20,24 +20,25 @@ class TaskManager {
     companion object {
         private var taskManager: TaskManager? = null
         private var isInitial = false
-        fun getInstance(): TaskManager {
-            if (taskManager == null) {
-                synchronized(TaskManager::class.java) {
-                    if (taskManager == null) {
-                        taskManager = TaskManager().apply {
-                            if (!isInitial) {
-                                throw Exception("TaskManager not is initial!")
+        val instance: TaskManager
+            get() {
+                if (taskManager == null) {
+                    synchronized(TaskManager::class.java) {
+                        if (taskManager == null) {
+                            taskManager = TaskManager().apply {
+                                if (!isInitial) {
+                                    throw Exception("TaskManager not is initial!")
+                                }
                             }
                         }
                     }
                 }
+                return taskManager!!
             }
-            return taskManager!!
-        }
 
         fun init(mContext: Context, builder: OkHttpClient.Builder) {
             isInitial = true
-            getInstance().initial(mContext, builder)
+            instance.initial(mContext, builder)
         }
     }
 
@@ -45,8 +46,7 @@ class TaskManager {
         OkDownload.setSingletonInstance(
                 OkDownload.Builder(mContext)
                         .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
-                        .build()
-        )
+                        .build())
         DownloadDispatcher.setMaxParallelRunningCount(DownloadTaskConfig.maxRunningCount)
         DownloadContext.QueueSet().apply {
             this.minIntervalMillisCallbackProcess =

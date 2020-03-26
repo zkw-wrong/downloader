@@ -17,7 +17,7 @@ class DownloadManager {
     private val appDbHelper by lazy { AppDbHelper.instance }
     private val notifyHelper by lazy { NotifyHelper(application) }
     private val downloadTaskLists by lazy { mutableListOf<DownloadTaskBean>() }
-    private val taskManager by lazy { TaskManager.getInstance() }
+    private val taskManager by lazy { TaskManager.instance }
     private val customDownloadListener4WithSpeed by lazy { CustomDownloadListener4WithSpeed() }
     private var customTaskListener: CustomDownloadListener4WithSpeed.TaskListener? = null
 
