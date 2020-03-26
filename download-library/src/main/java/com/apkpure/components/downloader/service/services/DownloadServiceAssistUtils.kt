@@ -9,6 +9,8 @@ import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
+import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
+import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.utils.*
 import com.liulishuo.okdownload.DownloadTask
@@ -244,12 +246,12 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                             }
                         }
                         missionList.forEach {
-                            EventManager.post(it.apply {
+                            DownloadTaskChangeLister.sendChangeBroadcast(mContext1, it.apply {
                                 this.downloadTaskStatusType = DownloadTaskStatusType.Delete
                             })
                         }
                         missionList.clear()
-                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_ALL))
+                        DownloadTaskDeleteLister.sendAllDeleteBroadcast(mContext1)
                     }
 
                     override fun rxOnError(e: Exception) = Unit
@@ -271,8 +273,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         if (isCancelNotify) {
                             notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
                         }
-                        EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, downloadTaskBean))
-                        EventManager.post(downloadTaskBean.apply {
+                        DownloadTaskDeleteLister.sendDeleteBroadcast(mContext1, TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, downloadTaskBean))
+                        DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTaskBean.apply {
                             this.downloadTaskStatusType = DownloadTaskStatusType.Delete
                         })
                     }
@@ -288,7 +290,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        EventManager.post(downloadTaskBean)
+                        DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTaskBean)
                         if (downloadTaskBean.showNotification && downloadTaskBean.notificationId != -1) {
                             downloadTaskBean.downloadTaskStatusType?.let {
                                 when (it) {

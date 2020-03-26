@@ -12,10 +12,11 @@ import androidx.core.content.ContextCompat
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
+import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
+import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
 import com.apkpure.components.downloader.utils.FormatUtils
 import com.apkpure.components.downloader.utils.FsUtils
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
 import java.io.File
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
@@ -24,68 +25,90 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val call_write_storage = 1
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
+    private lateinit var deleteTaskBt: Button
+    private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
+    private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        EventManager.register(this)
         clearBt = findViewById(R.id.clear_bt)
         apkBt = findViewById(R.id.apk_bt)
+        deleteTaskBt = findViewById(R.id.delete_task_bt)
         clearBt.setOnClickListener(this)
         apkBt.setOnClickListener(this)
+        deleteTaskBt.setOnClickListener(this)
         checkPermissions()
+        downloadTaskChangeReceiver.register()
+        getDeleteTaskDeleteReceiver.register()
     }
 
     override fun onClick(v: View?) {
-        if (v == clearBt) {
-            clearDownloadFolder()
-        } else if (v == apkBt) {
-            clickDownload()
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun changeDownload(downloadTaskBean: DownloadTaskBean) {
-        apkBt.isEnabled = false
-        val info = when (downloadTaskBean.downloadTaskStatusType) {
-            DownloadTaskStatusType.Waiting -> {
-                "等待中..."
+        when (v) {
+            clearBt -> {
+                clearDownloadFolder()
             }
-            DownloadTaskStatusType.Preparing -> {
-                "等待中..."
+            apkBt -> {
+                clickDownload()
             }
-            DownloadTaskStatusType.Downloading -> {
-                val progressInfo = FormatUtils.formatPercentInfo(
-                        downloadTaskBean.currentOffset,
-                        downloadTaskBean.totalLength
-                )
-                "下载中($progressInfo)..."
-            }
-            DownloadTaskStatusType.Stop -> {
-                "暂停"
-            }
-            DownloadTaskStatusType.Success -> {
-                "下载成功"
-            }
-            DownloadTaskStatusType.Delete -> {
-                "已删除"
-            }
-            DownloadTaskStatusType.Failed -> {
-                "下载失败"
-            }
-            DownloadTaskStatusType.Retry -> {
-                "重试中"
+            deleteTaskBt -> {
+                DownloadManager.instance.deleteTask(this, apkUrl1, true)
             }
         }
-        apkBt.text = info
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        EventManager.unregister(this)
+        downloadTaskChangeReceiver.unregister()
+        getDeleteTaskDeleteReceiver.unregister()
     }
 
-    private fun clearDownloadFolder() {
+    private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
+            object : DownloadTaskChangeLister.Listener {
+                override fun onChange(downloadTaskBean: DownloadTaskBean) {
+                    apkBt.isEnabled = false
+                    val info = when (downloadTaskBean.downloadTaskStatusType) {
+                        DownloadTaskStatusType.Waiting -> {
+                            "等待中..."
+                        }
+                        DownloadTaskStatusType.Preparing -> {
+                            "等待中..."
+                        }
+                        DownloadTaskStatusType.Downloading -> {
+                            val progressInfo = FormatUtils.formatPercentInfo(
+                                    downloadTaskBean.currentOffset,
+                                    downloadTaskBean.totalLength
+                            )
+                            "下载中($progressInfo)..."
+                        }
+                        DownloadTaskStatusType.Stop -> {
+                            "暂停"
+                        }
+                        DownloadTaskStatusType.Success -> {
+                            "下载成功"
+                        }
+                        DownloadTaskStatusType.Delete -> {
+                            "已删除"
+                        }
+                        DownloadTaskStatusType.Failed -> {
+                            "下载失败"
+                        }
+                        DownloadTaskStatusType.Retry -> {
+                            "重试中"
+                        }
+                    }
+                    apkBt.text = info
+                }
+            })
+
+    //这个删除监听指的从应用里面删除才能收到消息
+    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskDeleteLister.Receiver(this, object : DownloadTaskDeleteLister.Listener {
+        override fun onDelete(taskDeleteStatusEvent: TaskDeleteStatusEvent?) {
+            Toast.makeText(this@MainActivity, "手动删除任务成功!", Toast.LENGTH_LONG).show()
+        }
+    })
+
+    fun clearDownloadFolder() {
         apkBt.isEnabled = true
         apkBt.text = "重新下载"
         FsUtils.deleteFileOrDir(AppFolder.apkFolder)
@@ -100,7 +123,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 this.showNotification = true
                 this.flag = 1//file type
                 this.shortName = "test.apk"
-                this.paramData="JSON 参数信息"
+                this.paramData = "JSON 参数信息"
             })
         }
     }

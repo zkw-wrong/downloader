@@ -17,4 +17,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="点击下载apk" />
+
+    <Button
+        android:id="@+id/delete_task_bt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="删除任务" />
 </LinearLayout>
