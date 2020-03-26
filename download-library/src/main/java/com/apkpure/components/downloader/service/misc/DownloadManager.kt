@@ -71,7 +71,7 @@ class DownloadManager {
     }
 
     fun start(downloadTaskBean: DownloadTaskBean) {
-        if (getDownloadTask(downloadTaskBean.url) == null) {
+        getDownloadTask(downloadTaskBean.url) ?: let {
             downloadTaskLists.add(0, downloadTaskBean)
         }
         taskManager.start(downloadTaskBean.url, downloadTaskBean.absolutePath)
