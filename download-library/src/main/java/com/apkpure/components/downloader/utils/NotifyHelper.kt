@@ -17,8 +17,8 @@ class NotifyHelper(private val mContext: Context) {
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel(
-                IdentifierUtils.notificationChannelId,
-                IdentifierUtils.notificationChannelName,
+                CommonUtils.notificationChannelId,
+                CommonUtils.notificationChannelName,
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 this.setShowBadge(true)

@@ -14,7 +14,7 @@ import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
-import com.apkpure.components.downloader.utils.FormatUtils
+import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
 import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
 import java.io.File
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             "等待中..."
                         }
                         DownloadTaskStatusType.Downloading -> {
-                            val progressInfo = FormatUtils.formatPercentInfo(
+                            val progressInfo = CommonUtils.formatPercentInfo(
                                     downloadTaskBean.currentOffset,
                                     downloadTaskBean.totalLength
                             )

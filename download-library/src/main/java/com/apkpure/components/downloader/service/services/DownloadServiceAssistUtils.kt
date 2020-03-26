@@ -110,7 +110,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.currentOffset = currentOffset
                 this.absolutePath = task.file?.path
                 this.downloadTaskStatusType = downloadTaskStatusType
-                val downloadPercent = FormatUtils.formatPercentInfo(this.currentOffset, this.totalLength)
+                val downloadPercent = CommonUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                 updateDbDataAndNotify(this)
                 AppLogger.d(logTag, "onProgress ${this.shortName} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
             }
@@ -316,7 +316,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun hintTaskIngNotify(downloadTaskBean: DownloadTaskBean) {
         downloadIngNotification = downloadIngNotification
-                ?: NotificationCompat.Builder(mContext1, IdentifierUtils.notificationChannelId)
+                ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.download_status_downloading)
                         .setOngoing(true)
                         .setAutoCancel(false)
@@ -334,7 +334,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun hintDownloadCompleteNotify(downloadTaskBean: DownloadTaskBean) {
         downloadCompatNotification = downloadCompatNotification
-                ?: NotificationCompat.Builder(mContext1, IdentifierUtils.notificationChannelId)
+                ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.ic_apk_status_complete)
                         .setContentTitle(mContext1.getString(R.string.download_complete))
                         .setOngoing(false)
@@ -351,7 +351,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun hintDownloadFailed(downloadTaskBean: DownloadTaskBean) {
         downloadFailedNotification = downloadFailedNotification
-                ?: NotificationCompat.Builder(mContext1, IdentifierUtils.notificationChannelId)
+                ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.download_status_failed)
                         .setOngoing(false)
                         .setAutoCancel(true)
