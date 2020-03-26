@@ -4,7 +4,7 @@ import android.app.Application
 import android.os.Build
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
-import com.apkpure.components.downloader.db.enums.MissionStatusType
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.services.KeepAliveJobService
 import com.apkpure.components.downloader.utils.*
 import okhttp3.OkHttpClient
@@ -49,7 +49,7 @@ class DownloadManager {
     }
 
     private fun initialData() {
-        this.appDbHelper.queryAllMission()
+        this.appDbHelper.queryAllDownloadTask()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<List<DownloadTaskBean>>() {
@@ -81,7 +81,7 @@ class DownloadManager {
         val completedPosts: MutableList<DownloadTaskBean> = mutableListOf()
         for (index in 0 until downloadTaskLists.size) {
             val downloadTaskBean = downloadTaskLists[index]
-            if (downloadTaskBean.missionStatusType == MissionStatusType.Success) {
+            if (downloadTaskBean.downloadTaskStatusType == DownloadTaskStatusType.Success) {
                 completedPosts.add(downloadTaskBean)
             }
         }
@@ -101,9 +101,9 @@ class DownloadManager {
     fun getDownloadTask() = this.downloadTaskLists
 
     fun getNotCompatDownloadTask() = this.downloadTaskLists.filter {
-        it.missionStatusType == MissionStatusType.Waiting
-                || it.missionStatusType == MissionStatusType.Preparing
-                || it.missionStatusType == MissionStatusType.Downloading
+        it.downloadTaskStatusType == DownloadTaskStatusType.Waiting
+                || it.downloadTaskStatusType == DownloadTaskStatusType.Preparing
+                || it.downloadTaskStatusType == DownloadTaskStatusType.Downloading
     }
 
     fun startAll() {
@@ -131,7 +131,7 @@ class DownloadManager {
     fun deleteAll(isDeleteFile: Boolean, isCancelNotify: Boolean) {
         this.taskManager.deleteAll()
         val missionList = getDownloadTask()
-        this.appDbHelper.deleteAllMission()
+        this.appDbHelper.deleteAllTasks()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
@@ -146,7 +146,7 @@ class DownloadManager {
                         }
                         missionList.forEach {
                             EventManager.post(it.apply {
-                                this.missionStatusType = MissionStatusType.Delete
+                                this.downloadTaskStatusType = DownloadTaskStatusType.Delete
                             })
                         }
                         missionList.clear()
@@ -174,7 +174,7 @@ class DownloadManager {
                         }
                         EventManager.post(TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, downloadTaskBean))
                         EventManager.post(downloadTaskBean.apply {
-                            this.missionStatusType = MissionStatusType.Delete
+                            this.downloadTaskStatusType = DownloadTaskStatusType.Delete
                         })
                     }
 

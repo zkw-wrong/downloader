@@ -11,7 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.apkpure.components.downloader.DownloadLaunchUtils
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
-import com.apkpure.components.downloader.db.enums.MissionStatusType
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.utils.FormatUtils
 import com.apkpure.components.downloader.utils.FsUtils
 import org.greenrobot.eventbus.Subscribe
@@ -48,33 +48,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun changeDownload(downloadTaskBean: DownloadTaskBean) {
         apkBt.isEnabled = false
-        val info = when (downloadTaskBean.missionStatusType) {
-            MissionStatusType.Waiting -> {
+        val info = when (downloadTaskBean.downloadTaskStatusType) {
+            DownloadTaskStatusType.Waiting -> {
                 "等待中..."
             }
-            MissionStatusType.Preparing -> {
+            DownloadTaskStatusType.Preparing -> {
                 "等待中..."
             }
-            MissionStatusType.Downloading -> {
+            DownloadTaskStatusType.Downloading -> {
                 val progressInfo = FormatUtils.formatPercentInfo(
                     downloadTaskBean.currentOffset,
                     downloadTaskBean.totalLength
                 )
                 "下载中($progressInfo)..."
             }
-            MissionStatusType.Stop -> {
+            DownloadTaskStatusType.Stop -> {
                 "暂停"
             }
-            MissionStatusType.Success -> {
+            DownloadTaskStatusType.Success -> {
                 "下载成功"
             }
-            MissionStatusType.Delete -> {
+            DownloadTaskStatusType.Delete -> {
                 "已删除"
             }
-            MissionStatusType.Failed -> {
+            DownloadTaskStatusType.Failed -> {
                 "下载失败"
             }
-            MissionStatusType.Retry -> {
+            DownloadTaskStatusType.Retry -> {
                 "重试中"
             }
         }

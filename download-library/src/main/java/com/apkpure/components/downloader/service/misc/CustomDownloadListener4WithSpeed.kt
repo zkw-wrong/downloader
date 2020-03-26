@@ -1,7 +1,7 @@
 package com.apkpure.components.downloader.service.misc
 
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
-import com.apkpure.components.downloader.db.enums.MissionStatusType
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.SpeedCalculator
 import com.liulishuo.okdownload.core.breakpoint.BlockInfo
@@ -19,13 +19,13 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
     private val retryTagKey = 999
 
     interface TaskListener {
-        fun onStart(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType)
-        fun onInfoReady(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType, totalLength: Long)
-        fun onProgress(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, taskSpeed: String, missionStatusType: MissionStatusType, currentOffset: Long)
-        fun onCancel(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType)
-        fun onSuccess(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType)
-        fun onError(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType)
-        fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, missionStatusType: MissionStatusType, retryCount: Int)
+        fun onStart(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType)
+        fun onInfoReady(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, totalLength: Long)
+        fun onProgress(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, taskSpeed: String, downloadTaskStatusType: DownloadTaskStatusType, currentOffset: Long)
+        fun onCancel(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType)
+        fun onSuccess(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType)
+        fun onError(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType)
+        fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, retryCount: Int)
     }
 
     fun setTaskListener(taskListener: TaskListener) {
@@ -36,7 +36,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        taskListener?.onStart(DownloadManager.instance.getDownloadTask(task.url), task, MissionStatusType.Waiting)
+        taskListener?.onStart(DownloadManager.instance.getDownloadTask(task.url), task, DownloadTaskStatusType.Waiting)
     }
 
     override fun blockEnd(task: DownloadTask, blockIndex: Int, info: BlockInfo?, blockSpeed: SpeedCalculator) = Unit
@@ -50,24 +50,24 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         }
         val missionDbBean = DownloadManager.instance.getDownloadTask(task.url)
         when (cause) {
-            EndCause.COMPLETED -> taskListener?.onSuccess(missionDbBean, task, MissionStatusType.Success)
-            EndCause.CANCELED -> taskListener?.onCancel(missionDbBean, task, MissionStatusType.Stop)
-            EndCause.FILE_BUSY -> taskListener?.onStart(missionDbBean, task, MissionStatusType.Waiting)
-            EndCause.SAME_TASK_BUSY -> taskListener?.onStart(missionDbBean, task, MissionStatusType.Preparing)
+            EndCause.COMPLETED -> taskListener?.onSuccess(missionDbBean, task, DownloadTaskStatusType.Success)
+            EndCause.CANCELED -> taskListener?.onCancel(missionDbBean, task, DownloadTaskStatusType.Stop)
+            EndCause.FILE_BUSY -> taskListener?.onStart(missionDbBean, task, DownloadTaskStatusType.Waiting)
+            EndCause.SAME_TASK_BUSY -> taskListener?.onStart(missionDbBean, task, DownloadTaskStatusType.Preparing)
             else -> {
                 var retryObj = task.getTag(retryTagKey)
                 if (retryObj == null) {
                     task.addTag(retryTagKey, 1)
                     task.enqueue(this)
-                    taskListener?.onRetry(missionDbBean, task, MissionStatusType.Retry, 1)
+                    taskListener?.onRetry(missionDbBean, task, DownloadTaskStatusType.Retry, 1)
                 } else if (retryObj is Int) {
                     retryObj += 1
                     task.addTag(retryTagKey, retryObj)
                     if (retryObj >= DownloadTaskConfig.failedRetryCount) {
-                        taskListener?.onError(missionDbBean, task, MissionStatusType.Failed)
+                        taskListener?.onError(missionDbBean, task, DownloadTaskStatusType.Failed)
                     } else {
                         task.enqueue(this)
-                        taskListener?.onRetry(missionDbBean, task, MissionStatusType.Retry, retryObj)
+                        taskListener?.onRetry(missionDbBean, task, DownloadTaskStatusType.Retry, retryObj)
                     }
                 }
             }
@@ -84,9 +84,9 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         val missionDbBean = DownloadManager.instance.getDownloadTask(task.url)
         if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd
             task.tag = DownloadTaskActionTag.PROGRESS_100
-            taskListener?.onSuccess(missionDbBean, task, MissionStatusType.Success)
+            taskListener?.onSuccess(missionDbBean, task, DownloadTaskStatusType.Success)
         } else {
-            taskListener?.onProgress(missionDbBean, task, taskSpeed.speed(), MissionStatusType.Downloading, currentOffset)
+            taskListener?.onProgress(missionDbBean, task, taskSpeed.speed(), DownloadTaskStatusType.Downloading, currentOffset)
         }
     }
 
@@ -98,7 +98,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        taskListener?.onInfoReady(DownloadManager.instance.getDownloadTask(task.url), task, MissionStatusType.Preparing, info.totalLength)
+        taskListener?.onInfoReady(DownloadManager.instance.getDownloadTask(task.url), task, DownloadTaskStatusType.Preparing, info.totalLength)
     }
 
     override fun progressBlock(task: DownloadTask, blockIndex: Int, currentBlockOffset: Long, blockSpeed: SpeedCalculator) = Unit

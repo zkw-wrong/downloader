@@ -1,22 +1,22 @@
 package com.apkpure.components.downloader.db.convert
 
-import com.apkpure.components.downloader.db.enums.MissionStatusType
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import org.greenrobot.greendao.converter.PropertyConverter
 
 /**
  * @author xiongke
  * @date 2018/10/27
  */
-class MissionStatusTypeConverter : PropertyConverter<MissionStatusType, Int> {
-    override fun convertToEntityProperty(databaseValue: Int?): MissionStatusType {
+class MissionStatusTypeConverter : PropertyConverter<DownloadTaskStatusType, Int> {
+    override fun convertToEntityProperty(databaseValue: Int?): DownloadTaskStatusType {
         return if (databaseValue != null) {
-            MissionStatusType.values()[databaseValue]
+            DownloadTaskStatusType.values()[databaseValue]
         } else {
-            MissionStatusType.Waiting
+            DownloadTaskStatusType.Waiting
         }
     }
 
-    override fun convertToDatabaseValue(entityProperty: MissionStatusType?): Int? {
+    override fun convertToDatabaseValue(entityProperty: DownloadTaskStatusType?): Int? {
         return entityProperty?.typeId
     }
 }

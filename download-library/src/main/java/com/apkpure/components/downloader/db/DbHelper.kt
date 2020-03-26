@@ -12,11 +12,11 @@ import io.reactivex.Observable
 
 internal interface DbHelper {
 
-    fun createOrUpdateMission(downloadTaskBean: DownloadTaskBean): Observable<Long>
+    fun createOrUpdateDownloadTask(downloadTaskBean: DownloadTaskBean): Observable<Long>
 
-    fun queryAllMission(): Observable<List<DownloadTaskBean>>
+    fun queryAllDownloadTask(): Observable<List<DownloadTaskBean>>
 
     fun deleteSingleMission(downloadTaskBean: DownloadTaskBean): Observable<Long>
 
-    fun deleteAllMission(): Observable<Long>
+    fun deleteAllTasks(): Observable<Long>
 }

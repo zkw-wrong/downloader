@@ -4,7 +4,7 @@ import android.app.Application
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.greendao.db.DaoMaster
 import com.apkpure.components.greendao.db.DaoSession
-import com.apkpure.components.greendao.db.MissionDbBeanDao
+import com.apkpure.components.greendao.db.DownloadTaskBeanDao
 import io.reactivex.Observable
 
 /**
@@ -41,20 +41,20 @@ class AppDbHelper private constructor() : DbHelper {
         }
     }
 
-    override fun createOrUpdateMission(downloadTaskBean: DownloadTaskBean): Observable<Long> {
+    override fun createOrUpdateDownloadTask(downloadTaskBean: DownloadTaskBean): Observable<Long> {
         return Observable.fromCallable {
-            mDaoSession.missionDbBeanDao.apply {
+            mDaoSession.downloadTaskBeanDao.apply {
                 this.insertOrReplaceInTx(downloadTaskBean)
             }
             1L
         }
     }
 
-    override fun queryAllMission(): Observable<List<DownloadTaskBean>> {
+    override fun queryAllDownloadTask(): Observable<List<DownloadTaskBean>> {
         return Observable.fromCallable {
-            mDaoSession.missionDbBeanDao
+            mDaoSession.downloadTaskBeanDao
                     .queryBuilder()
-                    .orderDesc(MissionDbBeanDao.Properties.Date)
+                    .orderDesc(DownloadTaskBeanDao.Properties.Date)
                     .build()
                     .list()
         }
@@ -62,16 +62,16 @@ class AppDbHelper private constructor() : DbHelper {
 
     override fun deleteSingleMission(downloadTaskBean: DownloadTaskBean): Observable<Long> {
         return Observable.fromCallable {
-            mDaoSession.missionDbBeanDao.apply {
+            mDaoSession.downloadTaskBeanDao.apply {
                 this.delete(downloadTaskBean)
             }
             1L
         }
     }
 
-    override fun deleteAllMission(): Observable<Long> {
+    override fun deleteAllTasks(): Observable<Long> {
         return Observable.fromCallable {
-            mDaoSession.missionDbBeanDao.apply {
+            mDaoSession.downloadTaskBeanDao.apply {
                 this.deleteAll()
             }
             1L

@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
-import com.apkpure.components.downloader.db.enums.MissionStatusType;
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
@@ -25,7 +25,7 @@ import org.greenrobot.greendao.annotation.Generated;
  * @author xiongke
  * @date 2018/11/5
  */
-@Entity(nameInDb = "mission")
+@Entity(nameInDb = "download_tasks")
 public class DownloadTaskBean implements Parcelable {
 
     @Id
@@ -41,8 +41,8 @@ public class DownloadTaskBean implements Parcelable {
     private String paramData;
 
     @Convert(converter = MissionStatusTypeConverter.class, columnType = Integer.class)
-    @Property(nameInDb = "_mission_status_type")
-    private MissionStatusType missionStatusType = MissionStatusType.Waiting;
+    @Property(nameInDb = "_download_task_status_type")
+    private DownloadTaskStatusType downloadTaskStatusType = DownloadTaskStatusType.Waiting;
 
     @Property(nameInDb = "_date")
     private Date date = new Date();
@@ -68,7 +68,6 @@ public class DownloadTaskBean implements Parcelable {
     @Transient
     private String taskSpeed;
 
-
     protected DownloadTaskBean(Parcel in) {
         url = in.readString();
         absolutePath = in.readString();
@@ -82,15 +81,15 @@ public class DownloadTaskBean implements Parcelable {
         taskSpeed = in.readString();
     }
 
-    @Generated(hash = 1635293400)
+    @Generated(hash = 790841681)
     public DownloadTaskBean(@NotNull String url, String absolutePath, String paramData,
-            MissionStatusType missionStatusType, Date date, long currentOffset,
+            DownloadTaskStatusType downloadTaskStatusType, Date date, long currentOffset,
             long totalLength, boolean showNotification, int flag, int notificationId,
             String shortName) {
         this.url = url;
         this.absolutePath = absolutePath;
         this.paramData = paramData;
-        this.missionStatusType = missionStatusType;
+        this.downloadTaskStatusType = downloadTaskStatusType;
         this.date = date;
         this.currentOffset = currentOffset;
         this.totalLength = totalLength;
@@ -161,12 +160,12 @@ public class DownloadTaskBean implements Parcelable {
         this.paramData = paramData;
     }
 
-    public MissionStatusType getMissionStatusType() {
-        return this.missionStatusType;
+    public DownloadTaskStatusType getDownloadTaskStatusType() {
+        return this.downloadTaskStatusType;
     }
 
-    public void setMissionStatusType(MissionStatusType missionStatusType) {
-        this.missionStatusType = missionStatusType;
+    public void setDownloadTaskStatusType(DownloadTaskStatusType downloadTaskStatusType) {
+        this.downloadTaskStatusType = downloadTaskStatusType;
     }
 
     public Date getDate() {
