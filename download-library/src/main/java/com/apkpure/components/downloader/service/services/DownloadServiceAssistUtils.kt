@@ -326,7 +326,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
-            // this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
             this.setProgress(downloadTaskBean.totalLength.toInt(), downloadTaskBean.currentOffset.toInt(), false)
             notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
@@ -336,14 +336,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         downloadCompatNotification = downloadCompatNotification
                 ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.ic_apk_status_complete)
-                        .setContentTitle(mContext1.getString(R.string.download_complete))
+                        .setContentTitle(mContext1.getString(R.string.q_download_complete))
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
             downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
-            //this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
             notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
             notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
@@ -359,7 +359,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
-            //this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
             notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
             notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }

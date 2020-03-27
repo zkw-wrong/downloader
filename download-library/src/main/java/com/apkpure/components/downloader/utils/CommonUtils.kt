@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.apkpure.components.downloader.R
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import java.text.DecimalFormat
 
 /**
@@ -41,5 +44,17 @@ object CommonUtils {
 
     fun formatPercentInfo(progress: Long, count: Long): String {
         return DecimalFormat("##%").format(progress.toDouble() / count.toDouble())
+    }
+
+    fun downloadStateNotificationInfo(mContext: Context, missionDbBean: DownloadTaskBean): String {
+        return when (missionDbBean.downloadTaskStatusType) {
+            DownloadTaskStatusType.Waiting -> mContext.getString(R.string.q_waiting)
+            DownloadTaskStatusType.Preparing -> mContext.getString(R.string.q_preparing)
+            DownloadTaskStatusType.Downloading -> mContext.getString(R.string.q_downloading)
+            DownloadTaskStatusType.Success -> mContext.getString(R.string.q_download_complete)
+            DownloadTaskStatusType.Stop -> mContext.getString(R.string.q_paused)
+            DownloadTaskStatusType.Failed -> mContext.getString(R.string.q_failed)
+            else -> String()
+        }
     }
 }
