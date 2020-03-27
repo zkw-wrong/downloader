@@ -45,7 +45,9 @@ class DownloadManager {
             }
     }
 
-    fun getDownloadTasks() = mutableListOf(DownloadServiceAssistUtils.downloadTaskLists)
+    fun getDownloadTasks() = mutableListOf<DownloadTaskBean>().apply {
+        addAll(DownloadServiceAssistUtils.downloadTaskLists)
+    }
 
     fun getDownloadTask(taskUrl: String): DownloadTaskBean? {
         var downloadTaskBean: DownloadTaskBean? = null
