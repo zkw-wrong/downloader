@@ -18,8 +18,6 @@ import okhttp3.OkHttpClient
  * date: 2020/3/26
  */
 class DownloadManager {
-    val downloadTaskLists by lazy { mutableListOf<DownloadTaskBean>() }
-
     companion object {
         private var downloadManager: DownloadManager? = null
         private lateinit var application: Application
@@ -47,9 +45,11 @@ class DownloadManager {
             }
     }
 
+    fun getDownloadTasks() = mutableListOf(DownloadServiceAssistUtils.downloadTaskLists)
+
     fun getDownloadTask(taskUrl: String): DownloadTaskBean? {
         var downloadTaskBean: DownloadTaskBean? = null
-        downloadTaskLists.iterator().forEach {
+        DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach {
             if (it.url == taskUrl) {
                 downloadTaskBean = it
             }
