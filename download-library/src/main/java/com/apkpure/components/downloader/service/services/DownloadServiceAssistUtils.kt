@@ -27,8 +27,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private var downloadCompatNotification: NotificationCompat.Builder? = null
     private var downloadFailedNotification: NotificationCompat.Builder? = null
     private val customDownloadListener4WithSpeed by lazy {
-        CustomDownloadListener4WithSpeed()
-                .apply { this.setTaskListener(getCustomTaskListener()) }
+        CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
     }
 
     companion object {
@@ -36,12 +35,19 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
 
         object ActionType {
+            const val ACTION_INIT = "init"
             const val ACTION_START = "start"
             const val ACTION_STOP = "stop"
             const val ACTION_DELETE = "delete"
             const val ACTION_START_ALL = "start_all"
             const val ACTION_STOP_ALL = "stop_all"
             const val ACTION_DELETE_ALL = "delete_all"
+        }
+
+        fun newInitIntent(mContext: Context, clazz: Class<*>): Intent {
+            return Intent(mContext, clazz).apply {
+                this.action = ActionType.ACTION_INIT
+            }
         }
 
         fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTaskBean: DownloadTaskBean): Intent {
@@ -73,7 +79,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
-    fun initial() {
+   private fun initial() {
         initialData()
         TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
     }
@@ -152,6 +158,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     fun handlerIntent(intent: Intent) {
         when (intent.action) {
+            ActionType.ACTION_INIT -> {
+                initial()
+            }
             ActionType.ACTION_START -> {
                 intent.getParcelableExtra<DownloadTaskBean>(EXTRA_PARAM_ACTION)?.apply {
                     start(this)
@@ -191,6 +200,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     }
 
                     override fun rxOnNext(t: List<DownloadTaskBean>) {
+                        AppLogger.d(logTag, "initialData task size ${t.size}")
                         DownloadManager.instance.downloadTaskLists.apply {
                             this.addAll(t)
                         }

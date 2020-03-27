@@ -31,6 +31,7 @@ class DownloadManager {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 KeepAliveJobService.startJob(application)
             }
+            instance.startInitialTask(application)
         }
 
         val instance: DownloadManager
@@ -55,6 +56,17 @@ class DownloadManager {
         }
         return downloadTaskBean
     }
+
+    private fun startInitialTask(mContext: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            DownloadServiceAssistUtils.newInitIntent(mContext, DownloadServiceV21::class.java).apply {
+                DownloadServiceV21.enqueueWorkService(mContext, this)
+            }
+        } else {
+            startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext, DownloadServiceV14::class.java))
+        }
+    }
+
 
     fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

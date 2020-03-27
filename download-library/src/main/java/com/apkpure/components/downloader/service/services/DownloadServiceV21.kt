@@ -31,7 +31,6 @@ class DownloadServiceV21 : JobIntentService() {
     override fun onCreate() {
         super.onCreate()
         AppLogger.d(logTag, "onCreate")
-        downloadServiceAssistUtils.initial()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
