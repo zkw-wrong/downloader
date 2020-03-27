@@ -7,7 +7,7 @@ import android.util.Log
  * date: 2020/3/23
  */
 object AppLogger {
-    var isDebug = true
+    var isDebug = false
 
     fun d(message: String, msg: String) {
         if (isDebug) {
