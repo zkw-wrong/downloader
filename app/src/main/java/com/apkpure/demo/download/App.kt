@@ -2,6 +2,7 @@ package com.apkpure.demo.download
 
 import android.app.Application
 import com.apkpure.components.downloader.service.DownloadManager
+import com.apkpure.components.downloader.utils.AppLogger
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
+        AppLogger.isDebug = true
         DownloadManager.initial(this, newOkHttpClientBuilder())
     }
 

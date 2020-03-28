@@ -18,8 +18,6 @@ import okhttp3.OkHttpClient
  * date: 2020/3/26
  */
 class DownloadManager {
-    val downloadTaskLists by lazy { mutableListOf<DownloadTaskBean>() }
-
     companion object {
         private var downloadManager: DownloadManager? = null
         private lateinit var application: Application
@@ -31,6 +29,7 @@ class DownloadManager {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 KeepAliveJobService.startJob(application)
             }
+            instance.startInitialTask(application)
         }
 
         val instance: DownloadManager
@@ -46,15 +45,30 @@ class DownloadManager {
             }
     }
 
+    fun getDownloadTasks() = mutableListOf<DownloadTaskBean>().apply {
+        addAll(DownloadServiceAssistUtils.downloadTaskLists)
+    }
+
     fun getDownloadTask(taskUrl: String): DownloadTaskBean? {
         var downloadTaskBean: DownloadTaskBean? = null
-        downloadTaskLists.iterator().forEach {
+        DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach {
             if (it.url == taskUrl) {
                 downloadTaskBean = it
             }
         }
         return downloadTaskBean
     }
+
+    private fun startInitialTask(mContext: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            DownloadServiceAssistUtils.newInitIntent(mContext, DownloadServiceV21::class.java).apply {
+                DownloadServiceV21.enqueueWorkService(mContext, this)
+            }
+        } else {
+            startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext, DownloadServiceV14::class.java))
+        }
+    }
+
 
     fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

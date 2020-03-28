@@ -27,21 +27,28 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private var downloadCompatNotification: NotificationCompat.Builder? = null
     private var downloadFailedNotification: NotificationCompat.Builder? = null
     private val customDownloadListener4WithSpeed by lazy {
-        CustomDownloadListener4WithSpeed()
-                .apply { this.setTaskListener(getCustomTaskListener()) }
+        CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
     }
 
     companion object {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
+        val downloadTaskLists = mutableListOf<DownloadTaskBean>()
 
         object ActionType {
+            const val ACTION_INIT = "init"
             const val ACTION_START = "start"
             const val ACTION_STOP = "stop"
             const val ACTION_DELETE = "delete"
             const val ACTION_START_ALL = "start_all"
             const val ACTION_STOP_ALL = "stop_all"
             const val ACTION_DELETE_ALL = "delete_all"
+        }
+
+        fun newInitIntent(mContext: Context, clazz: Class<*>): Intent {
+            return Intent(mContext, clazz).apply {
+                this.action = ActionType.ACTION_INIT
+            }
         }
 
         fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTaskBean: DownloadTaskBean): Intent {
@@ -73,7 +80,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
-    fun initial() {
+    private fun initial() {
         initialData()
         TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
     }
@@ -152,6 +159,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     fun handlerIntent(intent: Intent) {
         when (intent.action) {
+            ActionType.ACTION_INIT -> {
+                initial()
+            }
             ActionType.ACTION_START -> {
                 intent.getParcelableExtra<DownloadTaskBean>(EXTRA_PARAM_ACTION)?.apply {
                     start(this)
@@ -187,11 +197,12 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .subscribe(object : RxSubscriber<List<DownloadTaskBean>>() {
                     override fun onSubscribe(d: Disposable) {
                         super.onSubscribe(d)
-                        DownloadManager.instance.downloadTaskLists.clear()
+                        downloadTaskLists.clear()
                     }
 
                     override fun rxOnNext(t: List<DownloadTaskBean>) {
-                        DownloadManager.instance.downloadTaskLists.apply {
+                        AppLogger.d(logTag, "initialData task size ${t.size}")
+                        downloadTaskLists.apply {
                             this.addAll(t)
                         }
                     }
@@ -202,7 +213,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun start(downloadTaskBean: DownloadTaskBean) {
         DownloadManager.instance.getDownloadTask(downloadTaskBean.url) ?: let {
-            DownloadManager.instance.downloadTaskLists.add(0, downloadTaskBean)
+            downloadTaskLists.add(0, downloadTaskBean)
         }
         TaskManager.instance.start(downloadTaskBean.url, downloadTaskBean.absolutePath)
     }
@@ -222,7 +233,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun stopAll(isCancelNotify: Boolean) {
         TaskManager.instance.stopAll()
-        DownloadManager.instance.downloadTaskLists.forEach {
+        downloadTaskLists.forEach {
             if (isCancelNotify) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -236,7 +247,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        val missionList = DownloadManager.instance.downloadTaskLists
+                        val missionList = downloadTaskLists
                         missionList.forEach {
                             if (isCancelNotify) {
                                 notifyHelper.notificationManager.cancel(it.notificationId)
@@ -260,7 +271,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun delete(taskUrl: String, isDeleteFile: Boolean, isCancelNotify: Boolean) {
         val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl) ?: return
-        DownloadManager.instance.downloadTaskLists.remove(downloadTaskBean)
+        downloadTaskLists.remove(downloadTaskBean)
         TaskManager.instance.delete(downloadTaskBean.url)
         AppDbHelper.instance.deleteSingleMission(downloadTaskBean)
                 .compose(RxObservableTransformer.io_main())
@@ -326,7 +337,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
-            // this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
             this.setProgress(downloadTaskBean.totalLength.toInt(), downloadTaskBean.currentOffset.toInt(), false)
             notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
@@ -336,14 +347,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         downloadCompatNotification = downloadCompatNotification
                 ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.ic_apk_status_complete)
-                        .setContentTitle(mContext1.getString(R.string.download_complete))
+                        .setContentTitle(mContext1.getString(R.string.q_download_complete))
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
             downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
-            //this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
             notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
             notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
@@ -359,7 +370,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean.shortName?.let {
                 this.setContentTitle(it)
             }
-            //this.setContentText(DownloadUtils.downloadStateNotificationInfo(mContext1, missionDbBean))
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
             notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
             notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
         }
