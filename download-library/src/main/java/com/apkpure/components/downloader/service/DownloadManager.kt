@@ -9,8 +9,6 @@ import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
-import com.apkpure.components.downloader.service.services.DownloadServiceV21
-import com.apkpure.components.downloader.service.services.KeepAliveJobService
 import okhttp3.OkHttpClient
 
 /**
@@ -26,9 +24,6 @@ class DownloadManager {
             this.application = application
             AppDbHelper.init(application)
             TaskManager.init(application, builder)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                KeepAliveJobService.startJob(application)
-            }
             instance.startInitialTask(application)
         }
 
@@ -60,58 +55,29 @@ class DownloadManager {
     }
 
     private fun startInitialTask(mContext: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newInitIntent(mContext, DownloadServiceV21::class.java).apply {
-                DownloadServiceV21.enqueueWorkService(mContext, this)
-            }
-        } else {
-            startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext, DownloadServiceV14::class.java))
-        }
+        startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
+                , DownloadServiceV14::class.java))
     }
 
 
     fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newStartIntent(mContext, DownloadServiceV21::class.java, downloadTaskBean).apply {
-                DownloadServiceV21.enqueueWorkService(mContext, this)
-            }
-        } else {
-            startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext,
-                    DownloadServiceV14::class.java, downloadTaskBean))
-        }
+        startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
+                , DownloadServiceV14::class.java, downloadTaskBean))
     }
 
     fun stopTask(mContext: Context, taskUrl: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newStopIntent(mContext, DownloadServiceV21::class.java, taskUrl).apply {
-                DownloadServiceV21.enqueueWorkService(mContext, this)
-            }
-        } else {
-            startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext,
-                    DownloadServiceV14::class.java, taskUrl))
-        }
+        startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
+                , DownloadServiceV14::class.java, taskUrl))
     }
 
     fun deleteTask(mContext: Context, taskUrl: String, isDeleteFile: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadServiceV21::class.java, taskUrl, isDeleteFile).apply {
-                DownloadServiceV21.enqueueWorkService(mContext, this)
-            }
-        } else {
-            startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext,
-                    DownloadServiceV14::class.java, taskUrl, isDeleteFile))
-        }
+        startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
+                , DownloadServiceV14::class.java, taskUrl, isDeleteFile))
     }
 
     fun deleteAllTask(mContext: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            DownloadServiceAssistUtils.newDeleteAllIntent(mContext, DownloadServiceV21::class.java).apply {
-                DownloadServiceV21.enqueueWorkService(mContext, this)
-            }
-        } else {
-            startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext,
-                    DownloadServiceV14::class.java))
-        }
+        startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
+                , DownloadServiceV14::class.java))
     }
 
     private fun startService(mContext: Context, intent: Intent) {
