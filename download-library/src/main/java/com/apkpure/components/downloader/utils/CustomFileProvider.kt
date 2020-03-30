@@ -1,4 +1,4 @@
-package com.apkpure.demo.download
+package com.apkpure.components.downloader.utils
 
 import androidx.core.content.FileProvider
 
