@@ -18,13 +18,12 @@ before_script:
 after_script:
   - mkdir outputs/
   - pwd
-  - ls downloader_library
+  - ls build
   - mv downloader_library/build/outputs/aar/*.aar  ./outputs/
 
 build-release:
   stage: build
   script:
-    - ./gradlew :download_library:assembleRelease
     - ./gradlew :download_library:uploadArchives
   only:
     - /^release\/.*$/
@@ -38,7 +37,6 @@ build-snapshot:
   stage: build
   script:
     - echo "VERSION_SUFFIX=SNAPSHOT" >> downloader/gradle.properties
-    - ./gradlew :download_library:assembleRelease
     - ./gradlew :download_library:uploadArchives
   only:
     - master
