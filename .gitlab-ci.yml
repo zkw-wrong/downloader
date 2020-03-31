@@ -17,12 +17,12 @@ before_script:
 
 after_script:
   - mkdir outputs/
-  - mv ./downloader/downloader/build/outputs/aar/*.aar  ./downloader/outputs/
+  - mv downloader/download_library/build/outputs/aar/*.aar  ./downloader/download_library/outputs/
 
 build-release:
   stage: build
   script:
-    - ./gradlew :downloader:uploadArchives
+    - ./gradlew :download_library:uploadArchives
   only:
     - /^release\/.*$/
   artifacts:
@@ -35,7 +35,7 @@ build-snapshot:
   stage: build
   script:
     - echo "VERSION_SUFFIX=SNAPSHOT" >> downloader/gradle.properties
-    - ./gradlew :downloader:uploadArchives
+    - ./gradlew :download_library:uploadArchives
   only:
     - master
   artifacts:

@@ -30,7 +30,7 @@ android {
         variant.outputs.each { output ->
             def outputFileName1 = output.outputFileName
             if (outputFileName1 != null && outputFileName1.endsWith('.aar')) {
-                output.outputFileName = "download-library" +
+                output.outputFileName = "download_library" +
                         "_${variant.buildType.name}" +
                         "_v${defaultConfig.versionName}.aar"
             }
