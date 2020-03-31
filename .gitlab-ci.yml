@@ -18,6 +18,7 @@ before_script:
 after_script:
   - mkdir outputs/
   - pwd
+  - ls downloader_library/build/outputs/aar/
   - mv downloader_library/build/outputs/aar/*.aar  ./outputs/
 
 build-release:
