@@ -17,7 +17,7 @@ before_script:
 
 after_script:
   - mkdir outputs/
-  - mv downloader/download_library/build/outputs/aar/*.aar  ./downloader/download_library/outputs/
+  - mv download_library/build/outputs/aar/*.aar  ./outputs/
 
 build-release:
   stage: build
