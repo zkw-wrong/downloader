@@ -40,6 +40,11 @@ class DownloadManager {
             }
     }
 
+    private fun startInitialTask(mContext: Context) {
+        startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
+                , DownloadServiceV14::class.java))
+    }
+
     fun getDownloadTasks() = mutableListOf<DownloadTaskBean>().apply {
         addAll(DownloadServiceAssistUtils.downloadTaskLists)
     }
@@ -54,11 +59,12 @@ class DownloadManager {
         return downloadTaskBean
     }
 
-    private fun startInitialTask(mContext: Context) {
-        startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
-                , DownloadServiceV14::class.java))
-    }
+    fun startTask(mContext: Context, url: String,
+                  fileName: String?, paramData: String?,
+                  silent: Boolean = true, showNotification: Boolean = true,
+                  fileType: Int = 0) {
 
+    }
 
     fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
         startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
