@@ -60,9 +60,9 @@ class DownloadManager {
     }
 
     fun startTask(mContext: Context, url: String,
-                  fileName: String? = null, silent: Boolean = true,
-                  fileType: Int = 0, paramData: String? = null,
-                  showNotification: Boolean = true) {
+                  fileName: String? = null, notificationTitle: String? = null,
+                  silent: Boolean = true, fileType: Int = 0,
+                  paramData: String? = null, showNotification: Boolean = true) {
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
                 , DownloadServiceV14::class.java, DownloadTaskBean().apply {
             this.url = url
@@ -70,6 +70,7 @@ class DownloadManager {
             this.paramData = paramData
             this.showNotification = showNotification
             this.flag = fileType
+            this.notificationTitle = notificationTitle
         }))
     }
 

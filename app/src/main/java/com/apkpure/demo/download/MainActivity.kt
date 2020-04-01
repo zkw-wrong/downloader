@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     })
 
-    fun clearDownloadFolder() {
+    private fun clearDownloadFolder() {
         apkBt.isEnabled = true
         apkBt.text = "重新下载"
         FsUtils.deleteFileOrDir(AppFolder.apkFolder)
@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun clickDownload() {
         AppFolder.apkFolder?.absolutePath?.let {
-            DownloadManager.instance.startTask(this, apkUrl1, "abc.apk")
+            DownloadManager.instance.startTask(this, apkUrl1, "abc.apk", "Title ABC")
         }
     }
 
