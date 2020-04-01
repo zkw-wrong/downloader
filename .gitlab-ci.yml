@@ -18,16 +18,16 @@ before_script:
 
 after_script:
   - mkdir outputs/
-  - mv download_library/build/outputs/aar/*.aar  ./outputs/
+  - mv downloader/build/outputs/aar/*.aar  ./outputs/
 
 build-release:
   stage: build
   script:
-    - ./gradlew :download_library:uploadArchives
+    - ./gradlew :downloader:uploadArchives
   only:
     - /^release\/.*$/
   artifacts:
-    name: "components_download_library_release_${CI_JOB_ID}"
+    name: "components_downloader_release_${CI_JOB_ID}"
     paths:
       - "outputs"
     expire_in: 3 month
@@ -35,10 +35,10 @@ build-release:
 build-snapshot:
   stage: build
   script:
-    - echo >> download_library/gradle.properties
-    - echo "VERSION_SUFFIX=SNAPSHOT" >> download_library/gradle.properties
-    - cat download_library/gradle.properties
-    - ./gradlew :download_library:uploadArchives
+    - echo >> downloader/gradle.properties
+    - echo "VERSION_SUFFIX=SNAPSHOT" >> downloader/gradle.properties
+    - cat downloader/gradle.properties
+    - ./gradlew :downloader:uploadArchives
   only:
     - master
   artifacts:
