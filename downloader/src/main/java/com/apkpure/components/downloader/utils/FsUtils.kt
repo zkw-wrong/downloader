@@ -114,4 +114,6 @@ object FsUtils {
         }
         return length
     }
+
+    fun getDefaultDownloadDir() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 }

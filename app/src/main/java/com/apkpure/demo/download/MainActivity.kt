@@ -17,7 +17,6 @@ import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
 import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
-import java.io.File
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -116,15 +115,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun clickDownload() {
         AppFolder.apkFolder?.absolutePath?.let {
-            DownloadManager.instance.startClickTask(this, DownloadTaskBean().apply {
-                val fileName = "test.apk"
-                this.url = apkUrl1
-                this.absolutePath = "$it${File.separator}$fileName"
-                this.showNotification = true
-                this.flag = 1//file type
-                this.shortName = "test.apk"
-                this.paramData = "JSON 参数信息"
-            })
+            DownloadManager.instance.startTask(this, apkUrl1, "abc.apk")
         }
     }
 

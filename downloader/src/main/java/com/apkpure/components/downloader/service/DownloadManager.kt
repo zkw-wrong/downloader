@@ -2,13 +2,13 @@ package com.apkpure.components.downloader.service
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
+import com.apkpure.components.downloader.service.misc.TaskConfig
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
+import com.apkpure.components.downloader.utils.CommonUtils
 import okhttp3.OkHttpClient
 
 /**
@@ -41,7 +41,7 @@ class DownloadManager {
     }
 
     private fun startInitialTask(mContext: Context) {
-        startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
                 , DownloadServiceV14::class.java))
     }
 
@@ -60,41 +60,31 @@ class DownloadManager {
     }
 
     fun startTask(mContext: Context, url: String,
-                  fileName: String?, paramData: String?,
-                  silent: Boolean = true, showNotification: Boolean = true,
-                  fileType: Int = 0) {
-
-    }
-
-    fun startClickTask(mContext: Context, downloadTaskBean: DownloadTaskBean) {
-        startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
-                , DownloadServiceV14::class.java, downloadTaskBean))
+                  fileName: String? = null, silent: Boolean = true,
+                  fileType: Int = 0, paramData: String? = null,
+                  showNotification: Boolean = true) {
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
+                , DownloadServiceV14::class.java, DownloadTaskBean().apply {
+            this.url = url
+            this.absolutePath = TaskConfig.getOkDownloadAbsolutePath(fileName)
+            this.paramData = paramData
+            this.showNotification = showNotification
+            this.flag = fileType
+        }))
     }
 
     fun stopTask(mContext: Context, taskUrl: String) {
-        startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
                 , DownloadServiceV14::class.java, taskUrl))
     }
 
     fun deleteTask(mContext: Context, taskUrl: String, isDeleteFile: Boolean) {
-        startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
                 , DownloadServiceV14::class.java, taskUrl, isDeleteFile))
     }
 
     fun deleteAllTask(mContext: Context) {
-        startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
                 , DownloadServiceV14::class.java))
-    }
-
-    private fun startService(mContext: Context, intent: Intent) {
-        mContext.startService(intent)
-    }
-
-    private fun startForegroundService(mContext: Context, intent: Intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mContext.startForegroundService(intent)
-        } else {
-            mContext.startService(intent)
-        }
     }
 }

@@ -215,7 +215,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         DownloadManager.instance.getDownloadTask(downloadTaskBean.url) ?: let {
             downloadTaskLists.add(0, downloadTaskBean)
         }
-        TaskManager.instance.start(downloadTaskBean.url, downloadTaskBean.absolutePath)
+        TaskManager.instance.start(downloadTaskBean)
     }
 
     private fun startAll() {

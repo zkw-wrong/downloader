@@ -1,6 +1,7 @@
 package com.apkpure.components.downloader.service.misc
 
 import android.content.Context
+import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.OkDownload
@@ -47,12 +48,12 @@ class TaskManager {
                 OkDownload.Builder(mContext)
                         .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
                         .build())
-        DownloadDispatcher.setMaxParallelRunningCount(DownloadTaskConfig.maxRunningCount)
+        DownloadDispatcher.setMaxParallelRunningCount(TaskConfig.maxRunningCount)
         DownloadContext.QueueSet().apply {
             this.minIntervalMillisCallbackProcess =
-                    DownloadTaskConfig.minIntervalMillisCallbackProcess
-            this.isWifiRequired = DownloadTaskConfig.isWifiRequired
-            this.isAutoCallbackToUIThread = DownloadTaskConfig.isAutoCallbackToUIThread
+                    TaskConfig.minIntervalMillisCallbackProcess
+            this.isWifiRequired = TaskConfig.isWifiRequired
+            this.isAutoCallbackToUIThread = TaskConfig.isAutoCallbackToUIThread
             downloadBuilder = this.commit()
         }
     }
@@ -80,7 +81,9 @@ class TaskManager {
         this.customDownloadListener4WithSpeed = customDownloadListener4WithSpeed
     }
 
-    fun start(downloadUrl: String, absolutePath: String) {
+    fun start(downloadTaskBean: DownloadTaskBean) {
+        val downloadUrl = downloadTaskBean.url
+        val absolutePath = downloadTaskBean.absolutePath
         if (isExistsTask(downloadUrl)) {
             getTask(downloadUrl)?.apply {
                 downloadBuilder.bindSetTask(this)
