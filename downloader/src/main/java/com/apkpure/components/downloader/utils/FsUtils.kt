@@ -5,6 +5,7 @@ import android.text.TextUtils
 import androidx.annotation.WorkerThread
 import java.io.File
 import java.io.FileFilter
+import java.lang.Exception
 import java.util.*
 
 /**
@@ -116,4 +117,18 @@ object FsUtils {
     }
 
     fun getDefaultDownloadDir() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+
+    fun renameFile(oldFile: File, fileName: String): File? {
+        try {
+            if (exists(oldFile) && fileName.isNotEmpty()) {
+                val newFile = File(oldFile.parent, fileName)
+                if (oldFile.renameTo(newFile)) {
+                    return newFile
+                }
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+        return null
+    }
 }

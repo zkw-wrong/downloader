@@ -88,4 +88,9 @@ class DownloadManager {
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
                 , DownloadServiceV14::class.java))
     }
+
+    fun renameTaskFile(mContext: Context, taskUrl: String, fileName: String) {
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext
+                , DownloadServiceV14::class.java, taskUrl, fileName))
+    }
 }

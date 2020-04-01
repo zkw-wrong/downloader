@@ -15,6 +15,7 @@ import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.utils.*
 import com.liulishuo.okdownload.DownloadTask
 import io.reactivex.disposables.Disposable
+import java.io.File
 
 /**
  * @author xiongke
@@ -33,6 +34,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     companion object {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
+        private const val EXTRA_PARAM_FILE_NAMNE = "file_name"
         val downloadTaskLists = mutableListOf<DownloadTaskBean>()
 
         object ActionType {
@@ -80,10 +82,11 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskUrl: String): Intent {
+        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskUrl: String, fileName: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_FILE_RENAME
                 this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
+                this.putExtra(EXTRA_PARAM_FILE_NAMNE, fileName)
             }
         }
     }
@@ -196,7 +199,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 deleteAll()
             }
             ActionType.ACTION_FILE_RENAME -> {
-
+                val taskUrl = intent.getStringExtra(EXTRA_PARAM_ACTION) ?: return
+                val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAMNE) ?: return
+                renameTaskFile(taskUrl, fileName)
             }
         }
     }
@@ -303,6 +308,29 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
+    private fun renameTaskFile(taskUrl: String, fileName: String) {
+        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl) ?: return
+        val newFile = FsUtils.renameFile(File(downloadTaskBean.absolutePath), fileName)
+        if (!FsUtils.exists(newFile)) {
+
+            return
+        }
+        downloadTaskBean.absolutePath = newFile!!.absolutePath
+        AppDbHelper.instance
+                .createOrUpdateDownloadTask(downloadTaskBean)
+                .compose(RxObservableTransformer.io_main())
+                .compose(RxObservableTransformer.errorResult())
+                .subscribe(object : RxSubscriber<Long>() {
+                    override fun rxOnNext(t: Long) {
+
+                    }
+
+                    override fun rxOnError(e: Exception) {
+                    }
+
+                })
+    }
+
     private fun updateDbDataAndNotify(downloadTaskBean: DownloadTaskBean) {
         AppDbHelper.instance
                 .createOrUpdateDownloadTask(downloadTaskBean)
@@ -343,7 +371,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setCategory(NotificationCompat.CATEGORY_PROGRESS)
                         .setShowWhen(false)
         downloadIngNotification?.apply {
-            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()){
+            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()) {
                 this.setContentTitle(downloadTaskBean.notificationTitle)
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
@@ -360,7 +388,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
-            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()){
+            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()) {
                 this.setContentTitle(downloadTaskBean.notificationTitle)
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
@@ -376,7 +404,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadFailedNotification?.apply {
-            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()){
+            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()) {
                 this.setContentTitle(downloadTaskBean.notificationTitle)
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
