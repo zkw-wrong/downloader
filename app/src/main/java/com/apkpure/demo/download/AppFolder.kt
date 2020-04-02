@@ -33,11 +33,4 @@ object AppFolder {
     private fun createAppFolderDirectory(directoryName: String): File? {
         return FsUtils.createOnNotFound(File(appFolder, directoryName))
     }
-
-    fun renameFile(oldFile: File, fileName: String): Boolean {
-        if (!FsUtils.exists(oldFile) || fileName.isEmpty()) {
-            return false
-        }
-        return oldFile.renameTo(File(oldFile.parent, fileName))
-    }
 }

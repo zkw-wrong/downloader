@@ -10,7 +10,7 @@ import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
+import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.utils.*
 import com.liulishuo.okdownload.DownloadTask
@@ -276,15 +276,21 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                             })
                         }
                         missionList.clear()
-                        DownloadTaskDeleteLister.sendAllDeleteBroadcast(mContext1)
+                        DownloadTaskFileChangeLister.sendAllDeleteBroadcast(mContext1, true)
                     }
 
-                    override fun rxOnError(e: Exception) = Unit
+                    override fun rxOnError(e: Exception) {
+                        DownloadTaskFileChangeLister.sendAllDeleteBroadcast(mContext1, false)
+                    }
                 })
     }
 
     private fun delete(taskUrl: String, isDeleteFile: Boolean) {
-        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl) ?: return
+        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl)
+        if (downloadTaskBean == null) {
+            DownloadTaskFileChangeLister.sendDeleteBroadcast(mContext1, downloadTaskBean, false)
+            return
+        }
         downloadTaskLists.remove(downloadTaskBean)
         TaskManager.instance.delete(downloadTaskBean.url)
         AppDbHelper.instance.deleteSingleMission(downloadTaskBean)
@@ -298,21 +304,33 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         if (downloadTaskBean.showNotification) {
                             notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
                         }
-                        DownloadTaskDeleteLister.sendDeleteBroadcast(mContext1, TaskDeleteStatusEvent(TaskDeleteStatusEvent.Status.DELETE_SINGLE, downloadTaskBean))
                         DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTaskBean.apply {
                             this.downloadTaskStatusType = DownloadTaskStatusType.Delete
                         })
+                        DownloadTaskFileChangeLister.sendDeleteBroadcast(mContext1, downloadTaskBean, true)
                     }
 
-                    override fun rxOnError(e: Exception) = Unit
+                    override fun rxOnError(e: Exception) {
+                        DownloadTaskFileChangeLister.sendDeleteBroadcast(mContext1, downloadTaskBean, false)
+                    }
                 })
     }
 
     private fun renameTaskFile(taskUrl: String, fileName: String) {
-        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl) ?: return
+        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl)
+        if (downloadTaskBean == null || !FsUtils.exists(downloadTaskBean.absolutePath)
+                || downloadTaskBean.downloadTaskStatusType != DownloadTaskStatusType.Success
+                || fileName.isEmpty()) {
+            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, false)
+            return
+        }
+        if (fileName == File(downloadTaskBean.absolutePath).name) {
+            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, true)
+            return
+        }
         val newFile = FsUtils.renameFile(File(downloadTaskBean.absolutePath), fileName)
         if (!FsUtils.exists(newFile)) {
-
+            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, false)
             return
         }
         downloadTaskBean.absolutePath = newFile!!.absolutePath
@@ -322,12 +340,12 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-
+                        DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, true)
                     }
 
                     override fun rxOnError(e: Exception) {
+                        DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, false)
                     }
-
                 })
     }
 

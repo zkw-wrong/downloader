@@ -3,6 +3,7 @@ package com.apkpure.demo.download
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -13,14 +14,14 @@ import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
+import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
-import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
 import java.io.File
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
+    private val LOG_TAG = "MainActivity"
     private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
     private val call_write_storage = 1
     private lateinit var clearBt: Button
@@ -61,8 +62,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             renameTaskBt -> {
                 downloadTaskBean?.let {
-                  val isSuccess=  AppFolder.renameFile(File(it.absolutePath), "new_file.apk")
-                    Toast.makeText(this,"重命名 文件 ${isSuccess}",Toast.LENGTH_SHORT).show()
+                    DownloadManager.instance.renameTaskFile(this,it.url,"new_file.apk")
                 }
             }
         }
@@ -115,9 +115,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             })
 
     //这个删除监听指的从应用里面删除才能收到消息
-    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskDeleteLister.Receiver(this, object : DownloadTaskDeleteLister.Listener {
-        override fun onDelete(taskDeleteStatusEvent: TaskDeleteStatusEvent?) {
-            Toast.makeText(this@MainActivity, "手动删除任务成功!", Toast.LENGTH_LONG).show()
+    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
+        override fun delete(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
+            Log.d(LOG_TAG,"delete isSuccess $isSuccess")
+        }
+
+        override fun deleteAll(isSuccess: Boolean) {
+            Log.d(LOG_TAG,"deleteAll isSuccess $isSuccess")
+        }
+
+        override fun rename(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
+            Log.d(LOG_TAG,"rename isSuccess $isSuccess")
         }
     })
 
