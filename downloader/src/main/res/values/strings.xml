@@ -8,4 +8,11 @@
     <string name="q_continue">Continue</string>
     <string name="q_failed">failed</string>
     <string name="q_downloading">Downloading&#8230;</string>
+    <string name="q_setting">Setting</string>
+    <string name="q_external_storage_not_usable">
+        <![CDATA[<big><b>We need to access your external storage. Please make sure it\'s usable.</b></big>]]>
+    </string>
+    <string name="q_external_storage_permission_denied">
+        <![CDATA[<big><b>We need to access your external storage. Please make sure the permission is granted.</b></big>]]>
+    </string>
 </resources>

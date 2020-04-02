@@ -9,6 +9,7 @@ import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.PermissionUtils
 import okhttp3.OkHttpClient
 
 /**
@@ -61,36 +62,46 @@ class DownloadManager {
 
     fun startTask(mContext: Context, url: String,
                   fileName: String? = null, notificationTitle: String? = null,
-                  silent: Boolean = true, fileType: Int = 0,
+                  silent: Boolean = false, fileType: Int = 0,
                   paramData: String? = null, showNotification: Boolean = true) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
-                , DownloadServiceV14::class.java, DownloadTaskBean().apply {
-            this.url = url
-            this.absolutePath = TaskConfig.getOkDownloadAbsolutePath(fileName)
-            this.paramData = paramData
-            this.showNotification = showNotification
-            this.flag = fileType
-            this.notificationTitle = notificationTitle
-        }))
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
+                    , DownloadServiceV14::class.java, DownloadTaskBean().apply {
+                this.url = url
+                this.absolutePath = TaskConfig.getOkDownloadAbsolutePath(fileName)
+                this.paramData = paramData
+                this.showNotification = showNotification
+                this.flag = fileType
+                this.notificationTitle = notificationTitle
+            }))
+        }
     }
 
-    fun stopTask(mContext: Context, taskUrl: String) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
-                , DownloadServiceV14::class.java, taskUrl))
+    fun stopTask(mContext: Context, taskUrl: String, silent: Boolean = false) {
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
+                    , DownloadServiceV14::class.java, taskUrl))
+        }
     }
 
-    fun deleteTask(mContext: Context, taskUrl: String, isDeleteFile: Boolean) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
-                , DownloadServiceV14::class.java, taskUrl, isDeleteFile))
+    fun deleteTask(mContext: Context, taskUrl: String, isDeleteFile: Boolean, silent: Boolean = false) {
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
+                    , DownloadServiceV14::class.java, taskUrl, isDeleteFile))
+        }
     }
 
-    fun deleteAllTask(mContext: Context) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
-                , DownloadServiceV14::class.java))
+    fun deleteAllTask(mContext: Context, silent: Boolean = false) {
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
+                    , DownloadServiceV14::class.java))
+        }
     }
 
-    fun renameTaskFile(mContext: Context, taskUrl: String, fileName: String) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext
-                , DownloadServiceV14::class.java, taskUrl, fileName))
+    fun renameTaskFile(mContext: Context, taskUrl: String, fileName: String, silent: Boolean = false) {
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext
+                    , DownloadServiceV14::class.java, taskUrl, fileName))
+        }
     }
 }
