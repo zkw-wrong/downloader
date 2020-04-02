@@ -7,13 +7,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
-import com.apkpure.components.downloader.utils.FsUtils
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -131,7 +131,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun clickDownload() {
-        DownloadManager.instance.startTask(this, apkUrl1, "abc.apk", "Title ABC")
+        DownloadManager.instance.startTask(this, apkUrl1, "abc.apk"
+                , "Title ABC", Extras(mutableMapOf(Pair("qwe", "123"))))
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

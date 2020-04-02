@@ -117,6 +117,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.totalLength = totalLength
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 AppLogger.d(logTag, "onInfoReady ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
@@ -138,6 +139,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean?.apply {
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 AppLogger.d(logTag, "onCancel ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
@@ -147,6 +149,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean?.apply {
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 AppLogger.d(logTag, "onSuccess ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
@@ -156,6 +159,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean?.apply {
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 AppLogger.d(logTag, "onError ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }

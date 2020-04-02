@@ -2,12 +2,12 @@ package com.apkpure.components.downloader.db.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import androidx.annotation.Nullable;
-
-import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
+import com.apkpure.components.downloader.db.Extras;
+import com.apkpure.components.downloader.db.convert.ExtrasConvert;
+import com.apkpure.components.downloader.db.convert.TaskStatusConverter;
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType;
-
+import java.util.Date;
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
@@ -15,8 +15,6 @@ import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Transient;
-
-import java.util.Date;
 import org.greenrobot.greendao.annotation.Generated;
 
 /**
@@ -37,12 +35,13 @@ public class DownloadTaskBean implements Parcelable {
     @Property(nameInDb = "_absolute_path")
     private String absolutePath;
 
-    @Property(nameInDb = "_param_date")
-    private String paramData;
-
-    @Convert(converter = MissionStatusTypeConverter.class, columnType = Integer.class)
+    @Convert(converter = TaskStatusConverter.class, columnType = Integer.class)
     @Property(nameInDb = "_download_task_status_type")
     private DownloadTaskStatusType downloadTaskStatusType = DownloadTaskStatusType.Waiting;
+
+    @Convert(converter = ExtrasConvert.class, columnType = String.class)
+    @Property(nameInDb = "_extras")
+    private Extras extras;
 
     @Property(nameInDb = "_date")
     private Date date = new Date();
@@ -56,9 +55,6 @@ public class DownloadTaskBean implements Parcelable {
     @Property(nameInDb = "_show_notification")
     private boolean showNotification;
 
-    @Property(nameInDb = "_flag")
-    private int flag;
-
     @Property(nameInDb = "_notification_id")
     private int notificationId;
 
@@ -68,20 +64,31 @@ public class DownloadTaskBean implements Parcelable {
     @Transient
     private String taskSpeed;
 
-    @Generated(hash = 1673626083)
-    public DownloadTaskBean(@NotNull String url, String absolutePath, String paramData,
-            DownloadTaskStatusType downloadTaskStatusType, Date date, long currentOffset,
-            long totalLength, boolean showNotification, int flag, int notificationId,
-            String notificationTitle) {
+    protected DownloadTaskBean(Parcel in) {
+        url = in.readString();
+        absolutePath = in.readString();
+        extras = in.readParcelable(Extras.class.getClassLoader());
+        currentOffset = in.readLong();
+        totalLength = in.readLong();
+        showNotification = in.readByte() != 0;
+        notificationId = in.readInt();
+        notificationTitle = in.readString();
+        taskSpeed = in.readString();
+    }
+
+    @Generated(hash = 684668229)
+    public DownloadTaskBean(@NotNull String url, String absolutePath,
+            DownloadTaskStatusType downloadTaskStatusType, Extras extras, Date date,
+            long currentOffset, long totalLength, boolean showNotification,
+            int notificationId, String notificationTitle) {
         this.url = url;
         this.absolutePath = absolutePath;
-        this.paramData = paramData;
         this.downloadTaskStatusType = downloadTaskStatusType;
+        this.extras = extras;
         this.date = date;
         this.currentOffset = currentOffset;
         this.totalLength = totalLength;
         this.showNotification = showNotification;
-        this.flag = flag;
         this.notificationId = notificationId;
         this.notificationTitle = notificationTitle;
     }
@@ -90,28 +97,14 @@ public class DownloadTaskBean implements Parcelable {
     public DownloadTaskBean() {
     }
 
-    protected DownloadTaskBean(Parcel in) {
-        url = in.readString();
-        absolutePath = in.readString();
-        paramData = in.readString();
-        currentOffset = in.readLong();
-        totalLength = in.readLong();
-        showNotification = in.readByte() != 0;
-        flag = in.readInt();
-        notificationId = in.readInt();
-        notificationTitle = in.readString();
-        taskSpeed = in.readString();
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(url);
         dest.writeString(absolutePath);
-        dest.writeString(paramData);
+        dest.writeParcelable(extras, flags);
         dest.writeLong(currentOffset);
         dest.writeLong(totalLength);
         dest.writeByte((byte) (showNotification ? 1 : 0));
-        dest.writeInt(flag);
         dest.writeInt(notificationId);
         dest.writeString(notificationTitle);
         dest.writeString(taskSpeed);
@@ -147,17 +140,8 @@ public class DownloadTaskBean implements Parcelable {
         return this.absolutePath;
     }
 
-    public void setAbsolutePath(String absolutePath) {
+    public void setAbsolutePath(@NotNull String absolutePath) {
         this.absolutePath = absolutePath;
-    }
-
-    @Nullable
-    public String getParamData() {
-        return this.paramData;
-    }
-
-    public void setParamData(String paramData) {
-        this.paramData = paramData;
     }
 
     public DownloadTaskStatusType getDownloadTaskStatusType() {
@@ -209,14 +193,6 @@ public class DownloadTaskBean implements Parcelable {
         this.showNotification = showNotification;
     }
 
-    public int getFlag() {
-        return this.flag;
-    }
-
-    public void setFlag(int flag) {
-        this.flag = flag;
-    }
-
     public int getNotificationId() {
         return this.notificationId;
     }
@@ -233,4 +209,12 @@ public class DownloadTaskBean implements Parcelable {
         this.notificationTitle = notificationTitle;
     }
 
+    @Nullable
+    public Extras getExtras() {
+        return this.extras;
+    }
+
+    public void setExtras(@Nullable Extras extras) {
+        this.extras = extras;
+    }
 }

@@ -3,6 +3,7 @@ package com.apkpure.components.downloader.service
 import android.app.Application
 import android.content.Context
 import com.apkpure.components.downloader.db.AppDbHelper
+import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.service.misc.TaskConfig
 import com.apkpure.components.downloader.service.misc.TaskManager
@@ -62,16 +63,15 @@ class DownloadManager {
 
     fun startTask(mContext: Context, url: String,
                   fileName: String? = null, notificationTitle: String? = null,
-                  silent: Boolean = false, fileType: Int = 0,
-                  paramData: String? = null, showNotification: Boolean = true) {
+                  extras: Extras? = null, silent: Boolean = false,
+                  showNotification: Boolean = true) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
                     , DownloadServiceV14::class.java, DownloadTaskBean().apply {
                 this.url = url
                 this.absolutePath = TaskConfig.getOkDownloadAbsolutePath(fileName)
-                this.paramData = paramData
                 this.showNotification = showNotification
-                this.flag = fileType
+                this.extras = extras
                 this.notificationTitle = notificationTitle
             }))
         }
