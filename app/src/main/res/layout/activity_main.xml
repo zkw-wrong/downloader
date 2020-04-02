@@ -23,4 +23,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="删除任务" />
+
+    <Button
+      android:id="@+id/rename_task_bt"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="重名名下载文件" />
 </LinearLayout>

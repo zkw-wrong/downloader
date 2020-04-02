@@ -1,0 +1,48 @@
+image: apk.302e.com:3000/docker/android:29.0.2
+
+stages:
+  - build
+
+before_script:
+  - date
+  - echo >> gradle.properties
+  - echo "systemProp.http.proxyHost=172.16.8.8" >> gradle.properties
+  - echo "systemProp.http.proxyPort=30010" >> gradle.properties
+  - echo "systemProp.http.nonProxyHosts=*.nonproxyrepos.com|localhost" >> gradle.properties
+
+  - echo "systemProp.https.proxyHost=172.16.8.8" >> gradle.properties
+  - echo "systemProp.https.proxyPort=30010" >> gradle.properties
+  - echo "systemProp.https.nonProxyHosts=*.nonproxyrepos.com|localhost" >> gradle.properties
+
+  - cat gradle.properties
+
+after_script:
+  - mkdir outputs/
+  - mv downloader/build/outputs/aar/*.aar  ./outputs/
+
+build-release:
+  stage: build
+  script:
+    - ./gradlew :downloader:uploadArchives
+  only:
+    - /^release\/.*$/
+  artifacts:
+    name: "components_downloader_release_${CI_JOB_ID}"
+    paths:
+      - "outputs"
+    expire_in: 3 month
+
+build-snapshot:
+  stage: build
+  script:
+    - echo >> downloader/gradle.properties
+    - echo "VERSION_SUFFIX=SNAPSHOT" >> downloader/gradle.properties
+    - cat downloader/gradle.properties
+    - ./gradlew :downloader:uploadArchives
+  only:
+    - master
+  artifacts:
+    name: "components_download_library_snapshot_${CI_JOB_ID}"
+    paths:
+      - "outputs"
+    expire_in: 2 weeks

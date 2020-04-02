@@ -62,30 +62,17 @@ public class DownloadTaskBean implements Parcelable {
     @Property(nameInDb = "_notification_id")
     private int notificationId;
 
-    @Property(nameInDb = "_short_name")
-    private String shortName;
+    @Property(nameInDb = "_notification_title")
+    private String notificationTitle;
 
     @Transient
     private String taskSpeed;
 
-    protected DownloadTaskBean(Parcel in) {
-        url = in.readString();
-        absolutePath = in.readString();
-        paramData = in.readString();
-        currentOffset = in.readLong();
-        totalLength = in.readLong();
-        showNotification = in.readByte() != 0;
-        flag = in.readInt();
-        notificationId = in.readInt();
-        shortName = in.readString();
-        taskSpeed = in.readString();
-    }
-
-    @Generated(hash = 790841681)
+    @Generated(hash = 1673626083)
     public DownloadTaskBean(@NotNull String url, String absolutePath, String paramData,
             DownloadTaskStatusType downloadTaskStatusType, Date date, long currentOffset,
             long totalLength, boolean showNotification, int flag, int notificationId,
-            String shortName) {
+            String notificationTitle) {
         this.url = url;
         this.absolutePath = absolutePath;
         this.paramData = paramData;
@@ -96,11 +83,24 @@ public class DownloadTaskBean implements Parcelable {
         this.showNotification = showNotification;
         this.flag = flag;
         this.notificationId = notificationId;
-        this.shortName = shortName;
+        this.notificationTitle = notificationTitle;
     }
 
     @Generated(hash = 2123101309)
     public DownloadTaskBean() {
+    }
+
+    protected DownloadTaskBean(Parcel in) {
+        url = in.readString();
+        absolutePath = in.readString();
+        paramData = in.readString();
+        currentOffset = in.readLong();
+        totalLength = in.readLong();
+        showNotification = in.readByte() != 0;
+        flag = in.readInt();
+        notificationId = in.readInt();
+        notificationTitle = in.readString();
+        taskSpeed = in.readString();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class DownloadTaskBean implements Parcelable {
         dest.writeByte((byte) (showNotification ? 1 : 0));
         dest.writeInt(flag);
         dest.writeInt(notificationId);
-        dest.writeString(shortName);
+        dest.writeString(notificationTitle);
         dest.writeString(taskSpeed);
     }
 
@@ -225,11 +225,12 @@ public class DownloadTaskBean implements Parcelable {
         this.notificationId = notificationId;
     }
 
-    public String getShortName() {
-        return this.shortName;
+    public String getNotificationTitle() {
+        return this.notificationTitle;
     }
 
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
+    public void setNotificationTitle(String notificationTitle) {
+        this.notificationTitle = notificationTitle;
     }
+
 }

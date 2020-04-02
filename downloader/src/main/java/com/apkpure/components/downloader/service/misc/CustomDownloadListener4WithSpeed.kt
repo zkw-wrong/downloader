@@ -64,7 +64,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
                 } else if (retryObj is Int) {
                     retryObj += 1
                     task.addTag(retryTagKey, retryObj)
-                    if (retryObj >= DownloadTaskConfig.failedRetryCount) {
+                    if (retryObj >= TaskConfig.failedRetryCount) {
                         taskListener?.onError(missionDbBean, task, DownloadTaskStatusType.Failed)
                     } else {
                         task.enqueue(this)

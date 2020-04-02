@@ -3,6 +3,7 @@ package com.apkpure.demo.download
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -13,21 +14,23 @@ import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskDeleteLister
+import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
-import com.apkpure.components.downloader.utils.TaskDeleteStatusEvent
 import java.io.File
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
+    private val LOG_TAG = "MainActivity"
     private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
     private val call_write_storage = 1
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
+    private lateinit var renameTaskBt: Button
     private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
     private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
+    private var downloadTaskBean: DownloadTaskBean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,12 +38,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         clearBt = findViewById(R.id.clear_bt)
         apkBt = findViewById(R.id.apk_bt)
         deleteTaskBt = findViewById(R.id.delete_task_bt)
+        renameTaskBt = findViewById(R.id.rename_task_bt)
         clearBt.setOnClickListener(this)
         apkBt.setOnClickListener(this)
         deleteTaskBt.setOnClickListener(this)
+        renameTaskBt.setOnClickListener(this)
         checkPermissions()
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
+        renameTaskBt.isEnabled = false
     }
 
     override fun onClick(v: View?) {
@@ -54,6 +60,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             deleteTaskBt -> {
                 DownloadManager.instance.deleteTask(this, apkUrl1, true)
             }
+            renameTaskBt -> {
+                downloadTaskBean?.let {
+                    DownloadManager.instance.renameTaskFile(this,it.url,"new_file.apk")
+                }
+            }
         }
     }
 
@@ -65,9 +76,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
             object : DownloadTaskChangeLister.Listener {
-                override fun onChange(downloadTaskBean: DownloadTaskBean) {
+                override fun onChange(downloadTaskBean1: DownloadTaskBean) {
+                    downloadTaskBean = downloadTaskBean1
                     apkBt.isEnabled = false
-                    val info = when (downloadTaskBean.downloadTaskStatusType) {
+                    renameTaskBt.isEnabled = downloadTaskBean1.downloadTaskStatusType == DownloadTaskStatusType.Success
+                    val info = when (downloadTaskBean1.downloadTaskStatusType) {
                         DownloadTaskStatusType.Waiting -> {
                             "等待中..."
                         }
@@ -76,8 +89,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         }
                         DownloadTaskStatusType.Downloading -> {
                             val progressInfo = CommonUtils.formatPercentInfo(
-                                    downloadTaskBean.currentOffset,
-                                    downloadTaskBean.totalLength
+                                    downloadTaskBean1.currentOffset,
+                                    downloadTaskBean1.totalLength
                             )
                             "下载中($progressInfo)..."
                         }
@@ -102,13 +115,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             })
 
     //这个删除监听指的从应用里面删除才能收到消息
-    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskDeleteLister.Receiver(this, object : DownloadTaskDeleteLister.Listener {
-        override fun onDelete(taskDeleteStatusEvent: TaskDeleteStatusEvent?) {
-            Toast.makeText(this@MainActivity, "手动删除任务成功!", Toast.LENGTH_LONG).show()
+    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
+        override fun delete(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
+            Log.d(LOG_TAG,"delete isSuccess $isSuccess")
+        }
+
+        override fun deleteAll(isSuccess: Boolean) {
+            Log.d(LOG_TAG,"deleteAll isSuccess $isSuccess")
+        }
+
+        override fun rename(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
+            Log.d(LOG_TAG,"rename isSuccess $isSuccess")
         }
     })
 
-    fun clearDownloadFolder() {
+    private fun clearDownloadFolder() {
         apkBt.isEnabled = true
         apkBt.text = "重新下载"
         FsUtils.deleteFileOrDir(AppFolder.apkFolder)
@@ -116,15 +137,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun clickDownload() {
         AppFolder.apkFolder?.absolutePath?.let {
-            DownloadManager.instance.startClickTask(this, DownloadTaskBean().apply {
-                val fileName = "test.apk"
-                this.url = apkUrl1
-                this.absolutePath = "$it${File.separator}$fileName"
-                this.showNotification = true
-                this.flag = 1//file type
-                this.shortName = "test.apk"
-                this.paramData = "JSON 参数信息"
-            })
+            DownloadManager.instance.startTask(this, apkUrl1, "abc.apk", "Title ABC")
         }
     }
 

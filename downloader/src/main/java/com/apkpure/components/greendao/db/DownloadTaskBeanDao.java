@@ -37,7 +37,7 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         public final static Property ShowNotification = new Property(7, boolean.class, "showNotification", false, "_show_notification");
         public final static Property Flag = new Property(8, int.class, "flag", false, "_flag");
         public final static Property NotificationId = new Property(9, int.class, "notificationId", false, "_notification_id");
-        public final static Property ShortName = new Property(10, String.class, "shortName", false, "_short_name");
+        public final static Property NotificationTitle = new Property(10, String.class, "notificationTitle", false, "_notification_title");
     }
 
     private final MissionStatusTypeConverter downloadTaskStatusTypeConverter = new MissionStatusTypeConverter();
@@ -64,7 +64,7 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
                 "\"_show_notification\" INTEGER NOT NULL ," + // 7: showNotification
                 "\"_flag\" INTEGER NOT NULL ," + // 8: flag
                 "\"_notification_id\" INTEGER NOT NULL ," + // 9: notificationId
-                "\"_short_name\" TEXT);"); // 10: shortName
+                "\"_notification_title\" TEXT);"); // 10: notificationTitle
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_download_tasks__download_url ON \"download_tasks\"" +
                 " (\"_download_url\" ASC);");
@@ -106,9 +106,9 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         stmt.bindLong(9, entity.getFlag());
         stmt.bindLong(10, entity.getNotificationId());
  
-        String shortName = entity.getShortName();
-        if (shortName != null) {
-            stmt.bindString(11, shortName);
+        String notificationTitle = entity.getNotificationTitle();
+        if (notificationTitle != null) {
+            stmt.bindString(11, notificationTitle);
         }
     }
 
@@ -142,9 +142,9 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         stmt.bindLong(9, entity.getFlag());
         stmt.bindLong(10, entity.getNotificationId());
  
-        String shortName = entity.getShortName();
-        if (shortName != null) {
-            stmt.bindString(11, shortName);
+        String notificationTitle = entity.getNotificationTitle();
+        if (notificationTitle != null) {
+            stmt.bindString(11, notificationTitle);
         }
     }
 
@@ -166,7 +166,7 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
             cursor.getShort(offset + 7) != 0, // showNotification
             cursor.getInt(offset + 8), // flag
             cursor.getInt(offset + 9), // notificationId
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // shortName
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // notificationTitle
         );
         return entity;
     }
@@ -183,7 +183,7 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         entity.setShowNotification(cursor.getShort(offset + 7) != 0);
         entity.setFlag(cursor.getInt(offset + 8));
         entity.setNotificationId(cursor.getInt(offset + 9));
-        entity.setShortName(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setNotificationTitle(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
      }
     
     @Override

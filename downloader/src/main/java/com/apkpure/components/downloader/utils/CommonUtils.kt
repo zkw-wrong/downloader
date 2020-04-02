@@ -2,7 +2,9 @@ package com.apkpure.components.downloader.utils
 
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
@@ -55,6 +57,18 @@ object CommonUtils {
             DownloadTaskStatusType.Stop -> mContext.getString(R.string.q_paused)
             DownloadTaskStatusType.Failed -> mContext.getString(R.string.q_failed)
             else -> String()
+        }
+    }
+
+    fun startService(mContext: Context, intent: Intent) {
+        mContext.startService(intent)
+    }
+
+    private fun startForegroundService(mContext: Context, intent: Intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mContext.startForegroundService(intent)
+        } else {
+            mContext.startService(intent)
         }
     }
 }

@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.greenrobot.greendao'
+apply from: 'upload_nexus.gradle'
 
 android {
     compileSdkVersion 29
@@ -10,8 +11,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
-        versionName "1.6"
-        consumerProguardFiles 'proguard-rules.pro'
+        versionName "1.2"
     }
 
     compileOptions {
@@ -22,6 +22,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -29,7 +30,7 @@ android {
         variant.outputs.each { output ->
             def outputFileName1 = output.outputFileName
             if (outputFileName1 != null && outputFileName1.endsWith('.aar')) {
-                output.outputFileName = "download-library" +
+                output.outputFileName = "download_library" +
                         "_${variant.buildType.name}" +
                         "_v${defaultConfig.versionName}.aar"
             }
@@ -38,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 1
+    schemaVersion 2
     daoPackage 'com.apkpure.components.greendao.db'
     targetGenDir 'src/main/java'
 }
@@ -58,4 +59,7 @@ dependencies {
     implementation "org.greenrobot:greendao:3.2.2"
     implementation "io.reactivex.rxjava2:rxjava:2.2.10"
     implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+
+    //dialog
+    implementation 'com.apkpure.components:dialog:1.0.0'
 }

@@ -17,7 +17,7 @@
           android:authorities="${applicationId}.fileprovider"
           android:exported="false"
           android:grantUriPermissions="true"
-          android:name=".utils.CustomFileProvider">
+          android:name=".utils.DownloadFileProvider">
             <meta-data
               android:name="android.support.FILE_PROVIDER_PATHS"
               android:resource="@xml/file_provider_paths" />
