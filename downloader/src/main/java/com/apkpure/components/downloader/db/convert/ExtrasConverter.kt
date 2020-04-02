@@ -8,7 +8,7 @@ import org.json.JSONObject
  * @author xiongke
  * @date 2018/10/27
  */
-class ExtrasConvert : PropertyConverter<Extras, String> {
+class ExtrasConverter : PropertyConverter<Extras, String> {
 
     override fun convertToEntityProperty(databaseValue: String?): Extras? {
         return if (!databaseValue.isNullOrEmpty()) {

@@ -10,7 +10,7 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
 import com.apkpure.components.downloader.db.Extras;
-import com.apkpure.components.downloader.db.convert.ExtrasConvert;
+import com.apkpure.components.downloader.db.convert.ExtrasConverter;
 import com.apkpure.components.downloader.db.convert.TaskStatusConverter;
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType;
 
@@ -42,7 +42,7 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
     }
 
     private final TaskStatusConverter downloadTaskStatusTypeConverter = new TaskStatusConverter();
-    private final ExtrasConvert extrasConverter = new ExtrasConvert();
+    private final ExtrasConverter extrasConverter = new ExtrasConverter();
 
     public DownloadTaskBeanDao(DaoConfig config) {
         super(config);

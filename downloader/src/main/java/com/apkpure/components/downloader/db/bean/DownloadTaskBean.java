@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.apkpure.components.downloader.db.Extras;
-import com.apkpure.components.downloader.db.convert.ExtrasConvert;
+import com.apkpure.components.downloader.db.convert.ExtrasConverter;
 import com.apkpure.components.downloader.db.convert.TaskStatusConverter;
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class DownloadTaskBean implements Parcelable {
     @Property(nameInDb = "_download_task_status_type")
     private DownloadTaskStatusType downloadTaskStatusType = DownloadTaskStatusType.Waiting;
 
-    @Convert(converter = ExtrasConvert.class, columnType = String.class)
+    @Convert(converter = ExtrasConverter.class, columnType = String.class)
     @Property(nameInDb = "_extras")
     private Extras extras;
 
