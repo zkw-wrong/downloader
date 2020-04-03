@@ -7,7 +7,7 @@ import org.greenrobot.greendao.converter.PropertyConverter
  * @author xiongke
  * @date 2018/10/27
  */
-class MissionStatusTypeConverter : PropertyConverter<DownloadTaskStatusType, Int> {
+class TaskStatusConverter : PropertyConverter<DownloadTaskStatusType, Int> {
     override fun convertToEntityProperty(databaseValue: Int?): DownloadTaskStatusType {
         return if (databaseValue != null) {
             DownloadTaskStatusType.values()[databaseValue]

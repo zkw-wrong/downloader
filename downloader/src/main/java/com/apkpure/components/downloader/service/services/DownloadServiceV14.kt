@@ -3,7 +3,7 @@ package com.apkpure.components.downloader.service.services
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.apkpure.components.downloader.utils.AppLogger
+import com.apkpure.components.downloader.utils.Logger
 
 /**
  * @author xiongke
@@ -20,7 +20,7 @@ class DownloadServiceV14 : Service() {
     private val mContext by lazy { this }
     override fun onCreate() {
         super.onCreate()
-        AppLogger.d(logTag, "onCreate")
+        Logger.d(logTag, "onCreate")
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -28,7 +28,7 @@ class DownloadServiceV14 : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        AppLogger.d(logTag, "onStartCommand ${intent?.action}")
+        Logger.d(logTag, "onStartCommand ${intent?.action}")
         intent?.let {
             downloadServiceAssistUtils.handlerIntent(it)
         }
@@ -37,7 +37,7 @@ class DownloadServiceV14 : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        AppLogger.d(logTag, "onDestroy")
+        Logger.d(logTag, "onDestroy")
     }
 
 }

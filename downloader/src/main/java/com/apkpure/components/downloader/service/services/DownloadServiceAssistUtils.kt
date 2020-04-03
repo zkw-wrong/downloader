@@ -108,7 +108,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     this.totalLength = 0
                 }
                 updateDbDataAndNotify(this)
-                AppLogger.d(logTag, "onStart ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onStart ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -117,8 +117,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.totalLength = totalLength
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                AppLogger.d(logTag, "onInfoReady ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onInfoReady ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -130,7 +131,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatusType = downloadTaskStatusType
                 val downloadPercent = CommonUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                 updateDbDataAndNotify(this)
-                AppLogger.d(logTag, "onProgress ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
+                Logger.d(logTag, "onProgress ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
             }
         }
 
@@ -138,8 +139,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean?.apply {
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                AppLogger.d(logTag, "onCancel ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onCancel ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -147,8 +149,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean?.apply {
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                AppLogger.d(logTag, "onSuccess ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onSuccess ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -156,14 +159,15 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTaskBean?.apply {
                 this.downloadTaskStatusType = downloadTaskStatusType
                 this.absolutePath = task.file?.path
+                this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                AppLogger.d(logTag, "onError ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onError ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
         override fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatusType: DownloadTaskStatusType, retryCount: Int) {
             downloadTaskBean?.apply {
-                AppLogger.d(logTag, "onRetry ${this.notificationTitle}  $retryCount")
+                Logger.d(logTag, "onRetry ${this.notificationTitle}  $retryCount")
             }
         }
     }
@@ -217,7 +221,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     }
 
                     override fun rxOnNext(t: List<DownloadTaskBean>) {
-                        AppLogger.d(logTag, "initialData task size ${t.size}")
+                        Logger.d(logTag, "initialData task size ${t.size}")
                         downloadTaskLists.apply {
                             this.addAll(t)
                         }

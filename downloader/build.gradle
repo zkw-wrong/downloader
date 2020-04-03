@@ -11,7 +11,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
-        versionName "1.2"
+        versionName "1.3"
     }
 
     compileOptions {
@@ -39,7 +39,7 @@ android {
 }
 
 greendao {
-    schemaVersion 2
+    schemaVersion 3
     daoPackage 'com.apkpure.components.greendao.db'
     targetGenDir 'src/main/java'
 }

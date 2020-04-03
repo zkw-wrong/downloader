@@ -1,6 +1,5 @@
 package com.apkpure.demo.download
 
-import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -8,16 +7,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
-import com.apkpure.components.downloader.utils.FsUtils
-import java.io.File
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -43,7 +39,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         apkBt.setOnClickListener(this)
         deleteTaskBt.setOnClickListener(this)
         renameTaskBt.setOnClickListener(this)
-        checkPermissions()
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
         renameTaskBt.isEnabled = false
@@ -62,7 +57,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             renameTaskBt -> {
                 downloadTaskBean?.let {
-                    DownloadManager.instance.renameTaskFile(this,it.url,"new_file.apk")
+                    DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
                 }
             }
         }
@@ -117,44 +112,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     //这个删除监听指的从应用里面删除才能收到消息
     private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
         override fun delete(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
-            Log.d(LOG_TAG,"delete isSuccess $isSuccess")
+            Log.d(LOG_TAG, "delete isSuccess $isSuccess")
         }
 
         override fun deleteAll(isSuccess: Boolean) {
-            Log.d(LOG_TAG,"deleteAll isSuccess $isSuccess")
+            Log.d(LOG_TAG, "deleteAll isSuccess $isSuccess")
         }
 
         override fun rename(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
-            Log.d(LOG_TAG,"rename isSuccess $isSuccess")
+            Log.d(LOG_TAG, "rename isSuccess $isSuccess")
         }
     })
 
     private fun clearDownloadFolder() {
         apkBt.isEnabled = true
         apkBt.text = "重新下载"
-        FsUtils.deleteFileOrDir(AppFolder.apkFolder)
+        DownloadManager.instance.deleteAllTask(this)
     }
 
     private fun clickDownload() {
-        AppFolder.apkFolder?.absolutePath?.let {
-            DownloadManager.instance.startTask(this, apkUrl1, "abc.apk", "Title ABC")
-        }
-    }
-
-    private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            apkBt.isEnabled = false
-            clearBt.isEnabled = false
-            ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    call_write_storage
-            )
-        } else {
-            apkBt.isEnabled = true
-            clearBt.isEnabled = true
-        }
+        DownloadManager.instance.startTask(this, apkUrl1, "abc.apk"
+                , "Title ABC", Extras(mutableMapOf(Pair("qwe", "123"))))
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

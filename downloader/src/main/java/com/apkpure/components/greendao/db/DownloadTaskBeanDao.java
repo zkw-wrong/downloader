@@ -9,7 +9,9 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
-import com.apkpure.components.downloader.db.convert.MissionStatusTypeConverter;
+import com.apkpure.components.downloader.db.Extras;
+import com.apkpure.components.downloader.db.convert.ExtrasConverter;
+import com.apkpure.components.downloader.db.convert.TaskStatusConverter;
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType;
 
 import com.apkpure.components.downloader.db.bean.DownloadTaskBean;
@@ -29,18 +31,18 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
     public static class Properties {
         public final static Property Url = new Property(0, String.class, "url", true, "_download_url");
         public final static Property AbsolutePath = new Property(1, String.class, "absolutePath", false, "_absolute_path");
-        public final static Property ParamData = new Property(2, String.class, "paramData", false, "_param_date");
-        public final static Property DownloadTaskStatusType = new Property(3, Integer.class, "downloadTaskStatusType", false, "_download_task_status_type");
+        public final static Property DownloadTaskStatusType = new Property(2, Integer.class, "downloadTaskStatusType", false, "_download_task_status_type");
+        public final static Property Extras = new Property(3, String.class, "extras", false, "_extras");
         public final static Property Date = new Property(4, java.util.Date.class, "date", false, "_date");
         public final static Property CurrentOffset = new Property(5, long.class, "currentOffset", false, "_current_offset");
         public final static Property TotalLength = new Property(6, long.class, "totalLength", false, "_total_length");
         public final static Property ShowNotification = new Property(7, boolean.class, "showNotification", false, "_show_notification");
-        public final static Property Flag = new Property(8, int.class, "flag", false, "_flag");
-        public final static Property NotificationId = new Property(9, int.class, "notificationId", false, "_notification_id");
-        public final static Property NotificationTitle = new Property(10, String.class, "notificationTitle", false, "_notification_title");
+        public final static Property NotificationId = new Property(8, int.class, "notificationId", false, "_notification_id");
+        public final static Property NotificationTitle = new Property(9, String.class, "notificationTitle", false, "_notification_title");
     }
 
-    private final MissionStatusTypeConverter downloadTaskStatusTypeConverter = new MissionStatusTypeConverter();
+    private final TaskStatusConverter downloadTaskStatusTypeConverter = new TaskStatusConverter();
+    private final ExtrasConverter extrasConverter = new ExtrasConverter();
 
     public DownloadTaskBeanDao(DaoConfig config) {
         super(config);
@@ -56,15 +58,14 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         db.execSQL("CREATE TABLE " + constraint + "\"download_tasks\" (" + //
                 "\"_download_url\" TEXT PRIMARY KEY NOT NULL ," + // 0: url
                 "\"_absolute_path\" TEXT," + // 1: absolutePath
-                "\"_param_date\" TEXT," + // 2: paramData
-                "\"_download_task_status_type\" INTEGER," + // 3: downloadTaskStatusType
+                "\"_download_task_status_type\" INTEGER," + // 2: downloadTaskStatusType
+                "\"_extras\" TEXT," + // 3: extras
                 "\"_date\" INTEGER," + // 4: date
                 "\"_current_offset\" INTEGER NOT NULL ," + // 5: currentOffset
                 "\"_total_length\" INTEGER NOT NULL ," + // 6: totalLength
                 "\"_show_notification\" INTEGER NOT NULL ," + // 7: showNotification
-                "\"_flag\" INTEGER NOT NULL ," + // 8: flag
-                "\"_notification_id\" INTEGER NOT NULL ," + // 9: notificationId
-                "\"_notification_title\" TEXT);"); // 10: notificationTitle
+                "\"_notification_id\" INTEGER NOT NULL ," + // 8: notificationId
+                "\"_notification_title\" TEXT);"); // 9: notificationTitle
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_download_tasks__download_url ON \"download_tasks\"" +
                 " (\"_download_url\" ASC);");
@@ -86,14 +87,14 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
             stmt.bindString(2, absolutePath);
         }
  
-        String paramData = entity.getParamData();
-        if (paramData != null) {
-            stmt.bindString(3, paramData);
-        }
- 
         DownloadTaskStatusType downloadTaskStatusType = entity.getDownloadTaskStatusType();
         if (downloadTaskStatusType != null) {
-            stmt.bindLong(4, downloadTaskStatusTypeConverter.convertToDatabaseValue(downloadTaskStatusType));
+            stmt.bindLong(3, downloadTaskStatusTypeConverter.convertToDatabaseValue(downloadTaskStatusType));
+        }
+ 
+        Extras extras = entity.getExtras();
+        if (extras != null) {
+            stmt.bindString(4, extrasConverter.convertToDatabaseValue(extras));
         }
  
         java.util.Date date = entity.getDate();
@@ -103,12 +104,11 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         stmt.bindLong(6, entity.getCurrentOffset());
         stmt.bindLong(7, entity.getTotalLength());
         stmt.bindLong(8, entity.getShowNotification() ? 1L: 0L);
-        stmt.bindLong(9, entity.getFlag());
-        stmt.bindLong(10, entity.getNotificationId());
+        stmt.bindLong(9, entity.getNotificationId());
  
         String notificationTitle = entity.getNotificationTitle();
         if (notificationTitle != null) {
-            stmt.bindString(11, notificationTitle);
+            stmt.bindString(10, notificationTitle);
         }
     }
 
@@ -122,14 +122,14 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
             stmt.bindString(2, absolutePath);
         }
  
-        String paramData = entity.getParamData();
-        if (paramData != null) {
-            stmt.bindString(3, paramData);
-        }
- 
         DownloadTaskStatusType downloadTaskStatusType = entity.getDownloadTaskStatusType();
         if (downloadTaskStatusType != null) {
-            stmt.bindLong(4, downloadTaskStatusTypeConverter.convertToDatabaseValue(downloadTaskStatusType));
+            stmt.bindLong(3, downloadTaskStatusTypeConverter.convertToDatabaseValue(downloadTaskStatusType));
+        }
+ 
+        Extras extras = entity.getExtras();
+        if (extras != null) {
+            stmt.bindString(4, extrasConverter.convertToDatabaseValue(extras));
         }
  
         java.util.Date date = entity.getDate();
@@ -139,12 +139,11 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         stmt.bindLong(6, entity.getCurrentOffset());
         stmt.bindLong(7, entity.getTotalLength());
         stmt.bindLong(8, entity.getShowNotification() ? 1L: 0L);
-        stmt.bindLong(9, entity.getFlag());
-        stmt.bindLong(10, entity.getNotificationId());
+        stmt.bindLong(9, entity.getNotificationId());
  
         String notificationTitle = entity.getNotificationTitle();
         if (notificationTitle != null) {
-            stmt.bindString(11, notificationTitle);
+            stmt.bindString(10, notificationTitle);
         }
     }
 
@@ -158,15 +157,14 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
         DownloadTaskBean entity = new DownloadTaskBean( //
             cursor.getString(offset + 0), // url
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // absolutePath
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // paramData
-            cursor.isNull(offset + 3) ? null : downloadTaskStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 3)), // downloadTaskStatusType
+            cursor.isNull(offset + 2) ? null : downloadTaskStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 2)), // downloadTaskStatusType
+            cursor.isNull(offset + 3) ? null : extrasConverter.convertToEntityProperty(cursor.getString(offset + 3)), // extras
             cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // date
             cursor.getLong(offset + 5), // currentOffset
             cursor.getLong(offset + 6), // totalLength
             cursor.getShort(offset + 7) != 0, // showNotification
-            cursor.getInt(offset + 8), // flag
-            cursor.getInt(offset + 9), // notificationId
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // notificationTitle
+            cursor.getInt(offset + 8), // notificationId
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // notificationTitle
         );
         return entity;
     }
@@ -175,15 +173,14 @@ public class DownloadTaskBeanDao extends AbstractDao<DownloadTaskBean, String> {
     public void readEntity(Cursor cursor, DownloadTaskBean entity, int offset) {
         entity.setUrl(cursor.getString(offset + 0));
         entity.setAbsolutePath(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setParamData(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setDownloadTaskStatusType(cursor.isNull(offset + 3) ? null : downloadTaskStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 3)));
+        entity.setDownloadTaskStatusType(cursor.isNull(offset + 2) ? null : downloadTaskStatusTypeConverter.convertToEntityProperty(cursor.getInt(offset + 2)));
+        entity.setExtras(cursor.isNull(offset + 3) ? null : extrasConverter.convertToEntityProperty(cursor.getString(offset + 3)));
         entity.setDate(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
         entity.setCurrentOffset(cursor.getLong(offset + 5));
         entity.setTotalLength(cursor.getLong(offset + 6));
         entity.setShowNotification(cursor.getShort(offset + 7) != 0);
-        entity.setFlag(cursor.getInt(offset + 8));
-        entity.setNotificationId(cursor.getInt(offset + 9));
-        entity.setNotificationTitle(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setNotificationId(cursor.getInt(offset + 8));
+        entity.setNotificationTitle(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
      }
     
     @Override
