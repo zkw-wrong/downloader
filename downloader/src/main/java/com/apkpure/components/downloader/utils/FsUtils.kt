@@ -5,7 +5,6 @@ import android.text.TextUtils
 import androidx.annotation.WorkerThread
 import java.io.File
 import java.io.FileFilter
-import java.lang.Exception
 import java.util.*
 
 /**
@@ -35,8 +34,11 @@ object FsUtils {
     }
 
     fun isFile(filePath: String?): Boolean {
-        val file = File(filePath)
-        return exists(file) && file.isFile
+        return if (!TextUtils.isEmpty(filePath)) {
+            exists(filePath) && File(filePath).isFile
+        } else {
+            false
+        }
     }
 
     fun deleteFileOrDir(filePath: String?) {
@@ -126,7 +128,7 @@ object FsUtils {
                     return newFile
                 }
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return null

@@ -4,7 +4,7 @@ package com.apkpure.components.downloader.db.enums
  * @author xiongke
  * @date 2018/11/6
  */
-enum class DownloadTaskStatusType(val typeId: Int) {
+enum class DownloadTaskStatus(val typeId: Int) {
     Waiting(0),
     Preparing(1),
     Stop(2),

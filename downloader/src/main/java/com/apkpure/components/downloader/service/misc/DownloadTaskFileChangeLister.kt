@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.apkpure.components.downloader.db.bean.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTaskBean
 import com.apkpure.components.downloader.utils.CommonUtils.register
 import com.apkpure.components.downloader.utils.CommonUtils.unregister
 
@@ -14,21 +14,14 @@ import com.apkpure.components.downloader.utils.CommonUtils.unregister
  */
 class DownloadTaskFileChangeLister {
     companion object {
-        private val ActionSingleDelete = DownloadTaskFileChangeLister::class.java.name + ".single_delete"
-        private val ActionAllDelete = DownloadTaskFileChangeLister::class.java.name + ".all_Delete"
+        private val ActionDelete = DownloadTaskFileChangeLister::class.java.name + ".delete"
         private val ActionRename = DownloadTaskFileChangeLister::class.java.name + ".file_rename"
         private const val paramsData = "params_data"
         private const val paramsIsSuccess = "is_success"
 
-        fun sendDeleteBroadcast(mContext: Context, downloadTaskBean: DownloadTaskBean?, isSuccess: Boolean) {
-            val intent = Intent(ActionSingleDelete)
-            intent.putExtra(paramsData, downloadTaskBean)
-            intent.putExtra(paramsIsSuccess, isSuccess)
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent)
-        }
-
-        fun sendAllDeleteBroadcast(mContext: Context, isSuccess: Boolean) {
-            val intent = Intent(ActionAllDelete)
+        fun sendDeleteBroadcast(mContext: Context, downloadTaskBeanList: ArrayList<DownloadTaskBean>?, isSuccess: Boolean) {
+            val intent = Intent(ActionDelete)
+            intent.putParcelableArrayListExtra(paramsData, downloadTaskBeanList)
             intent.putExtra(paramsIsSuccess, isSuccess)
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent)
         }
@@ -42,9 +35,7 @@ class DownloadTaskFileChangeLister {
     }
 
     interface Listener {
-        fun delete(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?)
-
-        fun deleteAll(isSuccess: Boolean)
+        fun delete(isSuccess: Boolean, downloadTaskBeanList: ArrayList<DownloadTaskBean>?)
 
         fun rename(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?)
     }
@@ -53,14 +44,10 @@ class DownloadTaskFileChangeLister {
         override fun onReceive(mContext: Context, intent: Intent) {
             try {
                 when (intent.action) {
-                    ActionSingleDelete -> {
-                        val downloadTaskBean = intent.getParcelableExtra<DownloadTaskBean>(paramsData)
+                    ActionDelete -> {
+                        val downloadTaskBean = intent.getParcelableArrayListExtra<DownloadTaskBean>(paramsData)
                         val isSuccess = intent.getBooleanExtra(paramsIsSuccess, false)
                         listener.delete(isSuccess, downloadTaskBean)
-                    }
-                    ActionAllDelete -> {
-                        val isSuccess = intent.getBooleanExtra(paramsIsSuccess, false)
-                        listener.deleteAll(isSuccess)
                     }
                     ActionRename -> {
                         val downloadTaskBean = intent.getParcelableExtra<DownloadTaskBean>(paramsData)
@@ -74,7 +61,7 @@ class DownloadTaskFileChangeLister {
         }
 
         fun register() {
-            register(mContext, this, ActionAllDelete, ActionSingleDelete, ActionRename)
+            register(mContext, this, ActionDelete, ActionRename)
         }
 
         fun unregister() {

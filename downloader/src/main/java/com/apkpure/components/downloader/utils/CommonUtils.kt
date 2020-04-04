@@ -7,8 +7,8 @@ import android.content.IntentFilter
 import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkpure.components.downloader.R
-import com.apkpure.components.downloader.db.bean.DownloadTaskBean
-import com.apkpure.components.downloader.db.enums.DownloadTaskStatusType
+import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import java.text.DecimalFormat
 
 /**
@@ -48,14 +48,14 @@ object CommonUtils {
         return DecimalFormat("##%").format(progress.toDouble() / count.toDouble())
     }
 
-    fun downloadStateNotificationInfo(mContext: Context, missionDbBean: DownloadTaskBean): String {
-        return when (missionDbBean.downloadTaskStatusType) {
-            DownloadTaskStatusType.Waiting -> mContext.getString(R.string.q_waiting)
-            DownloadTaskStatusType.Preparing -> mContext.getString(R.string.q_preparing)
-            DownloadTaskStatusType.Downloading -> mContext.getString(R.string.q_downloading)
-            DownloadTaskStatusType.Success -> mContext.getString(R.string.q_download_complete)
-            DownloadTaskStatusType.Stop -> mContext.getString(R.string.q_paused)
-            DownloadTaskStatusType.Failed -> mContext.getString(R.string.q_failed)
+    fun downloadStateNotificationInfo(mContext: Context, downloadTaskBean: DownloadTaskBean): String {
+        return when (downloadTaskBean.downloadTaskStatus) {
+            DownloadTaskStatus.Waiting -> mContext.getString(R.string.q_waiting)
+            DownloadTaskStatus.Preparing -> mContext.getString(R.string.q_preparing)
+            DownloadTaskStatus.Downloading -> mContext.getString(R.string.q_downloading)
+            DownloadTaskStatus.Success -> mContext.getString(R.string.q_download_complete)
+            DownloadTaskStatus.Stop -> mContext.getString(R.string.q_paused)
+            DownloadTaskStatus.Failed -> mContext.getString(R.string.q_failed)
             else -> String()
         }
     }

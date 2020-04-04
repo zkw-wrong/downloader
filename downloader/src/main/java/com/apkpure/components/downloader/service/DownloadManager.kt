@@ -2,9 +2,9 @@ package com.apkpure.components.downloader.service
 
 import android.app.Application
 import android.content.Context
-import com.apkpure.components.downloader.db.AppDbHelper
+import com.apkpure.components.downloader.db.DownloadDatabase
+import com.apkpure.components.downloader.db.DownloadTaskBean
 import com.apkpure.components.downloader.db.Extras
-import com.apkpure.components.downloader.db.bean.DownloadTaskBean
 import com.apkpure.components.downloader.service.misc.TaskConfig
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
@@ -24,7 +24,7 @@ class DownloadManager {
 
         fun initial(application: Application, builder: OkHttpClient.Builder) {
             this.application = application
-            AppDbHelper.init(application)
+            DownloadDatabase.initial(application)
             TaskManager.init(application, builder)
             instance.startInitialTask(application)
         }
@@ -84,10 +84,10 @@ class DownloadManager {
         }
     }
 
-    fun deleteTask(mContext: Context, taskUrl: String, isDeleteFile: Boolean, silent: Boolean = false) {
+    fun deleteTask(mContext: Context, taskUrlList: ArrayList<String>, isDeleteFile: Boolean, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
-                    , DownloadServiceV14::class.java, taskUrl, isDeleteFile))
+                    , DownloadServiceV14::class.java, taskUrlList, isDeleteFile))
         }
     }
 

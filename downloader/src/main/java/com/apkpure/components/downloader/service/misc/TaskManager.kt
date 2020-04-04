@@ -1,7 +1,7 @@
 package com.apkpure.components.downloader.service.misc
 
 import android.content.Context
-import com.apkpure.components.downloader.db.bean.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTaskBean
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.DownloadTask
 import com.liulishuo.okdownload.OkDownload

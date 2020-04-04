@@ -1,10 +1,12 @@
 # Apkpuew Downloader
 
+[最新版引用地址](http://maven.302e.com:3080/#browse/browse:maven-releases:com%2Fapkpure%2Fcomponents%2Fdownloader)
+
 1. 添加引用
 ```
 maven { url 'http://maven.302e.com:3080/repository/maven-public/' }
 
-implementation 'com.apkpure.components:downloader:1.2'
+implementation 'com.apkpure.components:downloader:{版本号}'
 ```
 
 2. 应用初始化初始化
@@ -52,12 +54,8 @@ DownloadTaskChangeLister.Receiver(this,
 
 //下载任务单个删除，全部删除，重命名，下载文件回调
 DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
-        override fun delete(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
-            Log.d(LOG_TAG, "delete isSuccess $isSuccess")
-        }
-
-        override fun deleteAll(isSuccess: Boolean) {
-            Log.d(LOG_TAG, "deleteAll isSuccess $isSuccess")
+        override fun delete(isSuccess: Boolean, downloadTaskBeanList: ArrayList<DownloadTaskBean>?) {
+            Log.d(LOG_TAG, "delete isSuccess $isSuccess size ${downloadTaskBeanList?.size}")
         }
 
         override fun rename(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {

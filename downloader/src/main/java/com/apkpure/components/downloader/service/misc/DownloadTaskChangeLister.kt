@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.apkpure.components.downloader.db.bean.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTaskBean
 import com.apkpure.components.downloader.utils.CommonUtils.register
 import com.apkpure.components.downloader.utils.CommonUtils.unregister
 
