@@ -63,7 +63,7 @@ DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeListe
         }
     })
 ```
-4.调用
+4.调用 
 ```
 //下载
 DownloadManager.instance.startTask(this, apkUrl1, "abc.apk"
@@ -76,8 +76,10 @@ DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
 //删除全部任务
 具体查看 DownloadManager 类的接口
 ```
+[DownloadManager](https://apk.302e.com:3443/mobile/components/downloader/-/blob/master/downloader/src/main/java/com/apkpure/components/downloader/service/DownloadManager.kt)
+
 5.其他
 ```
-默认自定义通知如果要实现自己设置DownloadTask不显示通知，同事实现自己通知即可
+默认自定义通知如果要实现自己设置DownloadTask不显示通知，同时实现自己通知即可
 ```
  
