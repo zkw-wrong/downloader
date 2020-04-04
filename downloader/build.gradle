@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'kotlin-kapt'
 apply from: 'upload_nexus.gradle'
 
 android {
@@ -11,7 +11,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
-        versionName "1.3"
+        versionName "1.4"
     }
 
     compileOptions {
@@ -38,12 +38,6 @@ android {
     }
 }
 
-greendao {
-    schemaVersion 3
-    daoPackage 'com.apkpure.components.greendao.db'
-    targetGenDir 'src/main/java'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -52,14 +46,13 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
+    implementation "androidx.room:room-runtime:2.2.5"
+    kapt "androidx.room:room-compiler:2.2.5"
     implementation "com.liulishuo.okdownload:okdownload:1.0.7"
     implementation "com.liulishuo.okdownload:sqlite:1.0.7"
     implementation "com.liulishuo.okdownload:okhttp:1.0.7"
     implementation "com.squareup.okhttp3:okhttp:3.11.0"
-    implementation "org.greenrobot:greendao:3.2.2"
     implementation "io.reactivex.rxjava2:rxjava:2.2.10"
     implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
-
-    //dialog
     implementation 'com.apkpure.components:dialog:1.0.0'
 }
