@@ -1,9 +1,9 @@
 package com.apkpure.components.downloader.service.misc
 
 import android.content.Context
-import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTask
 import com.liulishuo.okdownload.DownloadContext
-import com.liulishuo.okdownload.DownloadTask
+import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
 import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
@@ -67,8 +67,8 @@ class TaskManager {
         return false
     }
 
-    private fun getTask(taskUrl: String): DownloadTask? {
-        var downloadTask: DownloadTask? = null
+    private fun getTask(taskUrl: String): OkDownloadTask? {
+        var downloadTask: OkDownloadTask? = null
         this.downloadBuilder.build().tasks.iterator().forEach {
             if (it.url == taskUrl) {
                 downloadTask = it
@@ -81,9 +81,9 @@ class TaskManager {
         this.customDownloadListener4WithSpeed = customDownloadListener4WithSpeed
     }
 
-    fun start(downloadTaskBean: DownloadTaskBean) {
-        val downloadUrl = downloadTaskBean.url
-        val absolutePath = downloadTaskBean.absolutePath
+    fun start(downloadTask: DownloadTask) {
+        val downloadUrl = downloadTask.url
+        val absolutePath = downloadTask.absolutePath
         if (isExistsTask(downloadUrl)) {
             getTask(downloadUrl)?.apply {
                 downloadBuilder.bindSetTask(this)
@@ -91,7 +91,7 @@ class TaskManager {
                 this.enqueue(customDownloadListener4WithSpeed)
             }
         } else {
-            downloadBuilder.bind(DownloadTask.Builder(downloadUrl, File(absolutePath)))
+            downloadBuilder.bind(OkDownloadTask.Builder(downloadUrl, File(absolutePath)))
                     .apply {
                         this.tag = DownloadTaskActionTag.Default
                         this.enqueue(customDownloadListener4WithSpeed)

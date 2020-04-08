@@ -9,11 +9,11 @@ import androidx.room.*
 @Dao
 interface DownloadTaskDao {
     @Query("SELECT * FROM DownloadTaskTable")
-    fun queryAllDownloadTask(): List<DownloadTaskBean>
+    fun queryAllDownloadTask(): List<DownloadTask>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun createOrUpdateDownloadTask(downloadTaskBean: DownloadTaskBean)
+    fun createOrUpdateDownloadTask(downloadTask: DownloadTask)
 
     @Delete
-    fun deleteTasks(downloadTaskList: List<DownloadTaskBean>)
+    fun deleteTasks(downloadTaskList: List<DownloadTask>)
 }

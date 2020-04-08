@@ -12,7 +12,7 @@ import java.util.*
  */
 @Entity(tableName = "DownloadTaskTable", indices = [Index(value = ["_url"], unique = true)])
 @Parcelize
-data class DownloadTaskBean(
+data class DownloadTask(
         @PrimaryKey
         @ColumnInfo(name = "_url")
         var url: String,

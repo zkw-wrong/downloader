@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import android.os.Build
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkpure.components.downloader.R
-import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import java.text.DecimalFormat
 
@@ -48,8 +48,8 @@ object CommonUtils {
         return DecimalFormat("##%").format(progress.toDouble() / count.toDouble())
     }
 
-    fun downloadStateNotificationInfo(mContext: Context, downloadTaskBean: DownloadTaskBean): String {
-        return when (downloadTaskBean.downloadTaskStatus) {
+    fun downloadStateNotificationInfo(mContext: Context, downloadTask: DownloadTask): String {
+        return when (downloadTask.downloadTaskStatus) {
             DownloadTaskStatus.Waiting -> mContext.getString(R.string.q_waiting)
             DownloadTaskStatus.Preparing -> mContext.getString(R.string.q_preparing)
             DownloadTaskStatus.Downloading -> mContext.getString(R.string.q_downloading)
