@@ -7,20 +7,20 @@ import io.reactivex.Observable
  * date: 2020/4/4
  */
 object AppDbHelper {
-    fun queryAllDownloadTask(): Observable<List<DownloadTaskBean>> {
+    fun queryAllDownloadTask(): Observable<List<DownloadTask>> {
         return Observable.fromCallable {
             DownloadDatabase.instance.downloadTaskDao().queryAllDownloadTask()
         }
     }
 
-    fun createOrUpdateDownloadTask(downloadTaskBean: DownloadTaskBean): Observable<Long> {
+    fun createOrUpdateDownloadTask(downloadTask: DownloadTask): Observable<Long> {
         return Observable.fromCallable {
-            DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(downloadTaskBean)
+            DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(downloadTask)
             1L
         }
     }
 
-    fun deleteTasks(downloadTasks: List<DownloadTaskBean>): Observable<Long> {
+    fun deleteTasks(downloadTasks: List<DownloadTask>): Observable<Long> {
         return Observable.fromCallable {
             DownloadDatabase.instance.downloadTaskDao().deleteTasks(downloadTasks)
             1L

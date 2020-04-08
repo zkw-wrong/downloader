@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
-import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
@@ -13,9 +13,9 @@ import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.utils.*
-import com.liulishuo.okdownload.DownloadTask
 import io.reactivex.disposables.Disposable
 import java.io.File
+import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
 /**
  * @author xiongke
@@ -35,7 +35,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
         private const val EXTRA_PARAM_FILE_NAMNE = "file_name"
-        val downloadTaskLists = mutableListOf<DownloadTaskBean>()
+        val downloadTaskLists = mutableListOf<DownloadTask>()
 
         object ActionType {
             const val ACTION_INIT = "init"
@@ -54,10 +54,10 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTaskBean: DownloadTaskBean): Intent {
+        fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTask: DownloadTask): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_START
-                this.putExtra(EXTRA_PARAM_ACTION, downloadTaskBean)
+                this.putExtra(EXTRA_PARAM_ACTION, downloadTask)
             }
         }
 
@@ -97,8 +97,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun getCustomTaskListener() = object : CustomDownloadListener4WithSpeed.TaskListener {
-        override fun onStart(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatus: DownloadTaskStatus) {
-            downloadTaskBean?.apply {
+        override fun onStart(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
+            downloadTask?.apply {
                 this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 this.notificationId = this.url.hashCode()
@@ -112,8 +112,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        override fun onInfoReady(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatus: DownloadTaskStatus, totalLength: Long) {
-            downloadTaskBean?.apply {
+        override fun onInfoReady(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus, totalLength: Long) {
+            downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
                 this.totalLength = totalLength
                 this.absolutePath = task.file?.path ?: String()
@@ -123,8 +123,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        override fun onProgress(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, taskSpeed: String, downloadTaskStatus: DownloadTaskStatus, currentOffset: Long) {
-            downloadTaskBean?.apply {
+        override fun onProgress(downloadTask: DownloadTask?, task: OkDownloadTask, taskSpeed: String, downloadTaskStatus: DownloadTaskStatus, currentOffset: Long) {
+            downloadTask?.apply {
                 this.taskSpeed = taskSpeed
                 this.currentOffset = currentOffset
                 this.absolutePath = task.file?.path ?: String()
@@ -135,8 +135,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        override fun onCancel(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatus: DownloadTaskStatus) {
-            downloadTaskBean?.apply {
+        override fun onCancel(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
+            downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
                 this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
@@ -145,8 +145,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        override fun onSuccess(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatus: DownloadTaskStatus) {
-            downloadTaskBean?.apply {
+        override fun onSuccess(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
+            downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
                 this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
@@ -155,8 +155,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        override fun onError(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatus: DownloadTaskStatus) {
-            downloadTaskBean?.apply {
+        override fun onError(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
+            downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
                 this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
@@ -165,8 +165,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        override fun onRetry(downloadTaskBean: DownloadTaskBean?, task: DownloadTask, downloadTaskStatus: DownloadTaskStatus, retryCount: Int) {
-            downloadTaskBean?.apply {
+        override fun onRetry(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus, retryCount: Int) {
+            downloadTask?.apply {
                 Logger.d(logTag, "onRetry ${this.notificationTitle}  $retryCount")
             }
         }
@@ -178,7 +178,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 initial()
             }
             ActionType.ACTION_START -> {
-                intent.getParcelableExtra<DownloadTaskBean>(EXTRA_PARAM_ACTION)?.apply {
+                intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
                     start(this)
                 }
             }
@@ -214,13 +214,13 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         AppDbHelper.queryAllDownloadTask()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
-                .subscribe(object : RxSubscriber<List<DownloadTaskBean>>() {
+                .subscribe(object : RxSubscriber<List<DownloadTask>>() {
                     override fun onSubscribe(d: Disposable) {
                         super.onSubscribe(d)
                         downloadTaskLists.clear()
                     }
 
-                    override fun rxOnNext(t: List<DownloadTaskBean>) {
+                    override fun rxOnNext(t: List<DownloadTask>) {
                         Logger.d(logTag, "initialData task size ${t.size}")
                         downloadTaskLists.apply {
                             this.addAll(t)
@@ -231,11 +231,11 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun start(downloadTaskBean: DownloadTaskBean) {
-        DownloadManager.instance.getDownloadTask(downloadTaskBean.url) ?: let {
-            downloadTaskLists.add(0, downloadTaskBean)
+    private fun start(downloadTask: DownloadTask) {
+        DownloadManager.instance.getDownloadTask(downloadTask.url) ?: let {
+            downloadTaskLists.add(0, downloadTask)
         }
-        TaskManager.instance.start(downloadTaskBean)
+        TaskManager.instance.start(downloadTask)
     }
 
     private fun startAll() {
@@ -267,7 +267,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        val missionList = arrayListOf<DownloadTaskBean>()
+                        val missionList = arrayListOf<DownloadTask>()
                         downloadTaskLists.forEach {
                             missionList.add(it)
                         }
@@ -293,7 +293,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun delete(taskUrlList: ArrayList<String>, isDeleteFile: Boolean) {
-        val downloadTaskBeanList1 = arrayListOf<DownloadTaskBean>()
+        val downloadTaskBeanList1 = arrayListOf<DownloadTask>()
         taskUrlList.forEach { it1 ->
             DownloadManager.instance.getDownloadTask(it1)?.let { it2 ->
                 downloadTaskBeanList1.add(it2)
@@ -330,56 +330,56 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun renameTaskFile(taskUrl: String, fileName: String) {
-        val downloadTaskBean = DownloadManager.instance.getDownloadTask(taskUrl)
-        if (downloadTaskBean == null || !FsUtils.exists(downloadTaskBean.absolutePath)
-                || downloadTaskBean.downloadTaskStatus != DownloadTaskStatus.Success
+        val downloadTask = DownloadManager.instance.getDownloadTask(taskUrl)
+        if (downloadTask == null || !FsUtils.exists(downloadTask.absolutePath)
+                || downloadTask.downloadTaskStatus != DownloadTaskStatus.Success
                 || fileName.isEmpty()) {
-            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, false)
+            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTask, false)
             return
         }
-        if (fileName == File(downloadTaskBean.absolutePath).name) {
-            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, true)
+        if (fileName == File(downloadTask.absolutePath).name) {
+            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTask, true)
             return
         }
-        val newFile = FsUtils.renameFile(File(downloadTaskBean.absolutePath), fileName)
+        val newFile = FsUtils.renameFile(File(downloadTask.absolutePath), fileName)
         if (!FsUtils.exists(newFile)) {
-            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, false)
+            DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTask, false)
             return
         }
-        downloadTaskBean.absolutePath = newFile!!.absolutePath
-        AppDbHelper.createOrUpdateDownloadTask(downloadTaskBean)
+        downloadTask.absolutePath = newFile!!.absolutePath
+        AppDbHelper.createOrUpdateDownloadTask(downloadTask)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, true)
+                        DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTask, true)
                     }
 
                     override fun rxOnError(e: Exception) {
-                        DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTaskBean, false)
+                        DownloadTaskFileChangeLister.sendRenameBroadcast(mContext1, downloadTask, false)
                     }
                 })
     }
 
-    private fun updateDbDataAndNotify(downloadTaskBean: DownloadTaskBean) {
-        AppDbHelper.createOrUpdateDownloadTask(downloadTaskBean)
+    private fun updateDbDataAndNotify(downloadTask: DownloadTask) {
+        AppDbHelper.createOrUpdateDownloadTask(downloadTask)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
-                        DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTaskBean)
-                        if (downloadTaskBean.showNotification && downloadTaskBean.notificationId != -1) {
-                            downloadTaskBean.downloadTaskStatus.let {
+                        DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTask)
+                        if (downloadTask.showNotification && downloadTask.notificationId != -1) {
+                            downloadTask.downloadTaskStatus.let {
                                 when (it) {
-                                    DownloadTaskStatus.Waiting -> hintTaskIngNotify(downloadTaskBean)
-                                    DownloadTaskStatus.Preparing -> hintTaskIngNotify(downloadTaskBean)
+                                    DownloadTaskStatus.Waiting -> hintTaskIngNotify(downloadTask)
+                                    DownloadTaskStatus.Preparing -> hintTaskIngNotify(downloadTask)
                                     DownloadTaskStatus.Stop -> {
                                     }
-                                    DownloadTaskStatus.Downloading -> hintTaskIngNotify(downloadTaskBean)
+                                    DownloadTaskStatus.Downloading -> hintTaskIngNotify(downloadTask)
                                     DownloadTaskStatus.Success -> {
-                                        hintDownloadCompleteNotify(downloadTaskBean)
+                                        hintDownloadCompleteNotify(downloadTask)
                                     }
-                                    DownloadTaskStatus.Failed -> hintDownloadFailed(downloadTaskBean)
+                                    DownloadTaskStatus.Failed -> hintDownloadFailed(downloadTask)
                                     else -> {
                                     }
                                 }
@@ -391,7 +391,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun hintTaskIngNotify(downloadTaskBean: DownloadTaskBean) {
+    private fun hintTaskIngNotify(downloadTask: DownloadTask) {
         downloadIngNotification = downloadIngNotification
                 ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.download_status_downloading)
@@ -400,16 +400,16 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setCategory(NotificationCompat.CATEGORY_PROGRESS)
                         .setShowWhen(false)
         downloadIngNotification?.apply {
-            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()) {
-                this.setContentTitle(downloadTaskBean.notificationTitle)
+            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+                this.setContentTitle(downloadTask.notificationTitle)
             }
-            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
-            this.setProgress(downloadTaskBean.totalLength.toInt(), downloadTaskBean.currentOffset.toInt(), false)
-            notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
+            notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
 
-    private fun hintDownloadCompleteNotify(downloadTaskBean: DownloadTaskBean) {
+    private fun hintDownloadCompleteNotify(downloadTask: DownloadTask) {
         downloadCompatNotification = downloadCompatNotification
                 ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.ic_apk_status_complete)
@@ -417,28 +417,28 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
-            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()) {
-                this.setContentTitle(downloadTaskBean.notificationTitle)
+            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+                this.setContentTitle(downloadTask.notificationTitle)
             }
-            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
-            notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
-            notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
+            notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
 
-    private fun hintDownloadFailed(downloadTaskBean: DownloadTaskBean) {
+    private fun hintDownloadFailed(downloadTask: DownloadTask) {
         downloadFailedNotification = downloadFailedNotification
                 ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
                         .setSmallIcon(R.drawable.download_status_failed)
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadFailedNotification?.apply {
-            if (!downloadTaskBean.notificationTitle.isNullOrEmpty()) {
-                this.setContentTitle(downloadTaskBean.notificationTitle)
+            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+                this.setContentTitle(downloadTask.notificationTitle)
             }
-            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTaskBean))
-            notifyHelper.notificationManager.cancel(downloadTaskBean.notificationId)
-            notifyHelper.notificationManager.notify(downloadTaskBean.notificationId, this.build())
+            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
+            notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
 }

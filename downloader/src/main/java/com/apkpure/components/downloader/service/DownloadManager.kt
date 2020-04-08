@@ -3,7 +3,7 @@ package com.apkpure.components.downloader.service
 import android.app.Application
 import android.content.Context
 import com.apkpure.components.downloader.db.DownloadDatabase
-import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.service.misc.TaskConfig
 import com.apkpure.components.downloader.service.misc.TaskManager
@@ -47,18 +47,18 @@ class DownloadManager {
                 , DownloadServiceV14::class.java))
     }
 
-    fun getDownloadTasks() = mutableListOf<DownloadTaskBean>().apply {
+    fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {
         addAll(DownloadServiceAssistUtils.downloadTaskLists)
     }
 
-    fun getDownloadTask(taskUrl: String): DownloadTaskBean? {
-        var downloadTaskBean: DownloadTaskBean? = null
+    fun getDownloadTask(taskUrl: String): DownloadTask? {
+        var downloadTask: DownloadTask? = null
         DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach {
             if (it.url == taskUrl) {
-                downloadTaskBean = it
+                downloadTask = it
             }
         }
-        return downloadTaskBean
+        return downloadTask
     }
 
     fun startTask(mContext: Context, url: String,
@@ -67,7 +67,7 @@ class DownloadManager {
                   showNotification: Boolean = true) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
-                    , DownloadServiceV14::class.java, DownloadTaskBean().apply {
+                    , DownloadServiceV14::class.java, DownloadTask().apply {
                 this.url = url
                 this.absolutePath = TaskConfig.getOkDownloadAbsolutePath(fileName)
                 this.showNotification = showNotification

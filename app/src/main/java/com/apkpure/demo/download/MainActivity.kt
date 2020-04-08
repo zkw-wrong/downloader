@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.service.DownloadManager
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var renameTaskBt: Button
     private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
     private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
-    private var downloadTaskBean: DownloadTaskBean? = null
+    private var downloadTask: DownloadTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 DownloadManager.instance.deleteTask(this, arrayListOf(apkUrl1), true)
             }
             renameTaskBt -> {
-                downloadTaskBean?.let {
+                downloadTask?.let {
                     DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
                 }
             }
@@ -71,11 +71,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
             object : DownloadTaskChangeLister.Listener {
-                override fun onChange(downloadTaskBean1: DownloadTaskBean) {
-                    downloadTaskBean = downloadTaskBean1
+                override fun onChange(downloadTask1: DownloadTask) {
+                    downloadTask = downloadTask1
                     apkBt.isEnabled = false
-                    renameTaskBt.isEnabled = downloadTaskBean1.downloadTaskStatus == DownloadTaskStatus.Success
-                    val info = when (downloadTaskBean1.downloadTaskStatus) {
+                    renameTaskBt.isEnabled = downloadTask1.downloadTaskStatus == DownloadTaskStatus.Success
+                    val info = when (downloadTask1.downloadTaskStatus) {
                         DownloadTaskStatus.Waiting -> {
                             "等待中..."
                         }
@@ -84,8 +84,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         }
                         DownloadTaskStatus.Downloading -> {
                             val progressInfo = CommonUtils.formatPercentInfo(
-                                    downloadTaskBean1.currentOffset,
-                                    downloadTaskBean1.totalLength
+                                    downloadTask1.currentOffset,
+                                    downloadTask1.totalLength
                             )
                             "下载中($progressInfo)..."
                         }
@@ -111,11 +111,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     //这个删除监听指的从应用里面删除才能收到消息
     private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
-        override fun delete(isSuccess: Boolean, downloadTaskBeanList: ArrayList<DownloadTaskBean>?) {
+        override fun delete(isSuccess: Boolean, downloadTaskBeanList: ArrayList<DownloadTask>?) {
             Log.d(LOG_TAG, "delete isSuccess $isSuccess size ${downloadTaskBeanList?.size}")
         }
 
-        override fun rename(isSuccess: Boolean, downloadTaskBean: DownloadTaskBean?) {
+        override fun rename(isSuccess: Boolean, downloadTask: DownloadTask?) {
             Log.d(LOG_TAG, "rename isSuccess $isSuccess")
         }
     })

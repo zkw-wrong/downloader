@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.apkpure.components.downloader.db.DownloadTaskBean
+import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.utils.CommonUtils.register
 import com.apkpure.components.downloader.utils.CommonUtils.unregister
 
@@ -16,15 +16,15 @@ class DownloadTaskChangeLister {
     companion object {
         private val Action_Change = DownloadTaskChangeLister::class.java.name + ".change"
         private const val PARAM_DATA = "PARAM_DATA"
-        fun sendChangeBroadcast(mContext: Context, downloadTaskBean: DownloadTaskBean) {
+        fun sendChangeBroadcast(mContext: Context, downloadTask: DownloadTask) {
             val intent = Intent(Action_Change)
-            intent.putExtra(PARAM_DATA, downloadTaskBean)
+            intent.putExtra(PARAM_DATA, downloadTask)
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent)
         }
     }
 
     interface Listener {
-        fun onChange(downloadTaskBean: DownloadTaskBean)
+        fun onChange(downloadTask: DownloadTask)
     }
 
     open class Receiver(private val mContext: Context, private val listener: Listener) :
@@ -33,7 +33,7 @@ class DownloadTaskChangeLister {
             try {
                 when (intent.action) {
                     Action_Change -> {
-                        intent.getParcelableExtra<DownloadTaskBean>(PARAM_DATA)?.let {
+                        intent.getParcelableExtra<DownloadTask>(PARAM_DATA)?.let {
                             listener.onChange(it)
                         }
                     }
