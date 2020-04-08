@@ -1,5 +1,6 @@
 package com.apkpure.components.downloader.db.convert
 
+import android.content.Intent
 import androidx.room.TypeConverter
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
@@ -72,6 +73,28 @@ class Converters {
             0
         } else {
             1
+        }
+    }
+
+    @TypeConverter
+    fun convertToEntityProperty5(databaseValue: String?): Intent? {
+        return try {
+            if (databaseValue.isNullOrEmpty()) {
+                Intent.parseUri(databaseValue, 0)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @TypeConverter
+    fun convertToDatabaseValue5(entityProperty: Intent?): String? {
+        return try {
+            entityProperty?.toString()
+        } catch (e: Exception) {
+            null
         }
     }
 }

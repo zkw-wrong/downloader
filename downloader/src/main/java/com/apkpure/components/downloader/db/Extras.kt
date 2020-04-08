@@ -85,14 +85,6 @@ open class Extras(
         return data[key]?.toFloat() ?: defaultValue
     }
 
-    /** Create a new mutable instance of this class with the associated custom value data
-     * attached.
-     * @return new mutable instance.
-     * */
-    fun toMutableExtras(): MutableExtras {
-        return MutableExtras(data.toMutableMap())
-    }
-
     /** Converts the custom value extras stored in this extra class as a JSON string.
      * @return JSON string
      * */

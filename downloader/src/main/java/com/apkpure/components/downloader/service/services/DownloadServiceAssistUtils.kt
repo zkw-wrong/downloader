@@ -34,13 +34,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     companion object {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
-        private const val EXTRA_PARAM_FILE_NAMNE = "file_name"
+        private const val EXTRA_PARAM_FILE_NAME = "file_name"
         val downloadTaskLists = mutableListOf<DownloadTask>()
 
         object ActionType {
             const val ACTION_INIT = "init"
             const val ACTION_START = "start"
             const val ACTION_STOP = "stop"
+            const val ACTION_RESUME = "resume"
             const val ACTION_DELETE = "delete"
             const val ACTION_START_ALL = "start_all"
             const val ACTION_STOP_ALL = "stop_all"
@@ -86,7 +87,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_FILE_RENAME
                 this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
-                this.putExtra(EXTRA_PARAM_FILE_NAMNE, fileName)
+                this.putExtra(EXTRA_PARAM_FILE_NAME, fileName)
             }
         }
     }
@@ -204,7 +205,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
             ActionType.ACTION_FILE_RENAME -> {
                 val taskUrl = intent.getStringExtra(EXTRA_PARAM_ACTION) ?: return
-                val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAMNE) ?: return
+                val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAME) ?: return
                 renameTaskFile(taskUrl, fileName)
             }
         }

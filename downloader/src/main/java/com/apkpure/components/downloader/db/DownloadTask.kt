@@ -1,5 +1,6 @@
 package com.apkpure.components.downloader.db
 
+import android.content.Intent
 import android.os.Parcelable
 import androidx.room.*
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
@@ -10,10 +11,12 @@ import java.util.*
  * author: mr.xiong
  * date: 2020/4/4
  */
-@Entity(tableName = "DownloadTaskTable", indices = [Index(value = ["_url"], unique = true)])
+@Entity(tableName = "DownloadTaskTable", indices = [Index(value = ["_id"], unique = true)])
 @Parcelize
-data class DownloadTask(
-        @PrimaryKey
+class DownloadTask private constructor(
+        @PrimaryKey(autoGenerate = true)
+        @ColumnInfo(name = "_id")
+        var id: Int,
         @ColumnInfo(name = "_url")
         var url: String,
         @ColumnInfo(name = "_absolute_path")
@@ -35,9 +38,21 @@ data class DownloadTask(
         @ColumnInfo(name = "_notification_title")
         var notificationTitle: String?,
         @Ignore
-        var taskSpeed: String) : Parcelable {
-    constructor() : this(String(), String(), DownloadTaskStatus.Waiting,
-            null, Date(), 0,
-            0, true, 0,
-            null, String())
+        var taskSpeed: String,
+        @Ignore
+        var overrideTask: Boolean,
+        @ColumnInfo(name = "_headers")
+        var headers: Extras?,
+        @ColumnInfo(name = "_notification_intent")
+        var notificationIntent: Intent?
+) : Parcelable {
+        private constructor() : this(
+                0, String(), String(),
+                DownloadTaskStatus.Waiting, null, Date(),
+                0, 0, true,
+                0, null, String(),
+                false, null, null
+        )
+
+        inner class Builder
 }
