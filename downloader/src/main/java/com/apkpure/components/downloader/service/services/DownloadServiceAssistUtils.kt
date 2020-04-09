@@ -369,7 +369,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
                         DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTask)
-                        if (downloadTask.showNotification && downloadTask.notificationId != -1) {
+                        if (downloadTask.showNotification) {
                             downloadTask.downloadTaskStatus.let {
                                 when (it) {
                                     DownloadTaskStatus.Waiting -> hintTaskIngNotify(downloadTask)

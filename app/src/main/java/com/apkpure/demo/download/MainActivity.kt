@@ -1,11 +1,9 @@
 package com.apkpure.demo.download
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
@@ -19,7 +17,6 @@ import com.apkpure.components.downloader.utils.CommonUtils
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val LOG_TAG = "MainActivity"
     private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
-    private val call_write_storage = 1
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
@@ -71,11 +68,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
             object : DownloadTaskChangeLister.Listener {
-                override fun onChange(downloadTask1: DownloadTask) {
-                    downloadTask = downloadTask1
+                override fun onChange(task: DownloadTask) {
+                    downloadTask = task
                     apkBt.isEnabled = false
-                    renameTaskBt.isEnabled = downloadTask1.downloadTaskStatus == DownloadTaskStatus.Success
-                    val info = when (downloadTask1.downloadTaskStatus) {
+                    renameTaskBt.isEnabled = task.downloadTaskStatus == DownloadTaskStatus.Success
+                    val info = when (task.downloadTaskStatus) {
                         DownloadTaskStatus.Waiting -> {
                             "等待中..."
                         }
@@ -84,8 +81,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         }
                         DownloadTaskStatus.Downloading -> {
                             val progressInfo = CommonUtils.formatPercentInfo(
-                                    downloadTask1.currentOffset,
-                                    downloadTask1.totalLength
+                                    task.currentOffset,
+                                    task.totalLength
                             )
                             "下载中($progressInfo)..."
                         }
@@ -127,19 +124,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun clickDownload() {
-        DownloadManager.instance.startTask(this, apkUrl1, "abc.apk"
-                , "Title ABC", Extras(mutableMapOf(Pair("qwe", "123"))))
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == call_write_storage) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                apkBt.isEnabled = true
-                clearBt.isEnabled = true
-            } else {
-                Toast.makeText(this, "读写权限拒绝,无法测试!", Toast.LENGTH_LONG).show()
-            }
-        }
+        DownloadManager.instance.startTask(this, DownloadTask
+                .Builder()
+                .setUrl(apkUrl1)
+                .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
+                .setFileName("abc.apk")
+                .setNotificationTitle("Title Abc 123"))
     }
 }

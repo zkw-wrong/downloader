@@ -15,15 +15,15 @@ class Converters {
     @TypeConverter
     fun convertToEntityProperty1(databaseValue: String?): Extras? {
         return if (!databaseValue.isNullOrEmpty()) {
-            val responseHeaders = mutableMapOf<String, String>()
+            val mutableMap = mutableMapOf<String, String>()
             try {
                 val json = JSONObject(databaseValue)
                 json.keys().forEach {
-                    responseHeaders[it] = json.get(it).toString()
+                    mutableMap[it] = json.get(it).toString()
                 }
             } catch (e: Exception) {
             }
-            Extras(responseHeaders)
+            Extras(mutableMap)
         } else {
             null
         }
