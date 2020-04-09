@@ -43,7 +43,8 @@ object CommonUtils {
         }
         val units = arrayOf("B", "KB", "MB", "GB", "TB", "EB")
         val digitGroups = (Math.log10(sizeBytes.toDouble()) / Math.log10(1024.0)).toInt()
-        return DecimalFormat("#.##").format(sizeBytes / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
+        return DecimalFormat("#.##").format(sizeBytes / Math.pow(1024.0, digitGroups.toDouble())) +
+                " " + units[digitGroups]
     }
 
     fun formatPercent(progress: Long, count: Long): Int {
@@ -66,10 +67,6 @@ object CommonUtils {
         }
     }
 
-    fun replaceLast(text: String, regex: String, replacement: String): String {
-        return text.replaceFirst("(?s)" + regex + "(?!.*?" + regex + "\\)".toRegex(), replacement)
-    }
-
     fun startService(mContext: Context, intent: Intent) {
         mContext.startService(intent)
     }
@@ -82,18 +79,21 @@ object CommonUtils {
         }
     }
 
-    fun createAvailableFileName(defaultFile: File): File {
-        var index = 1
-        val fileDir = defaultFile.parentFile
+    fun createAvailableFileName(defaultFile: File, index: Int = 1): File {
         var fileName = defaultFile.name
         return if (FsUtils.exists(defaultFile)) {
-            index++
-            fileName = if (fileName.contains(".")) {
-                replaceLast(fileName, ".", ".($index)")
+            val tempIndex = fileName.lastIndexOf(".")
+            fileName = if (tempIndex > 0) {
+                "${fileName.subSequence(0, tempIndex)}($index)${fileName.substring(tempIndex)}"
             } else {
                 "$fileName($index)"
             }
-            createAvailableFileName(File(fileDir, fileName))
+            val tempFile = File(defaultFile.parent, fileName)
+            if (FsUtils.exists(tempFile)) {
+                createAvailableFileName(defaultFile, index + 1)
+            } else {
+                tempFile
+            }
         } else {
             defaultFile
         }

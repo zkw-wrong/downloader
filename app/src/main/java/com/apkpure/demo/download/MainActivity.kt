@@ -1,5 +1,7 @@
 package com.apkpure.demo.download
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,6 +14,7 @@ import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.FsUtils
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -122,7 +125,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun clearDownloadFolder() {
         apkBt.isEnabled = true
         apkBt.text = "重新下载"
-        DownloadManager.instance.deleteAllTask(this)
+        FsUtils.deleteFileOrDir(FsUtils.getDefaultDownloadDir())
     }
 
     private fun clickDownload() {
@@ -131,6 +134,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setUrl(apkUrl1)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("abc.apk")
+                .setOverrideTaskFile(true)
+                .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("Title Abc 123"))
     }
 }

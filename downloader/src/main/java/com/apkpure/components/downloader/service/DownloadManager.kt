@@ -23,6 +23,7 @@ class DownloadManager {
 
         fun initial(application: Application, builder: OkHttpClient.Builder) {
             this.application = application
+            //Util.enableConsoleLog()
             DownloadDatabase.initial(application)
             TaskManager.init(application, builder)
             instance.startInitialTask(application)

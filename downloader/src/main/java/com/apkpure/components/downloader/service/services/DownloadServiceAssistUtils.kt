@@ -273,7 +273,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             File(FsUtils.getDefaultDownloadDir(), tempFileName)
         }
         downloadTask.absolutePath = taskFile.absolutePath
-        downloadTask.id = "${System.currentTimeMillis()}-${CommonUtils.randomNumber(0, 10000)}"
+        downloadTask.id="${taskFile.absolutePath.hashCode()}"
+        //downloadTask.id = "${System.currentTimeMillis()}-${CommonUtils.randomNumber(0, 10000)}"
         return downloadTask
     }
 
