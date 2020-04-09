@@ -10,6 +10,7 @@ import com.apkpure.components.downloader.service.services.DownloadServiceV14
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.PermissionUtils
 import okhttp3.OkHttpClient
+import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
 /**
  * author: mr.xiong
@@ -49,14 +50,24 @@ class DownloadManager {
         addAll(DownloadServiceAssistUtils.downloadTaskLists)
     }
 
-    fun getDownloadTask(taskUrl: String): DownloadTask? {
-        var downloadTask: DownloadTask? = null
+    fun getDownloadTask(taskId: String): DownloadTask? {
         DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach {
-            if (it.url == taskUrl) {
-                downloadTask = it
+            if (it.id == taskId) {
+                return it
             }
         }
-        return downloadTask
+        return null
+    }
+
+    fun getDownloadTask(okDownloadTask: OkDownloadTask): DownloadTask? {
+        TaskManager.instance.getOkDownloadTaskId(okDownloadTask)?.let { it1 ->
+            DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach { it2 ->
+                if (it2.id == it1) {
+                    return it2
+                }
+            }
+        }
+        return null
     }
 
     fun startTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {

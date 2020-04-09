@@ -3,12 +3,12 @@ package com.apkpure.components.downloader.service.misc
 import android.content.Context
 import com.apkpure.components.downloader.db.DownloadTask
 import com.liulishuo.okdownload.DownloadContext
-import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
 import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
 import okhttp3.OkHttpClient
 import java.io.File
+import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
 /**
  * @author xiongke
@@ -19,6 +19,8 @@ class TaskManager {
     private lateinit var downloadBuilder: DownloadContext.Builder
 
     companion object {
+        const val retryTagKey = 999
+        const val TaskIdTagKey = 998
         private var taskManager: TaskManager? = null
         private var isInitial = false
         val instance: TaskManager
@@ -58,6 +60,15 @@ class TaskManager {
         }
     }
 
+    fun getOkDownloadTaskId(okDownloadTask: OkDownloadTask): String? {
+        val taskId = okDownloadTask.getTag(TaskIdTagKey)
+        return if (taskId is String) {
+            taskId
+        } else {
+            null
+        }
+    }
+
     private fun isExistsTask(taskUrl: String): Boolean {
         downloadBuilder.build().tasks.iterator().forEach {
             if (it.url == taskUrl) {
@@ -67,14 +78,13 @@ class TaskManager {
         return false
     }
 
-    private fun getTask(taskUrl: String): OkDownloadTask? {
-        var downloadTask: OkDownloadTask? = null
+    private fun getTask(taskId: String): OkDownloadTask? {
         this.downloadBuilder.build().tasks.iterator().forEach {
-            if (it.url == taskUrl) {
-                downloadTask = it
+            if (getOkDownloadTaskId(it) == taskId) {
+                return it
             }
         }
-        return downloadTask
+        return null
     }
 
     fun setDownloadListener(customDownloadListener4WithSpeed: CustomDownloadListener4WithSpeed) {
@@ -108,15 +118,15 @@ class TaskManager {
         }
     }
 
-    fun stop(downloadUrl: String) {
-        getTask(downloadUrl)?.apply {
+    fun stop(taskId: String) {
+        getTask(taskId)?.apply {
             this.tag = DownloadTaskActionTag.PAUSED
             this.cancel()
         }
     }
 
-    fun delete(downloadUrl: String) {
-        getTask(downloadUrl)?.apply {
+    fun delete(taskId: String) {
+        getTask(taskId)?.apply {
             this.tag = DownloadTaskActionTag.DELETE
             this.cancel()
         }

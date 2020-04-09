@@ -62,17 +62,17 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newStopIntent(mContext: Context, clazz: Class<*>, taskUrl: String): Intent {
+        fun newStopIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_STOP
-                this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
+                this.putExtra(EXTRA_PARAM_ACTION, taskId)
             }
         }
 
-        fun newDeleteIntent(mContext: Context, clazz: Class<*>, taskUrlList: ArrayList<String>, isDeleteFile: Boolean): Intent {
+        fun newDeleteIntent(mContext: Context, clazz: Class<*>, taskIds: ArrayList<String>, isDeleteFile: Boolean): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_DELETE
-                this.putExtra(EXTRA_PARAM_ACTION, taskUrlList)
+                this.putExtra(EXTRA_PARAM_ACTION, taskIds)
                 this.putExtra(EXTRA_PARAM_IS_DELETE, isDeleteFile)
             }
         }
@@ -83,10 +83,10 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskUrl: String, fileName: String): Intent {
+        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskId: String, fileName: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_FILE_RENAME
-                this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
+                this.putExtra(EXTRA_PARAM_ACTION, taskId)
                 this.putExtra(EXTRA_PARAM_FILE_NAME, fileName)
             }
         }
@@ -204,9 +204,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 deleteAll()
             }
             ActionType.ACTION_FILE_RENAME -> {
-                val taskUrl = intent.getStringExtra(EXTRA_PARAM_ACTION) ?: return
+                val taskId = intent.getStringExtra(EXTRA_PARAM_ACTION) ?: return
                 val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAME) ?: return
-                renameTaskFile(taskUrl, fileName)
+                renameTaskFile(taskId, fileName)
             }
         }
     }
@@ -233,7 +233,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun start(downloadTask: DownloadTask) {
-        DownloadManager.instance.getDownloadTask(downloadTask.url) ?: let {
+        DownloadManager.instance.getDownloadTask(downloadTask.id) ?: let {
             downloadTaskLists.add(0, downloadTask)
         }
         TaskManager.instance.start(downloadTask)
@@ -243,9 +243,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         TaskManager.instance.startOnParallel()
     }
 
-    private fun stop(taskUrl: String) {
-        TaskManager.instance.stop(taskUrl)
-        DownloadManager.instance.getDownloadTask(taskUrl)?.let {
+    private fun stop(taskId: String) {
+        TaskManager.instance.stop(taskId)
+        DownloadManager.instance.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -293,9 +293,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun delete(taskUrlList: ArrayList<String>, isDeleteFile: Boolean) {
+    private fun delete(taskIds: ArrayList<String>, isDeleteFile: Boolean) {
         val downloadTaskBeanList1 = arrayListOf<DownloadTask>()
-        taskUrlList.forEach { it1 ->
+        taskIds.forEach { it1 ->
             DownloadManager.instance.getDownloadTask(it1)?.let { it2 ->
                 downloadTaskBeanList1.add(it2)
                 downloadTaskLists.remove(it2)
@@ -330,8 +330,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun renameTaskFile(taskUrl: String, fileName: String) {
-        val downloadTask = DownloadManager.instance.getDownloadTask(taskUrl)
+    private fun renameTaskFile(taskId: String, fileName: String) {
+        val downloadTask = DownloadManager.instance.getDownloadTask(taskId)
         if (downloadTask == null || !FsUtils.exists(downloadTask.absolutePath)
                 || downloadTask.downloadTaskStatus != DownloadTaskStatus.Success
                 || fileName.isEmpty()) {
