@@ -48,26 +48,26 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.PROGRESS_100) {
             return
         }
-        val missionDbBean = DownloadManager.instance.getDownloadTask(task)
+        val downloadTask = DownloadManager.instance.getDownloadTask(task)
         when (cause) {
-            EndCause.COMPLETED -> taskListener?.onSuccess(missionDbBean, task, DownloadTaskStatus.Success)
-            EndCause.CANCELED -> taskListener?.onCancel(missionDbBean, task, DownloadTaskStatus.Stop)
-            EndCause.FILE_BUSY -> taskListener?.onStart(missionDbBean, task, DownloadTaskStatus.Waiting)
-            EndCause.SAME_TASK_BUSY -> taskListener?.onStart(missionDbBean, task, DownloadTaskStatus.Preparing)
+            EndCause.COMPLETED -> taskListener?.onSuccess(downloadTask, task, DownloadTaskStatus.Success)
+            EndCause.CANCELED -> taskListener?.onCancel(downloadTask, task, DownloadTaskStatus.Stop)
+            EndCause.FILE_BUSY -> taskListener?.onStart(downloadTask, task, DownloadTaskStatus.Waiting)
+            EndCause.SAME_TASK_BUSY -> taskListener?.onStart(downloadTask, task, DownloadTaskStatus.Preparing)
             else -> {
                 var retryObj = task.getTag(TaskManager.retryTagKey)
                 if (retryObj == null) {
                     task.addTag(TaskManager.retryTagKey, 1)
                     task.enqueue(this)
-                    taskListener?.onRetry(missionDbBean, task, DownloadTaskStatus.Retry, 1)
+                    taskListener?.onRetry(downloadTask, task, DownloadTaskStatus.Retry, 1)
                 } else if (retryObj is Int) {
                     retryObj += 1
                     task.addTag(TaskManager.retryTagKey, retryObj)
                     if (retryObj >= TaskConfig.failedRetryCount) {
-                        taskListener?.onError(missionDbBean, task, DownloadTaskStatus.Failed)
+                        taskListener?.onError(downloadTask, task, DownloadTaskStatus.Failed)
                     } else {
                         task.enqueue(this)
-                        taskListener?.onRetry(missionDbBean, task, DownloadTaskStatus.Retry, retryObj)
+                        taskListener?.onRetry(downloadTask, task, DownloadTaskStatus.Retry, retryObj)
                     }
                 }
             }

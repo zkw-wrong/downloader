@@ -62,7 +62,7 @@ class DownloadManager {
     fun getDownloadTask(okDownloadTask: OkDownloadTask): DownloadTask? {
         TaskManager.instance.getOkDownloadTaskId(okDownloadTask)?.let { it1 ->
             DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach { it2 ->
-                if (it2.id == it1) {
+                if (it1 == it2.id) {
                     return it2
                 }
             }
@@ -70,9 +70,9 @@ class DownloadManager {
         return null
     }
 
-    fun startTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
+    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
-            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext
                     , DownloadServiceV14::class.java, builder.build()))
         }
     }
@@ -80,6 +80,13 @@ class DownloadManager {
     fun stopTask(mContext: Context, id: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
+                    , DownloadServiceV14::class.java, id))
+        }
+    }
+
+    fun resumeTask(mContext: Context, id: String, silent: Boolean) {
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext
                     , DownloadServiceV14::class.java, id))
         }
     }

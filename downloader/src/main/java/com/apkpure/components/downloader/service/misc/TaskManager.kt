@@ -20,7 +20,7 @@ class TaskManager {
 
     companion object {
         const val retryTagKey = 999
-        const val TaskIdTagKey = 998
+        const val taskIdTagKey = 998
         private var taskManager: TaskManager? = null
         private var isInitial = false
         val instance: TaskManager
@@ -61,7 +61,7 @@ class TaskManager {
     }
 
     fun getOkDownloadTaskId(okDownloadTask: OkDownloadTask): String? {
-        val taskId = okDownloadTask.getTag(TaskIdTagKey)
+        val taskId = okDownloadTask.getTag(taskIdTagKey)
         return if (taskId is String) {
             taskId
         } else {
@@ -69,9 +69,9 @@ class TaskManager {
         }
     }
 
-    private fun isExistsTask(taskUrl: String): Boolean {
+    private fun isExistsTask(taskId: String): Boolean {
         downloadBuilder.build().tasks.iterator().forEach {
-            if (it.url == taskUrl) {
+            if (getOkDownloadTaskId(it) == taskId) {
                 return true
             }
         }
@@ -94,16 +94,22 @@ class TaskManager {
     fun start(downloadTask: DownloadTask) {
         val downloadUrl = downloadTask.url
         val absolutePath = downloadTask.absolutePath
-        if (isExistsTask(downloadUrl)) {
-            getTask(downloadUrl)?.apply {
+        val taskId = downloadTask.id
+        if (isExistsTask(taskId)) {
+            getTask(taskId)?.apply {
                 downloadBuilder.bindSetTask(this)
                 this.tag = DownloadTaskActionTag.Default
                 this.enqueue(customDownloadListener4WithSpeed)
             }
         } else {
-            downloadBuilder.bind(OkDownloadTask.Builder(downloadUrl, File(absolutePath)))
+            val taskBuilder = OkDownloadTask.Builder(downloadUrl, File(absolutePath))
+            downloadTask.headers?.map?.forEach {
+                taskBuilder.addHeader(it.key, it.value)
+            }
+            downloadBuilder.bind(taskBuilder)
                     .apply {
                         this.tag = DownloadTaskActionTag.Default
+                        this.addTag(taskIdTagKey, taskId)
                         this.enqueue(customDownloadListener4WithSpeed)
                     }
         }
@@ -122,6 +128,14 @@ class TaskManager {
         getTask(taskId)?.apply {
             this.tag = DownloadTaskActionTag.PAUSED
             this.cancel()
+        }
+    }
+
+    fun resume(taskId: String) {
+        getTask(taskId)?.apply {
+            downloadBuilder.bindSetTask(this)
+            this.tag = DownloadTaskActionTag.Default
+            this.enqueue(customDownloadListener4WithSpeed)
         }
     }
 

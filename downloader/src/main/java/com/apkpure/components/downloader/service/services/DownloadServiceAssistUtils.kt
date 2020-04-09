@@ -1,5 +1,6 @@
 package com.apkpure.components.downloader.service.services
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
@@ -39,7 +40,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
         object ActionType {
             const val ACTION_INIT = "init"
-            const val ACTION_START = "start"
+            const val ACTION_NEW_START = "new_start"
             const val ACTION_STOP = "stop"
             const val ACTION_RESUME = "resume"
             const val ACTION_DELETE = "delete"
@@ -55,9 +56,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTask: DownloadTask): Intent {
+        fun newStartNewTaskIntent(mContext: Context, clazz: Class<*>, downloadTask: DownloadTask): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_START
+                this.action = ActionType.ACTION_NEW_START
                 this.putExtra(EXTRA_PARAM_ACTION, downloadTask)
             }
         }
@@ -65,6 +66,13 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         fun newStopIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_STOP
+                this.putExtra(EXTRA_PARAM_ACTION, taskId)
+            }
+        }
+
+        fun newResumeIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
+            return Intent(mContext, clazz).apply {
+                this.action = ActionType.ACTION_RESUME
                 this.putExtra(EXTRA_PARAM_ACTION, taskId)
             }
         }
@@ -102,7 +110,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTask?.apply {
                 this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
-                this.notificationId = this.url.hashCode()
+                this.notificationId = "${this.url}${this.absolutePath}".hashCode()
                 this.downloadTaskStatus = downloadTaskStatus
                 if (!FsUtils.exists(this.absolutePath)) {
                     this.currentOffset = 0
@@ -178,14 +186,19 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             ActionType.ACTION_INIT -> {
                 initial()
             }
-            ActionType.ACTION_START -> {
+            ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
-                    start(this)
+                    startNewTask(this)
                 }
             }
             ActionType.ACTION_STOP -> {
                 intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
                     stop(this)
+                }
+            }
+            ActionType.ACTION_RESUME -> {
+                intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
+                    resume(this)
                 }
             }
             ActionType.ACTION_DELETE -> {
@@ -232,11 +245,36 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun start(downloadTask: DownloadTask) {
-        DownloadManager.instance.getDownloadTask(downloadTask.id) ?: let {
-            downloadTaskLists.add(0, downloadTask)
+    private fun startNewTask(downloadTask: DownloadTask) {
+        if (downloadTask.url.isEmpty()) {
+            return
         }
-        TaskManager.instance.start(downloadTask)
+        val downloadTask1 = reformTaskData(downloadTask)
+        DownloadManager.instance.getDownloadTask(downloadTask1.id) ?: let {
+            downloadTaskLists.add(0, downloadTask1)
+        }
+        TaskManager.instance.start(downloadTask1)
+    }
+
+    private fun reformTaskData(downloadTask: DownloadTask): DownloadTask {
+        val url = downloadTask.url
+        var tempFileName = downloadTask.tempFileName
+        if (tempFileName.isEmpty()) {
+            tempFileName = if (url.contains("\\")) {
+                url.substring(url.lastIndexOf("\\") + 1)
+            } else {
+                url.hashCode().toString()
+            }
+            downloadTask.tempFileName = tempFileName
+        }
+        val taskFile = if (downloadTask.overrideTaskFile) {
+            CommonUtils.createAvailableFileName(File(FsUtils.getDefaultDownloadDir(), tempFileName))
+        } else {
+            File(FsUtils.getDefaultDownloadDir(), tempFileName)
+        }
+        downloadTask.absolutePath = taskFile.absolutePath
+        downloadTask.id = "${System.currentTimeMillis()}-${CommonUtils.randomNumber(0, 10000)}"
+        return downloadTask
     }
 
     private fun startAll() {
@@ -245,6 +283,15 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun stop(taskId: String) {
         TaskManager.instance.stop(taskId)
+        DownloadManager.instance.getDownloadTask(taskId)?.let {
+            if (it.showNotification) {
+                notifyHelper.notificationManager.cancel(it.notificationId)
+            }
+        }
+    }
+
+    private fun resume(taskId: String) {
+        TaskManager.instance.resume(taskId)
         DownloadManager.instance.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
@@ -348,6 +395,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return
         }
         downloadTask.absolutePath = newFile!!.absolutePath
+        downloadTask.tempFileName = fileName
         AppDbHelper.createOrUpdateDownloadTask(downloadTask)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
@@ -401,8 +449,11 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setCategory(NotificationCompat.CATEGORY_PROGRESS)
                         .setShowWhen(false)
         downloadIngNotification?.apply {
-            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+            if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            downloadTask.notificationIntent?.let {
+                this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
@@ -418,8 +469,11 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
-            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+            if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            downloadTask.notificationIntent?.let {
+                this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             notifyHelper.notificationManager.cancel(downloadTask.notificationId)
@@ -434,12 +488,19 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadFailedNotification?.apply {
-            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+            if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            downloadTask.notificationIntent?.let {
+                this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
+    }
+
+    private fun getNotificationContentIntent(intent: Intent): PendingIntent {
+        return PendingIntent.getActivity(mContext1, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 }

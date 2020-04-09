@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Parcelable
 import androidx.room.*
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.service.misc.TaskConfig
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -14,7 +13,7 @@ import java.util.*
  */
 @Entity(tableName = "DownloadTaskTable", indices = [Index(value = ["_id"], unique = true)])
 @Parcelize
-class DownloadTask private constructor(
+class DownloadTask constructor(
         @PrimaryKey
         @ColumnInfo(name = "_id")
         var id: String,
@@ -35,7 +34,7 @@ class DownloadTask private constructor(
         @ColumnInfo(name = "_show_notification")
         var showNotification: Boolean,
         @ColumnInfo(name = "_notification_title")
-        var notificationTitle: String?,
+        var notificationTitle: String,
         @Ignore
         var taskSpeed: String,
         @Ignore
@@ -45,14 +44,17 @@ class DownloadTask private constructor(
         @ColumnInfo(name = "_notification_intent")
         var notificationIntent: Intent?,
         @ColumnInfo(name = "_notification_id")
-        var notificationId: Int
+        var notificationId: Int,
+        @ColumnInfo(name = "_temp_fileName")
+        var tempFileName: String
 ) : Parcelable {
-    private constructor() : this(
+    constructor() : this(
             String(), String(), String(),
             DownloadTaskStatus.Waiting, null, Date(),
             0, 0, true,
-            null, String(), false,
-            null, null, 0
+            String(), String(), false,
+            null, null, 0,
+            String()
     )
 
     class Builder {
@@ -61,8 +63,6 @@ class DownloadTask private constructor(
                 this.showNotification = true
             }
         }
-
-        private var fileName: String? = null
 
         fun setUrl(url: String): Builder {
             this.downloadTask.url = url
@@ -75,7 +75,7 @@ class DownloadTask private constructor(
         }
 
         fun setFileName(fileName: String): Builder {
-            this.fileName = fileName
+            this.downloadTask.tempFileName = fileName
             return this
         }
 
@@ -105,11 +105,7 @@ class DownloadTask private constructor(
         }
 
         fun build(): DownloadTask {
-            return this.downloadTask.apply {
-                if (!fileName.isNullOrEmpty()) {
-                    TaskConfig.getOkDownloadAbsolutePath(fileName)
-                }
-            }
+            return this.downloadTask
         }
     }
 }

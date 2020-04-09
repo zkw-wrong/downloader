@@ -9,7 +9,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
+import java.io.File
 import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 /**
  * author: mr.xiong
@@ -29,6 +31,10 @@ object CommonUtils {
 
     fun unregister(mContext: Context?, receiver: BroadcastReceiver?) {
         LocalBroadcastManager.getInstance(mContext!!).unregisterReceiver(receiver!!)
+    }
+
+    fun randomNumber(min: Int, max: Int): Int {
+        return (Math.random() * (max - min) + min).roundToInt()
     }
 
     fun formatFileLength(sizeBytes: Long): String {
@@ -60,6 +66,10 @@ object CommonUtils {
         }
     }
 
+    fun replaceLast(text: String, regex: String, replacement: String): String {
+        return text.replaceFirst("(?s)" + regex + "(?!.*?" + regex + "\\)".toRegex(), replacement)
+    }
+
     fun startService(mContext: Context, intent: Intent) {
         mContext.startService(intent)
     }
@@ -69,6 +79,23 @@ object CommonUtils {
             mContext.startForegroundService(intent)
         } else {
             mContext.startService(intent)
+        }
+    }
+
+    fun createAvailableFileName(defaultFile: File): File {
+        var index = 1
+        val fileDir = defaultFile.parentFile
+        var fileName = defaultFile.name
+        return if (FsUtils.exists(defaultFile)) {
+            index++
+            fileName = if (fileName.contains(".")) {
+                replaceLast(fileName, ".", ".($index)")
+            } else {
+                "$fileName($index)"
+            }
+            createAvailableFileName(File(fileDir, fileName))
+        } else {
+            defaultFile
         }
     }
 }

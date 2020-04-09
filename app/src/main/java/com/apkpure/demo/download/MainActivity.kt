@@ -50,11 +50,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 clickDownload()
             }
             deleteTaskBt -> {
-                DownloadManager.instance.deleteTask(this, arrayListOf(apkUrl1), true)
+                downloadTask?.let {
+                    DownloadManager.instance.deleteTask(this, arrayListOf(it.id), true)
+                }
             }
             renameTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
+                    DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
                 }
             }
         }
@@ -124,7 +126,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun clickDownload() {
-        DownloadManager.instance.startTask(this, DownloadTask
+        DownloadManager.instance.startNewTask(this, DownloadTask
                 .Builder()
                 .setUrl(apkUrl1)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
