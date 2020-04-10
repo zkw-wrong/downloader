@@ -260,8 +260,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         val url = downloadTask.url
         var tempFileName = downloadTask.tempFileName
         if (tempFileName.isEmpty()) {
-            tempFileName = if (url.contains("\\")) {
-                url.substring(url.lastIndexOf("\\") + 1)
+            tempFileName = if (url.contains("/")) {
+                url.substring(url.lastIndexOf("/") + 1)
             } else {
                 url.hashCode().toString()
             }
@@ -273,8 +273,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             File(FsUtils.getDefaultDownloadDir(), tempFileName)
         }
         downloadTask.absolutePath = taskFile.absolutePath
-        downloadTask.id="${taskFile.absolutePath.hashCode()}"
-        //downloadTask.id = "${System.currentTimeMillis()}-${CommonUtils.randomNumber(0, 10000)}"
+        downloadTask.id = "${System.currentTimeMillis()}-${CommonUtils.randomNumber(0, 10000)}"
         return downloadTask
     }
 
