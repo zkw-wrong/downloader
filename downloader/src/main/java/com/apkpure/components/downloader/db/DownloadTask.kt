@@ -52,7 +52,7 @@ class DownloadTask constructor(
             String(), String(), String(),
             DownloadTaskStatus.Waiting, null, Date(),
             0, 0, true,
-            String(), String(), false,
+            String(), String(), true,
             null, null, 0,
             String()
     )
@@ -61,6 +61,7 @@ class DownloadTask constructor(
         private val downloadTask by lazy {
             DownloadTask().apply {
                 this.showNotification = true
+                this.overrideTaskFile = true
             }
         }
 

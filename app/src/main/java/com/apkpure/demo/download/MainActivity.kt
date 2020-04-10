@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setUrl(apkUrl1)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("abc.apk")
-                .setOverrideTaskFile(true)
+                .setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("Title Abc 123"))
