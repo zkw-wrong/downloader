@@ -2,13 +2,17 @@ package com.apkpure.components.downloader.service
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
+import com.apkpure.components.downloader.service.misc.TaskConfig
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.Logger
 import com.apkpure.components.downloader.utils.PermissionUtils
+import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
@@ -23,7 +27,6 @@ class DownloadManager {
 
         fun initial(application: Application, builder: OkHttpClient.Builder) {
             this.application = application
-            //Util.enableConsoleLog()
             DownloadDatabase.initial(application)
             TaskManager.init(application, builder)
             instance.startInitialTask(application)
@@ -40,6 +43,17 @@ class DownloadManager {
                 }
                 return downloadManager!!
             }
+
+        fun setDebug(isDebug: Boolean) {
+            TaskConfig.isDebug = isDebug
+            if (isDebug){
+                Util.enableConsoleLog()
+            }
+        }
+
+        fun setNotificationLargeIcon(bitmap: Bitmap) {
+            TaskConfig.setNotificationLargeIcon(bitmap)
+        }
     }
 
     private fun startInitialTask(mContext: Context) {

@@ -9,10 +9,7 @@ import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.service.DownloadManager
-import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
-import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
-import com.apkpure.components.downloader.service.misc.TaskManager
+import com.apkpure.components.downloader.service.misc.*
 import com.apkpure.components.downloader.utils.*
 import io.reactivex.disposables.Disposable
 import java.io.File
@@ -447,6 +444,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
             }
+            TaskConfig.getNotificationLargeIcon()?.let {
+                this.setLargeIcon(it)
+            }
             downloadTask.notificationIntent?.let {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
@@ -467,6 +467,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
             }
+            TaskConfig.getNotificationLargeIcon()?.let {
+                this.setLargeIcon(it)
+            }
             downloadTask.notificationIntent?.let {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
@@ -485,6 +488,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         downloadFailedNotification?.apply {
             if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            TaskConfig.getNotificationLargeIcon()?.let {
+                this.setLargeIcon(it)
             }
             downloadTask.notificationIntent?.let {
                 this.setContentIntent(getNotificationContentIntent(it))

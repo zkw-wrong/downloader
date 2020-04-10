@@ -16,6 +16,8 @@ DownloadManager.initial(this, OkHttpClient.Builder()
                                .readTimeout(10, TimeUnit.SECONDS)
                                .writeTimeout(10, TimeUnit.SECONDS)
                                .retryOnConnectionFailure(true))
+//DownloadManager.setDebug(true)
+//DownloadManager.setNotificationLargeIcon(it)
 ```
 3.注册监听
 ```
@@ -66,10 +68,17 @@ DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeListe
 4.调用 
 ```
 //下载
-DownloadManager.instance.startTask(this, apkUrl1, "abc.apk"
-                , "Title ABC", Extras(mutableMapOf(Pair("qwe", "123"))))
+DownloadManager.instance.startNewTask(this, DownloadTask
+                .Builder()
+                .setUrl(apkUrl1)
+                .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
+                .setFileName("abc.apk")
+                .setOverrideTaskFile(true)
+                .setHeaders(Extras(mutableMapOf()))
+                .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
+                .setNotificationTitle("Title Abc 123"))
 //文件重命名
-DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
+DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
 //删除任务
 
 //暂停
@@ -80,6 +89,6 @@ DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
 
 5.其他
 ```
-默认自定义通知如果要实现自己设置DownloadTask不显示通知，同时实现自己通知即可
+
 ```
  
