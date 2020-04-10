@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
     private lateinit var renameTaskBt: Button
+    private lateinit var infoBt:Button
     private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
     private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
     private var downloadTask: DownloadTask? = null
@@ -35,13 +36,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         apkBt = findViewById(R.id.apk_bt)
         deleteTaskBt = findViewById(R.id.delete_task_bt)
         renameTaskBt = findViewById(R.id.rename_task_bt)
+        infoBt=findViewById(R.id.info_bt)
+        infoBt.setOnClickListener(this)
         clearBt.setOnClickListener(this)
         apkBt.setOnClickListener(this)
         deleteTaskBt.setOnClickListener(this)
         renameTaskBt.setOnClickListener(this)
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
-        renameTaskBt.isEnabled = false
     }
 
     override fun onClick(v: View?) {
@@ -75,8 +77,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             object : DownloadTaskChangeLister.Listener {
                 override fun onChange(task: DownloadTask) {
                     downloadTask = task
-                    apkBt.isEnabled = false
-                    renameTaskBt.isEnabled = task.downloadTaskStatus == DownloadTaskStatus.Success
                     val info = when (task.downloadTaskStatus) {
                         DownloadTaskStatus.Waiting -> {
                             "等待中..."
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             "重试中"
                         }
                     }
-                    apkBt.text = info
+                    infoBt.text = info
                 }
             })
 
@@ -123,8 +123,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     })
 
     private fun clearDownloadFolder() {
-        apkBt.isEnabled = true
-        apkBt.text = "重新下载"
         FsUtils.deleteFileOrDir(FsUtils.getDefaultDownloadDir())
     }
 
@@ -135,6 +133,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("abc.apk")
                 .setOverrideTaskFile(true)
+                .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("Title Abc 123"))
     }

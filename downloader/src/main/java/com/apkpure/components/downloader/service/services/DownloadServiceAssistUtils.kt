@@ -108,9 +108,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private fun getCustomTaskListener() = object : CustomDownloadListener4WithSpeed.TaskListener {
         override fun onStart(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
-                this.notificationId = "${this.url}${this.absolutePath}".hashCode()
+                this.notificationId = "${this.url}${this.absolutePath}${this.id}".hashCode()
                 this.downloadTaskStatus = downloadTaskStatus
                 if (!FsUtils.exists(this.absolutePath)) {
                     this.currentOffset = 0
@@ -125,7 +124,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
                 this.totalLength = totalLength
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onInfoReady ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -136,7 +134,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTask?.apply {
                 this.taskSpeed = taskSpeed
                 this.currentOffset = currentOffset
-                this.absolutePath = task.file?.path ?: String()
                 this.downloadTaskStatus = downloadTaskStatus
                 val downloadPercent = CommonUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                 updateDbDataAndNotify(this)
@@ -147,7 +144,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         override fun onCancel(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onCancel ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -157,7 +153,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         override fun onSuccess(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onSuccess ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -167,7 +162,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         override fun onError(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onError ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -273,7 +267,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             File(FsUtils.getDefaultDownloadDir(), tempFileName)
         }
         downloadTask.absolutePath = taskFile.absolutePath
-        downloadTask.id = "${System.currentTimeMillis()}-${CommonUtils.randomNumber(0, 10000)}"
+        downloadTask.id = "${downloadTask.absolutePath.hashCode()}"
+        //防止 之前任务是覆盖下载 这个任务是不覆盖下载 导致Id不一样数据库有2个相同任务
         return downloadTask
     }
 

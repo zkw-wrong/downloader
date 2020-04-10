@@ -10,7 +10,13 @@
         android:id="@+id/clear_bt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="清空下载目录" />
+        android:text="删除目录(方便测试)" />
+
+    <Button
+      android:id="@+id/info_bt"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="info" />
 
     <Button
         android:id="@+id/apk_bt"
@@ -28,5 +34,5 @@
       android:id="@+id/rename_task_bt"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="重名名下载文件" />
+      android:text="重名名下载文件(随机任务)" />
 </LinearLayout>
