@@ -258,7 +258,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
             downloadTask.tempFileName = tempFileName
         }
-        val taskFile = if (downloadTask.overrideTaskFile) {
+        val taskFile = if (!downloadTask.overrideTaskFile) {
             CommonUtils.createAvailableFileName(File(FsUtils.getDefaultDownloadDir(), tempFileName))
         } else {
             File(FsUtils.getDefaultDownloadDir(), tempFileName)
