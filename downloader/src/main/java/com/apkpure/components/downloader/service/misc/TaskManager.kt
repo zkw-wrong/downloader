@@ -3,12 +3,12 @@ package com.apkpure.components.downloader.service.misc
 import android.content.Context
 import com.apkpure.components.downloader.db.DownloadTask
 import com.liulishuo.okdownload.DownloadContext
-import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
 import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
 import okhttp3.OkHttpClient
 import java.io.File
+import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
 /**
  * @author xiongke
@@ -19,6 +19,8 @@ class TaskManager {
     private lateinit var downloadBuilder: DownloadContext.Builder
 
     companion object {
+        const val retryTagKey = 999
+        const val taskIdTagKey = 998
         private var taskManager: TaskManager? = null
         private var isInitial = false
         val instance: TaskManager
@@ -58,23 +60,31 @@ class TaskManager {
         }
     }
 
-    private fun isExistsTask(taskUrl: String): Boolean {
+    fun getOkDownloadTaskId(okDownloadTask: OkDownloadTask): String? {
+        val taskId = okDownloadTask.getTag(taskIdTagKey)
+        return if (taskId is String) {
+            taskId
+        } else {
+            null
+        }
+    }
+
+    private fun isExistsTask(taskId: String): Boolean {
         downloadBuilder.build().tasks.iterator().forEach {
-            if (it.url == taskUrl) {
+            if (getOkDownloadTaskId(it) == taskId) {
                 return true
             }
         }
         return false
     }
 
-    private fun getTask(taskUrl: String): OkDownloadTask? {
-        var downloadTask: OkDownloadTask? = null
+    private fun getTask(taskId: String): OkDownloadTask? {
         this.downloadBuilder.build().tasks.iterator().forEach {
-            if (it.url == taskUrl) {
-                downloadTask = it
+            if (getOkDownloadTaskId(it) == taskId) {
+                return it
             }
         }
-        return downloadTask
+        return null
     }
 
     fun setDownloadListener(customDownloadListener4WithSpeed: CustomDownloadListener4WithSpeed) {
@@ -84,16 +94,22 @@ class TaskManager {
     fun start(downloadTask: DownloadTask) {
         val downloadUrl = downloadTask.url
         val absolutePath = downloadTask.absolutePath
-        if (isExistsTask(downloadUrl)) {
-            getTask(downloadUrl)?.apply {
+        val taskId = downloadTask.id
+        if (isExistsTask(taskId)) {
+            getTask(taskId)?.apply {
                 downloadBuilder.bindSetTask(this)
                 this.tag = DownloadTaskActionTag.Default
                 this.enqueue(customDownloadListener4WithSpeed)
             }
         } else {
-            downloadBuilder.bind(OkDownloadTask.Builder(downloadUrl, File(absolutePath)))
+            val taskBuilder = OkDownloadTask.Builder(downloadUrl, File(absolutePath))
+            downloadTask.headers?.map?.forEach {
+                taskBuilder.addHeader(it.key, it.value)
+            }
+            downloadBuilder.bind(taskBuilder)
                     .apply {
                         this.tag = DownloadTaskActionTag.Default
+                        this.addTag(taskIdTagKey, taskId)
                         this.enqueue(customDownloadListener4WithSpeed)
                     }
         }
@@ -108,15 +124,23 @@ class TaskManager {
         }
     }
 
-    fun stop(downloadUrl: String) {
-        getTask(downloadUrl)?.apply {
+    fun stop(taskId: String) {
+        getTask(taskId)?.apply {
             this.tag = DownloadTaskActionTag.PAUSED
             this.cancel()
         }
     }
 
-    fun delete(downloadUrl: String) {
-        getTask(downloadUrl)?.apply {
+    fun resume(taskId: String) {
+        getTask(taskId)?.apply {
+            downloadBuilder.bindSetTask(this)
+            this.tag = DownloadTaskActionTag.Default
+            this.enqueue(customDownloadListener4WithSpeed)
+        }
+    }
+
+    fun delete(taskId: String) {
+        getTask(taskId)?.apply {
             this.tag = DownloadTaskActionTag.DELETE
             this.cancel()
         }

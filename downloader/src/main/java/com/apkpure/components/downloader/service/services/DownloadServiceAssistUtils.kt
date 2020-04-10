@@ -1,5 +1,6 @@
 package com.apkpure.components.downloader.service.services
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
@@ -8,10 +9,7 @@ import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.service.DownloadManager
-import com.apkpure.components.downloader.service.misc.CustomDownloadListener4WithSpeed
-import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
-import com.apkpure.components.downloader.service.misc.TaskManager
+import com.apkpure.components.downloader.service.misc.*
 import com.apkpure.components.downloader.utils.*
 import io.reactivex.disposables.Disposable
 import java.io.File
@@ -34,13 +32,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     companion object {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
-        private const val EXTRA_PARAM_FILE_NAMNE = "file_name"
+        private const val EXTRA_PARAM_FILE_NAME = "file_name"
         val downloadTaskLists = mutableListOf<DownloadTask>()
 
         object ActionType {
             const val ACTION_INIT = "init"
-            const val ACTION_START = "start"
+            const val ACTION_NEW_START = "new_start"
             const val ACTION_STOP = "stop"
+            const val ACTION_RESUME = "resume"
             const val ACTION_DELETE = "delete"
             const val ACTION_START_ALL = "start_all"
             const val ACTION_STOP_ALL = "stop_all"
@@ -54,24 +53,31 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newStartIntent(mContext: Context, clazz: Class<*>, downloadTask: DownloadTask): Intent {
+        fun newStartNewTaskIntent(mContext: Context, clazz: Class<*>, downloadTask: DownloadTask): Intent {
             return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_START
+                this.action = ActionType.ACTION_NEW_START
                 this.putExtra(EXTRA_PARAM_ACTION, downloadTask)
             }
         }
 
-        fun newStopIntent(mContext: Context, clazz: Class<*>, taskUrl: String): Intent {
+        fun newStopIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_STOP
-                this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
+                this.putExtra(EXTRA_PARAM_ACTION, taskId)
             }
         }
 
-        fun newDeleteIntent(mContext: Context, clazz: Class<*>, taskUrlList: ArrayList<String>, isDeleteFile: Boolean): Intent {
+        fun newResumeIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
+            return Intent(mContext, clazz).apply {
+                this.action = ActionType.ACTION_RESUME
+                this.putExtra(EXTRA_PARAM_ACTION, taskId)
+            }
+        }
+
+        fun newDeleteIntent(mContext: Context, clazz: Class<*>, taskIds: ArrayList<String>, isDeleteFile: Boolean): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_DELETE
-                this.putExtra(EXTRA_PARAM_ACTION, taskUrlList)
+                this.putExtra(EXTRA_PARAM_ACTION, taskIds)
                 this.putExtra(EXTRA_PARAM_IS_DELETE, isDeleteFile)
             }
         }
@@ -82,11 +88,11 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
 
-        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskUrl: String, fileName: String): Intent {
+        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskId: String, fileName: String): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_FILE_RENAME
-                this.putExtra(EXTRA_PARAM_ACTION, taskUrl)
-                this.putExtra(EXTRA_PARAM_FILE_NAMNE, fileName)
+                this.putExtra(EXTRA_PARAM_ACTION, taskId)
+                this.putExtra(EXTRA_PARAM_FILE_NAME, fileName)
             }
         }
     }
@@ -99,9 +105,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private fun getCustomTaskListener() = object : CustomDownloadListener4WithSpeed.TaskListener {
         override fun onStart(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
-                this.notificationId = this.url.hashCode()
+                this.notificationId = "${this.url}${this.absolutePath}${this.id}".hashCode()
                 this.downloadTaskStatus = downloadTaskStatus
                 if (!FsUtils.exists(this.absolutePath)) {
                     this.currentOffset = 0
@@ -116,7 +121,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
                 this.totalLength = totalLength
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onInfoReady ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -127,7 +131,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             downloadTask?.apply {
                 this.taskSpeed = taskSpeed
                 this.currentOffset = currentOffset
-                this.absolutePath = task.file?.path ?: String()
                 this.downloadTaskStatus = downloadTaskStatus
                 val downloadPercent = CommonUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                 updateDbDataAndNotify(this)
@@ -138,7 +141,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         override fun onCancel(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onCancel ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -148,7 +150,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         override fun onSuccess(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onSuccess ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -158,7 +159,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         override fun onError(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus) {
             downloadTask?.apply {
                 this.downloadTaskStatus = downloadTaskStatus
-                this.absolutePath = task.file?.path ?: String()
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
                 Logger.d(logTag, "onError ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
@@ -177,14 +177,19 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             ActionType.ACTION_INIT -> {
                 initial()
             }
-            ActionType.ACTION_START -> {
+            ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
-                    start(this)
+                    startNewTask(this)
                 }
             }
             ActionType.ACTION_STOP -> {
                 intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
                     stop(this)
+                }
+            }
+            ActionType.ACTION_RESUME -> {
+                intent.getStringExtra(EXTRA_PARAM_ACTION)?.apply {
+                    resume(this)
                 }
             }
             ActionType.ACTION_DELETE -> {
@@ -203,9 +208,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 deleteAll()
             }
             ActionType.ACTION_FILE_RENAME -> {
-                val taskUrl = intent.getStringExtra(EXTRA_PARAM_ACTION) ?: return
-                val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAMNE) ?: return
-                renameTaskFile(taskUrl, fileName)
+                val taskId = intent.getStringExtra(EXTRA_PARAM_ACTION) ?: return
+                val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAME) ?: return
+                renameTaskFile(taskId, fileName)
             }
         }
     }
@@ -231,20 +236,55 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun start(downloadTask: DownloadTask) {
-        DownloadManager.instance.getDownloadTask(downloadTask.url) ?: let {
-            downloadTaskLists.add(0, downloadTask)
+    private fun startNewTask(downloadTask: DownloadTask) {
+        if (downloadTask.url.isEmpty()) {
+            return
         }
-        TaskManager.instance.start(downloadTask)
+        val downloadTask1 = reformTaskData(downloadTask)
+        DownloadManager.instance.getDownloadTask(downloadTask1.id) ?: let {
+            downloadTaskLists.add(0, downloadTask1)
+        }
+        TaskManager.instance.start(downloadTask1)
+    }
+
+    private fun reformTaskData(downloadTask: DownloadTask): DownloadTask {
+        val url = downloadTask.url
+        var tempFileName = downloadTask.tempFileName
+        if (tempFileName.isEmpty()) {
+            tempFileName = if (url.contains("/")) {
+                url.substring(url.lastIndexOf("/") + 1)
+            } else {
+                url.hashCode().toString()
+            }
+            downloadTask.tempFileName = tempFileName
+        }
+        val taskFile = if (downloadTask.overrideTaskFile) {
+            CommonUtils.createAvailableFileName(File(FsUtils.getDefaultDownloadDir(), tempFileName))
+        } else {
+            File(FsUtils.getDefaultDownloadDir(), tempFileName)
+        }
+        downloadTask.absolutePath = taskFile.absolutePath
+        downloadTask.id = "${downloadTask.absolutePath.hashCode()}"
+        //防止 之前任务是覆盖下载 这个任务是不覆盖下载 导致Id不一样数据库有2个相同任务
+        return downloadTask
     }
 
     private fun startAll() {
         TaskManager.instance.startOnParallel()
     }
 
-    private fun stop(taskUrl: String) {
-        TaskManager.instance.stop(taskUrl)
-        DownloadManager.instance.getDownloadTask(taskUrl)?.let {
+    private fun stop(taskId: String) {
+        TaskManager.instance.stop(taskId)
+        DownloadManager.instance.getDownloadTask(taskId)?.let {
+            if (it.showNotification) {
+                notifyHelper.notificationManager.cancel(it.notificationId)
+            }
+        }
+    }
+
+    private fun resume(taskId: String) {
+        TaskManager.instance.resume(taskId)
+        DownloadManager.instance.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -292,9 +332,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun delete(taskUrlList: ArrayList<String>, isDeleteFile: Boolean) {
+    private fun delete(taskIds: ArrayList<String>, isDeleteFile: Boolean) {
         val downloadTaskBeanList1 = arrayListOf<DownloadTask>()
-        taskUrlList.forEach { it1 ->
+        taskIds.forEach { it1 ->
             DownloadManager.instance.getDownloadTask(it1)?.let { it2 ->
                 downloadTaskBeanList1.add(it2)
                 downloadTaskLists.remove(it2)
@@ -329,8 +369,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 })
     }
 
-    private fun renameTaskFile(taskUrl: String, fileName: String) {
-        val downloadTask = DownloadManager.instance.getDownloadTask(taskUrl)
+    private fun renameTaskFile(taskId: String, fileName: String) {
+        val downloadTask = DownloadManager.instance.getDownloadTask(taskId)
         if (downloadTask == null || !FsUtils.exists(downloadTask.absolutePath)
                 || downloadTask.downloadTaskStatus != DownloadTaskStatus.Success
                 || fileName.isEmpty()) {
@@ -347,6 +387,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return
         }
         downloadTask.absolutePath = newFile!!.absolutePath
+        downloadTask.tempFileName = fileName
         AppDbHelper.createOrUpdateDownloadTask(downloadTask)
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
@@ -368,7 +409,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .subscribe(object : RxSubscriber<Long>() {
                     override fun rxOnNext(t: Long) {
                         DownloadTaskChangeLister.sendChangeBroadcast(mContext1, downloadTask)
-                        if (downloadTask.showNotification && downloadTask.notificationId != -1) {
+                        if (downloadTask.showNotification) {
                             downloadTask.downloadTaskStatus.let {
                                 when (it) {
                                     DownloadTaskStatus.Waiting -> hintTaskIngNotify(downloadTask)
@@ -400,8 +441,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setCategory(NotificationCompat.CATEGORY_PROGRESS)
                         .setShowWhen(false)
         downloadIngNotification?.apply {
-            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+            if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            TaskConfig.getNotificationLargeIcon()?.let {
+                this.setLargeIcon(it)
+            }
+            downloadTask.notificationIntent?.let {
+                this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
@@ -417,8 +464,14 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadCompatNotification?.apply {
-            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+            if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            TaskConfig.getNotificationLargeIcon()?.let {
+                this.setLargeIcon(it)
+            }
+            downloadTask.notificationIntent?.let {
+                this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             notifyHelper.notificationManager.cancel(downloadTask.notificationId)
@@ -433,12 +486,22 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         .setOngoing(false)
                         .setAutoCancel(true)
         downloadFailedNotification?.apply {
-            if (!downloadTask.notificationTitle.isNullOrEmpty()) {
+            if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
+            }
+            TaskConfig.getNotificationLargeIcon()?.let {
+                this.setLargeIcon(it)
+            }
+            downloadTask.notificationIntent?.let {
+                this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
+    }
+
+    private fun getNotificationContentIntent(intent: Intent): PendingIntent {
+        return PendingIntent.getActivity(mContext1, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 }

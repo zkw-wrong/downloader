@@ -1,11 +1,11 @@
 package com.apkpure.demo.download
 
-import android.content.pm.PackageManager
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
@@ -14,16 +14,17 @@ import com.apkpure.components.downloader.service.DownloadManager
 import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.FsUtils
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val LOG_TAG = "MainActivity"
     private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
-    private val call_write_storage = 1
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
     private lateinit var renameTaskBt: Button
+    private lateinit var infoBt:Button
     private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
     private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
     private var downloadTask: DownloadTask? = null
@@ -35,13 +36,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         apkBt = findViewById(R.id.apk_bt)
         deleteTaskBt = findViewById(R.id.delete_task_bt)
         renameTaskBt = findViewById(R.id.rename_task_bt)
+        infoBt=findViewById(R.id.info_bt)
+        infoBt.setOnClickListener(this)
         clearBt.setOnClickListener(this)
         apkBt.setOnClickListener(this)
         deleteTaskBt.setOnClickListener(this)
         renameTaskBt.setOnClickListener(this)
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
-        renameTaskBt.isEnabled = false
     }
 
     override fun onClick(v: View?) {
@@ -53,11 +55,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 clickDownload()
             }
             deleteTaskBt -> {
-                DownloadManager.instance.deleteTask(this, arrayListOf(apkUrl1), true)
+                downloadTask?.let {
+                    DownloadManager.instance.deleteTask(this, arrayListOf(it.id), true)
+                }
             }
             renameTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.renameTaskFile(this, it.url, "new_file.apk")
+                    DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
                 }
             }
         }
@@ -71,11 +75,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
             object : DownloadTaskChangeLister.Listener {
-                override fun onChange(downloadTask1: DownloadTask) {
-                    downloadTask = downloadTask1
-                    apkBt.isEnabled = false
-                    renameTaskBt.isEnabled = downloadTask1.downloadTaskStatus == DownloadTaskStatus.Success
-                    val info = when (downloadTask1.downloadTaskStatus) {
+                override fun onChange(task: DownloadTask) {
+                    downloadTask = task
+                    val info = when (task.downloadTaskStatus) {
                         DownloadTaskStatus.Waiting -> {
                             "等待中..."
                         }
@@ -84,8 +86,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         }
                         DownloadTaskStatus.Downloading -> {
                             val progressInfo = CommonUtils.formatPercentInfo(
-                                    downloadTask1.currentOffset,
-                                    downloadTask1.totalLength
+                                    task.currentOffset,
+                                    task.totalLength
                             )
                             "下载中($progressInfo)..."
                         }
@@ -105,7 +107,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             "重试中"
                         }
                     }
-                    apkBt.text = info
+                    infoBt.text = info
                 }
             })
 
@@ -121,25 +123,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     })
 
     private fun clearDownloadFolder() {
-        apkBt.isEnabled = true
-        apkBt.text = "重新下载"
-        DownloadManager.instance.deleteAllTask(this)
+        FsUtils.deleteFileOrDir(FsUtils.getDefaultDownloadDir())
     }
 
     private fun clickDownload() {
-        DownloadManager.instance.startTask(this, apkUrl1, "abc.apk"
-                , "Title ABC", Extras(mutableMapOf(Pair("qwe", "123"))))
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == call_write_storage) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                apkBt.isEnabled = true
-                clearBt.isEnabled = true
-            } else {
-                Toast.makeText(this, "读写权限拒绝,无法测试!", Toast.LENGTH_LONG).show()
-            }
-        }
+        DownloadManager.instance.startNewTask(this, DownloadTask
+                .Builder()
+                .setUrl(apkUrl1)
+                .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
+                .setFileName("abc.apk")
+                .setOverrideTaskFile(true)
+                .setHeaders(Extras(mutableMapOf()))
+                .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
+                .setNotificationTitle("Title Abc 123"))
     }
 }

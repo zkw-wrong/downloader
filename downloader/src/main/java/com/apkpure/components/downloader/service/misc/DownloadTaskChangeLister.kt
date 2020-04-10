@@ -24,7 +24,7 @@ class DownloadTaskChangeLister {
     }
 
     interface Listener {
-        fun onChange(downloadTask: DownloadTask)
+        fun onChange(task: DownloadTask)
     }
 
     open class Receiver(private val mContext: Context, private val listener: Listener) :

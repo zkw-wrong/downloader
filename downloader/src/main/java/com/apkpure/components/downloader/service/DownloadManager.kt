@@ -2,16 +2,19 @@ package com.apkpure.components.downloader.service
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
-import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.service.misc.TaskConfig
 import com.apkpure.components.downloader.service.misc.TaskManager
 import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.service.services.DownloadServiceV14
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.Logger
 import com.apkpure.components.downloader.utils.PermissionUtils
+import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
+import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
 /**
  * author: mr.xiong
@@ -40,6 +43,17 @@ class DownloadManager {
                 }
                 return downloadManager!!
             }
+
+        fun setDebug(isDebug: Boolean) {
+            TaskConfig.isDebug = isDebug
+            if (isDebug){
+                Util.enableConsoleLog()
+            }
+        }
+
+        fun setNotificationLargeIcon(bitmap: Bitmap) {
+            TaskConfig.setNotificationLargeIcon(bitmap)
+        }
     }
 
     private fun startInitialTask(mContext: Context) {
@@ -51,43 +65,51 @@ class DownloadManager {
         addAll(DownloadServiceAssistUtils.downloadTaskLists)
     }
 
-    fun getDownloadTask(taskUrl: String): DownloadTask? {
-        var downloadTask: DownloadTask? = null
+    fun getDownloadTask(taskId: String): DownloadTask? {
         DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach {
-            if (it.url == taskUrl) {
-                downloadTask = it
+            if (it.id == taskId) {
+                return it
             }
         }
-        return downloadTask
+        return null
     }
 
-    fun startTask(mContext: Context, url: String,
-                  fileName: String? = null, notificationTitle: String? = null,
-                  extras: Extras? = null, silent: Boolean = false,
-                  showNotification: Boolean = true) {
+    fun getDownloadTask(okDownloadTask: OkDownloadTask): DownloadTask? {
+        TaskManager.instance.getOkDownloadTaskId(okDownloadTask)?.let { it1 ->
+            DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach { it2 ->
+                if (it1 == it2.id) {
+                    return it2
+                }
+            }
+        }
+        return null
+    }
+
+    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
-            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartIntent(mContext
-                    , DownloadServiceV14::class.java, DownloadTask().apply {
-                this.url = url
-                this.absolutePath = TaskConfig.getOkDownloadAbsolutePath(fileName)
-                this.showNotification = showNotification
-                this.extras = extras
-                this.notificationTitle = notificationTitle
-            }))
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext
+                    , DownloadServiceV14::class.java, builder.build()))
         }
     }
 
-    fun stopTask(mContext: Context, taskUrl: String, silent: Boolean = false) {
+    fun stopTask(mContext: Context, id: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
-                    , DownloadServiceV14::class.java, taskUrl))
+                    , DownloadServiceV14::class.java, id))
         }
     }
 
-    fun deleteTask(mContext: Context, taskUrlList: ArrayList<String>, isDeleteFile: Boolean, silent: Boolean = false) {
+    fun resumeTask(mContext: Context, id: String, silent: Boolean) {
+        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext
+                    , DownloadServiceV14::class.java, id))
+        }
+    }
+
+    fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
-                    , DownloadServiceV14::class.java, taskUrlList, isDeleteFile))
+                    , DownloadServiceV14::class.java, ids, isDeleteFile))
         }
     }
 
@@ -98,10 +120,10 @@ class DownloadManager {
         }
     }
 
-    fun renameTaskFile(mContext: Context, taskUrl: String, fileName: String, silent: Boolean = false) {
+    fun renameTaskFile(mContext: Context, id: String, fileName: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext
-                    , DownloadServiceV14::class.java, taskUrl, fileName))
+                    , DownloadServiceV14::class.java, id, fileName))
         }
     }
 }
