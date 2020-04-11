@@ -11,7 +11,7 @@ import com.apkpure.components.downloader.db.convert.Converters
  * author: mr.xiong
  * date: 2020/4/3
  */
-@Database(entities = [DownloadTask::class], version = 6)
+@Database(entities = [DownloadTask::class], version = 7)
 @TypeConverters(Converters::class)
 abstract class DownloadDatabase : RoomDatabase() {
     abstract fun downloadTaskDao(): DownloadTaskDao

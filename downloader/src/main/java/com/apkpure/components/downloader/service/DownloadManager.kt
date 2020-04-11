@@ -99,7 +99,7 @@ class DownloadManager {
         }
     }
 
-    fun resumeTask(mContext: Context, id: String, silent: Boolean) {
+    fun resumeTask(mContext: Context, id: String, silent: Boolean= false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext
                     , DownloadServiceV14::class.java, id))

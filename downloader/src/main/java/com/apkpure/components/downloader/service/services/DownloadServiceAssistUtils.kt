@@ -113,7 +113,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     this.totalLength = 0
                 }
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onStart ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onStart ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -123,7 +123,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.totalLength = totalLength
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onInfoReady ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onInfoReady ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -134,7 +134,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 val downloadPercent = CommonUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onProgress ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength} $downloadPercent")
+                Logger.d(logTag, "onProgress ${this.notificationTitle} ${this.currentOffset} ${this.totalLength} $downloadPercent")
             }
         }
 
@@ -143,7 +143,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onCancel ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onCancel ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -152,7 +152,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onSuccess ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onSuccess ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -161,7 +161,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onError ${this.notificationTitle} ${task.connectionCount} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onError ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
