@@ -12,8 +12,6 @@ import java.lang.ref.SoftReference
  */
 object TaskConfig {
     const val minIntervalMillisCallbackProcess = 300
-    const val isWifiRequired = true
-    const val isAutoCallbackToUIThread = true
     const val maxRunningCount = 5
     const val failedRetryCount = 3
 

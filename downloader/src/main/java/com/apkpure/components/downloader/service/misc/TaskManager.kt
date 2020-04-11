@@ -52,10 +52,10 @@ class TaskManager {
                         .build())
         DownloadDispatcher.setMaxParallelRunningCount(TaskConfig.maxRunningCount)
         DownloadContext.QueueSet().apply {
-            this.minIntervalMillisCallbackProcess =
-                    TaskConfig.minIntervalMillisCallbackProcess
-            this.isWifiRequired = TaskConfig.isWifiRequired
-            this.isAutoCallbackToUIThread = TaskConfig.isAutoCallbackToUIThread
+            this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
+            this.isWifiRequired = true
+            this.isAutoCallbackToUIThread = true
+            this.isPassIfAlreadyCompleted = false
             downloadBuilder = this.commit()
         }
     }

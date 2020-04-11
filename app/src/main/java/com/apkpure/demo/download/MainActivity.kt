@@ -24,7 +24,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
     private lateinit var renameTaskBt: Button
-    private lateinit var infoBt:Button
+    private lateinit var infoBt: Button
+    private lateinit var pauseBt: Button
     private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
     private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
     private var downloadTask: DownloadTask? = null
@@ -36,12 +37,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         apkBt = findViewById(R.id.apk_bt)
         deleteTaskBt = findViewById(R.id.delete_task_bt)
         renameTaskBt = findViewById(R.id.rename_task_bt)
-        infoBt=findViewById(R.id.info_bt)
+        infoBt = findViewById(R.id.info_bt)
+        pauseBt = findViewById(R.id.pause_bt)
         infoBt.setOnClickListener(this)
         clearBt.setOnClickListener(this)
         apkBt.setOnClickListener(this)
         deleteTaskBt.setOnClickListener(this)
         renameTaskBt.setOnClickListener(this)
+        pauseBt.setOnClickListener(this)
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
     }
@@ -62,6 +65,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             renameTaskBt -> {
                 downloadTask?.let {
                     DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
+                }
+            }
+            pauseBt -> {
+                downloadTask?.let {
+                    DownloadManager.instance.stopTask(this, it.id)
                 }
             }
         }
@@ -132,7 +140,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setUrl(apkUrl1)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("abc.apk")
-                .setOverrideTaskFile(false)
+                //.setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("Title Abc 123"))
