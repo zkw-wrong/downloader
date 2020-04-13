@@ -3,6 +3,7 @@ package com.apkpure.demo.download
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -20,6 +21,8 @@ import com.apkpure.components.downloader.utils.FsUtils
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val LOG_TAG = "MainActivity"
     private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
+    private val apkUrl2 = "https://fd59c3b8ffa5957ceaf5787ea5b08f3d.dlied1.cdntips.com/godlied4.myapp.com/myapp/1104466820/cos.release-40109/10040714_com.tencent.tmgp.sgame_a713640_1.53.1.6_q6wxs5.apk?mkey=5e942cefddddbc96&f=578b&cip=221.221.154.99&proto=https\n" +
+            "2020-04-13"
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
@@ -47,6 +50,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         pauseBt.setOnClickListener(this)
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
+
+        //开机 恢复下载
+        /*Handler().postDelayed(Runnable {
+            DownloadManager.instance.getDownloadTasks().forEach {
+                if (it.downloadTaskStatus == DownloadTaskStatus.Waiting ||
+                        it.downloadTaskStatus == DownloadTaskStatus.Downloading||
+                        it.downloadTaskStatus==DownloadTaskStatus.Preparing||
+                        it.downloadTaskStatus==DownloadTaskStatus.Stop) {
+                    DownloadManager.instance.resumeTask(this, it.id)
+                }
+            }
+        }, 3000)*/
     }
 
     override fun onClick(v: View?) {
@@ -137,7 +152,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun clickDownload() {
         DownloadManager.instance.startNewTask(this, DownloadTask
                 .Builder()
-                .setUrl(apkUrl1)
+                .setUrl(apkUrl2)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("abc.apk")
                 //.setOverrideTaskFile(false)
