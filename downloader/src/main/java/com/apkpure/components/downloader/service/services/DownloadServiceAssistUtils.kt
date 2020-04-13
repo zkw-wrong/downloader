@@ -3,6 +3,7 @@ package com.apkpure.components.downloader.service.services
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.webkit.URLUtil
 import androidx.core.app.NotificationCompat
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
@@ -252,7 +253,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         var tempFileName = downloadTask.tempFileName
         if (tempFileName.isEmpty()) {
             tempFileName = if (url.contains("/")) {
-                url.substring(url.lastIndexOf("/") + 1)
+                URLUtil.guessFileName(url, null, null)
             } else {
                 url.hashCode().toString()
             }

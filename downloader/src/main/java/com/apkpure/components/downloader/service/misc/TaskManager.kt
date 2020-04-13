@@ -2,6 +2,7 @@ package com.apkpure.components.downloader.service.misc
 
 import android.content.Context
 import com.apkpure.components.downloader.db.DownloadTask
+import com.apkpure.components.downloader.service.DownloadManager
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
@@ -106,12 +107,11 @@ class TaskManager {
             downloadTask.headers?.map?.forEach {
                 taskBuilder.addHeader(it.key, it.value)
             }
-            downloadBuilder.bind(taskBuilder)
-                    .apply {
-                        this.tag = DownloadTaskActionTag.Default
-                        this.addTag(taskIdTagKey, taskId)
-                        this.enqueue(customDownloadListener4WithSpeed)
-                    }
+            downloadBuilder.bind(taskBuilder).apply {
+                this.tag = DownloadTaskActionTag.Default
+                this.addTag(taskIdTagKey, taskId)
+                this.enqueue(customDownloadListener4WithSpeed)
+            }
         }
     }
 
@@ -132,10 +132,8 @@ class TaskManager {
     }
 
     fun resume(taskId: String) {
-        getTask(taskId)?.apply {
-            downloadBuilder.bindSetTask(this)
-            this.tag = DownloadTaskActionTag.Default
-            this.enqueue(customDownloadListener4WithSpeed)
+        DownloadManager.instance.getDownloadTask(taskId)?.let {
+            start(it)
         }
     }
 
