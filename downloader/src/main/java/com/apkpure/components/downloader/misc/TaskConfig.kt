@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service.misc
+package com.apkpure.components.downloader.misc
 
 import android.graphics.Bitmap
 import com.apkpure.components.downloader.utils.FsUtils

@@ -8,7 +8,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
-import com.apkpure.components.downloader.service.DownloadManager
+import com.apkpure.components.downloader.DownloadManager
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 

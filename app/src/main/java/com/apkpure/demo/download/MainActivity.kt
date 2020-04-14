@@ -3,7 +3,6 @@ package com.apkpure.demo.download
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -11,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.service.DownloadManager
-import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
+import com.apkpure.components.downloader.DownloadManager
+import com.apkpure.components.downloader.misc.DownloadTaskChangeLister
+import com.apkpure.components.downloader.misc.DownloadTaskFileChangeLister
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
 

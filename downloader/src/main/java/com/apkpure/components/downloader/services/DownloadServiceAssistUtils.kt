@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service.services
+package com.apkpure.components.downloader.services
 
 import android.app.PendingIntent
 import android.content.Context
@@ -9,8 +9,8 @@ import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.service.DownloadManager
-import com.apkpure.components.downloader.service.misc.*
+import com.apkpure.components.downloader.DownloadManager
+import com.apkpure.components.downloader.misc.*
 import com.apkpure.components.downloader.utils.*
 import io.reactivex.disposables.Disposable
 import java.io.File

@@ -5,12 +5,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
-import com.apkpure.components.downloader.service.misc.TaskConfig
-import com.apkpure.components.downloader.service.misc.TaskManager
-import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
-import com.apkpure.components.downloader.service.services.DownloadServiceV14
+import com.apkpure.components.downloader.misc.TaskConfig
+import com.apkpure.components.downloader.misc.TaskManager
+import com.apkpure.components.downloader.services.DownloadServiceAssistUtils
+import com.apkpure.components.downloader.services.DownloadService
 import com.apkpure.components.downloader.utils.CommonUtils
-import com.apkpure.components.downloader.utils.Logger
 import com.apkpure.components.downloader.utils.PermissionUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
@@ -58,7 +57,7 @@ class DownloadManager {
 
     private fun startInitialTask(mContext: Context) {
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
-                , DownloadServiceV14::class.java))
+                , DownloadService::class.java))
     }
 
     fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {
@@ -88,42 +87,42 @@ class DownloadManager {
     fun startNewTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext
-                    , DownloadServiceV14::class.java, builder.build()))
+                    , DownloadService::class.java, builder.build()))
         }
     }
 
     fun stopTask(mContext: Context, id: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
-                    , DownloadServiceV14::class.java, id))
+                    , DownloadService::class.java, id))
         }
     }
 
     fun resumeTask(mContext: Context, id: String, silent: Boolean= false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext
-                    , DownloadServiceV14::class.java, id))
+                    , DownloadService::class.java, id))
         }
     }
 
     fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
-                    , DownloadServiceV14::class.java, ids, isDeleteFile))
+                    , DownloadService::class.java, ids, isDeleteFile))
         }
     }
 
     fun deleteAllTask(mContext: Context, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
-                    , DownloadServiceV14::class.java))
+                    , DownloadService::class.java))
         }
     }
 
     fun renameTaskFile(mContext: Context, id: String, fileName: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext
-                    , DownloadServiceV14::class.java, id, fileName))
+                    , DownloadService::class.java, id, fileName))
         }
     }
 }

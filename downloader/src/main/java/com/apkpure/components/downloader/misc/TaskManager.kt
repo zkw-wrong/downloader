@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service.misc
+package com.apkpure.components.downloader.misc
 
 import android.content.Context
 import com.apkpure.components.downloader.db.DownloadTask

@@ -23,6 +23,6 @@
               android:resource="@xml/file_provider_paths" />
         </provider>
 
-        <service android:name="com.apkpure.components.downloader.service.services.DownloadServiceV14" />
+        <service android:name="com.apkpure.components.downloader.services.DownloadService" />
     </application>
 </manifest>
