@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.misc.DownloadTaskFileChangeLister
+import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
 
@@ -157,6 +157,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 //.setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
-                .setNotificationTitle("Title Abc 123"))
+                .setNotificationTitle("王者荣耀"))
     }
 }

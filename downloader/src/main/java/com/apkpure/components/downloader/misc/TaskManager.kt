@@ -2,7 +2,7 @@ package com.apkpure.components.downloader.misc
 
 import android.content.Context
 import com.apkpure.components.downloader.db.DownloadTask
-import com.apkpure.components.downloader.service.DownloadManager
+import com.apkpure.components.downloader.DownloadManager
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.OkDownload
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection

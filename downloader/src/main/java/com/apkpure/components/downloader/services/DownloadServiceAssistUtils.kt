@@ -9,12 +9,13 @@ import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.misc.*
+import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.utils.*
 import io.reactivex.disposables.Disposable
 import java.io.File
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
+import com.apkpure.components.downloader.utils.NotifyHelper
 
 /**
  * @author xiongke

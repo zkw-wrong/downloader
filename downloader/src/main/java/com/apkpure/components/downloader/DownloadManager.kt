@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service
+package com.apkpure.components.downloader
 
 import android.app.Application
 import android.content.Context
@@ -25,7 +25,7 @@ class DownloadManager {
         private lateinit var application: Application
 
         fun initial(application: Application, builder: OkHttpClient.Builder) {
-            this.application = application
+            Companion.application = application
             DownloadDatabase.initial(application)
             TaskManager.init(application, builder)
             instance.startInitialTask(application)
