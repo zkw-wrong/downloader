@@ -243,7 +243,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return
         }
         val downloadTask1 = reformTaskData(downloadTask)
-        DownloadManager.instance.getDownloadTask(downloadTask1.id) ?: let {
+        DownloadManager.getDownloadTask(downloadTask1.id) ?: let {
             downloadTaskLists.add(0, downloadTask1)
         }
         TaskManager.instance.start(downloadTask1)
@@ -277,7 +277,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun stop(taskId: String) {
         TaskManager.instance.stop(taskId)
-        DownloadManager.instance.getDownloadTask(taskId)?.let {
+        DownloadManager.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -286,7 +286,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun resume(taskId: String) {
         TaskManager.instance.resume(taskId)
-        DownloadManager.instance.getDownloadTask(taskId)?.let {
+        DownloadManager.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -337,7 +337,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private fun delete(taskIds: ArrayList<String>, isDeleteFile: Boolean) {
         val downloadTaskBeanList1 = arrayListOf<DownloadTask>()
         taskIds.forEach { it1 ->
-            DownloadManager.instance.getDownloadTask(it1)?.let { it2 ->
+            DownloadManager.getDownloadTask(it1)?.let { it2 ->
                 downloadTaskBeanList1.add(it2)
                 downloadTaskLists.remove(it2)
                 TaskManager.instance.delete(it2.url)
@@ -372,7 +372,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun renameTaskFile(taskId: String, fileName: String) {
-        val downloadTask = DownloadManager.instance.getDownloadTask(taskId)
+        val downloadTask = DownloadManager.getDownloadTask(taskId)
         if (downloadTask == null || !FsUtils.exists(downloadTask.absolutePath)
                 || downloadTask.downloadTaskStatus != DownloadTaskStatus.Success
                 || fileName.isEmpty()) {

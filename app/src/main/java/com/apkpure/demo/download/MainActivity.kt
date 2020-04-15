@@ -73,17 +73,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             deleteTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.deleteTask(this, arrayListOf(it.id), true)
+                    DownloadManager.deleteTask(this, arrayListOf(it.id), true)
                 }
             }
             renameTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
+                    DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
                 }
             }
             pauseBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.stopTask(this, it.id)
+                    DownloadManager.stopTask(this, it.id)
                 }
             }
         }
@@ -149,14 +149,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun clickDownload() {
-        DownloadManager.instance.startNewTask(this, DownloadTask
+        DownloadManager.startNewTask(this, DownloadTask
                 .Builder()
                 .setUrl(apkUrl2)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
-                .setFileName("abc.apk")
+                .setFileName("王者荣耀.apk")
                 //.setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("王者荣耀"))
+
     }
 }

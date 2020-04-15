@@ -68,7 +68,7 @@ DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeListe
 4.调用 
 ```
 //下载
-DownloadManager.instance.startNewTask(this, DownloadTask
+DownloadManager.startNewTask(this, DownloadTask
                 .Builder()
                 .setUrl(apkUrl1)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
@@ -78,7 +78,7 @@ DownloadManager.instance.startNewTask(this, DownloadTask
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("Title Abc 123"))
 //文件重命名
-DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
+DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 //删除任务
 
 //暂停

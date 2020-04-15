@@ -132,7 +132,7 @@ class TaskManager {
     }
 
     fun resume(taskId: String) {
-        DownloadManager.instance.getDownloadTask(taskId)?.let {
+        DownloadManager.getDownloadTask(taskId)?.let {
             start(it)
         }
     }
