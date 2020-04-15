@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service.services
+package com.apkpure.components.downloader.services
 
 import android.app.PendingIntent
 import android.content.Context
@@ -9,12 +9,13 @@ import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.service.DownloadManager
-import com.apkpure.components.downloader.service.misc.*
+import com.apkpure.components.downloader.misc.*
+import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.utils.*
 import io.reactivex.disposables.Disposable
 import java.io.File
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
+import com.apkpure.components.downloader.utils.NotifyHelper
 
 /**
  * @author xiongke
@@ -242,7 +243,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return
         }
         val downloadTask1 = reformTaskData(downloadTask)
-        DownloadManager.instance.getDownloadTask(downloadTask1.id) ?: let {
+        DownloadManager.getDownloadTask(downloadTask1.id) ?: let {
             downloadTaskLists.add(0, downloadTask1)
         }
         TaskManager.instance.start(downloadTask1)
@@ -276,7 +277,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun stop(taskId: String) {
         TaskManager.instance.stop(taskId)
-        DownloadManager.instance.getDownloadTask(taskId)?.let {
+        DownloadManager.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -285,7 +286,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun resume(taskId: String) {
         TaskManager.instance.resume(taskId)
-        DownloadManager.instance.getDownloadTask(taskId)?.let {
+        DownloadManager.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
@@ -336,7 +337,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private fun delete(taskIds: ArrayList<String>, isDeleteFile: Boolean) {
         val downloadTaskBeanList1 = arrayListOf<DownloadTask>()
         taskIds.forEach { it1 ->
-            DownloadManager.instance.getDownloadTask(it1)?.let { it2 ->
+            DownloadManager.getDownloadTask(it1)?.let { it2 ->
                 downloadTaskBeanList1.add(it2)
                 downloadTaskLists.remove(it2)
                 TaskManager.instance.delete(it2.url)
@@ -371,7 +372,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun renameTaskFile(taskId: String, fileName: String) {
-        val downloadTask = DownloadManager.instance.getDownloadTask(taskId)
+        val downloadTask = DownloadManager.getDownloadTask(taskId)
         if (downloadTask == null || !FsUtils.exists(downloadTask.absolutePath)
                 || downloadTask.downloadTaskStatus != DownloadTaskStatus.Success
                 || fileName.isEmpty()) {

@@ -1,8 +1,8 @@
-package com.apkpure.components.downloader.service.misc
+package com.apkpure.components.downloader.misc
 
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.service.DownloadManager
+import com.apkpure.components.downloader.DownloadManager
 import com.liulishuo.okdownload.SpeedCalculator
 import com.liulishuo.okdownload.core.breakpoint.BlockInfo
 import com.liulishuo.okdownload.core.breakpoint.BreakpointInfo
@@ -36,7 +36,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        taskListener?.onStart(DownloadManager.instance.getDownloadTask(task), task, DownloadTaskStatus.Waiting)
+        taskListener?.onStart(DownloadManager.getDownloadTask(task), task, DownloadTaskStatus.Waiting)
     }
 
     override fun blockEnd(task: OkDownloadTask, blockIndex: Int, info: BlockInfo?, blockSpeed: SpeedCalculator) = Unit
@@ -48,7 +48,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.PROGRESS_100) {
             return
         }
-        val downloadTask = DownloadManager.instance.getDownloadTask(task)
+        val downloadTask = DownloadManager.getDownloadTask(task)
         when (cause) {
             EndCause.COMPLETED -> taskListener?.onSuccess(downloadTask, task, DownloadTaskStatus.Success)
             EndCause.CANCELED -> taskListener?.onCancel(downloadTask, task, DownloadTaskStatus.Stop)
@@ -81,7 +81,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.PAUSED) {
             return
         }
-        val missionDbBean = DownloadManager.instance.getDownloadTask(task)
+        val missionDbBean = DownloadManager.getDownloadTask(task)
         if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd
             task.tag = DownloadTaskActionTag.PROGRESS_100
             taskListener?.onSuccess(missionDbBean, task, DownloadTaskStatus.Success)
@@ -98,7 +98,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        taskListener?.onInfoReady(DownloadManager.instance.getDownloadTask(task), task, DownloadTaskStatus.Preparing, info.totalLength)
+        taskListener?.onInfoReady(DownloadManager.getDownloadTask(task), task, DownloadTaskStatus.Preparing, info.totalLength)
     }
 
     override fun progressBlock(task: OkDownloadTask, blockIndex: Int, currentBlockOffset: Long, blockSpeed: SpeedCalculator) = Unit

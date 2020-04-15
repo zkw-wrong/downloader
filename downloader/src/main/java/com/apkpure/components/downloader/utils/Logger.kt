@@ -1,7 +1,7 @@
 package com.apkpure.components.downloader.utils
 
 import android.util.Log
-import com.apkpure.components.downloader.service.misc.TaskConfig
+import com.apkpure.components.downloader.misc.TaskConfig
 
 /**
  * author: mr.xiong

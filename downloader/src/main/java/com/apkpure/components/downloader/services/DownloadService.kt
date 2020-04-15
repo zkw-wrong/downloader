@@ -1,4 +1,4 @@
-package com.apkpure.components.downloader.service.services
+package com.apkpure.components.downloader.services
 
 import android.app.Service
 import android.content.Intent
@@ -9,12 +9,12 @@ import com.apkpure.components.downloader.utils.Logger
  * @author xiongke
  * @date 2019/1/23
  */
-class DownloadServiceV14 : Service() {
+class DownloadService : Service() {
     private val logTag: String by lazy { javaClass.simpleName }
     private val downloadServiceAssistUtils by lazy {
         DownloadServiceAssistUtils(
             mContext,
-            DownloadServiceV14::class.java
+            DownloadService::class.java
         )
     }
     private val mContext by lazy { this }

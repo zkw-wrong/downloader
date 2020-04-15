@@ -1,16 +1,15 @@
-package com.apkpure.components.downloader.service
+package com.apkpure.components.downloader
 
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
-import com.apkpure.components.downloader.service.misc.TaskConfig
-import com.apkpure.components.downloader.service.misc.TaskManager
-import com.apkpure.components.downloader.service.services.DownloadServiceAssistUtils
-import com.apkpure.components.downloader.service.services.DownloadServiceV14
+import com.apkpure.components.downloader.misc.TaskConfig
+import com.apkpure.components.downloader.misc.TaskManager
+import com.apkpure.components.downloader.services.DownloadService
+import com.apkpure.components.downloader.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.utils.CommonUtils
-import com.apkpure.components.downloader.utils.Logger
 import com.apkpure.components.downloader.utils.PermissionUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
@@ -20,45 +19,28 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * author: mr.xiong
  * date: 2020/3/26
  */
-class DownloadManager {
-    companion object {
-        private var downloadManager: DownloadManager? = null
-        private lateinit var application: Application
+object DownloadManager {
 
-        fun initial(application: Application, builder: OkHttpClient.Builder) {
-            this.application = application
-            DownloadDatabase.initial(application)
-            TaskManager.init(application, builder)
-            instance.startInitialTask(application)
+    fun initial(application: Application, builder: OkHttpClient.Builder) {
+        DownloadDatabase.initial(application)
+        TaskManager.init(application, builder)
+        this.startInitialTask(application)
+    }
+
+    fun setDebug(isDebug: Boolean) {
+        TaskConfig.isDebug = isDebug
+        if (isDebug) {
+            Util.enableConsoleLog()
         }
+    }
 
-        val instance: DownloadManager
-            get() {
-                if (downloadManager == null) {
-                    synchronized(DownloadManager::class.java) {
-                        if (downloadManager == null) {
-                            downloadManager = DownloadManager()
-                        }
-                    }
-                }
-                return downloadManager!!
-            }
-
-        fun setDebug(isDebug: Boolean) {
-            TaskConfig.isDebug = isDebug
-            if (isDebug){
-                Util.enableConsoleLog()
-            }
-        }
-
-        fun setNotificationLargeIcon(bitmap: Bitmap) {
-            TaskConfig.setNotificationLargeIcon(bitmap)
-        }
+    fun setNotificationLargeIcon(bitmap: Bitmap) {
+        TaskConfig.setNotificationLargeIcon(bitmap)
     }
 
     private fun startInitialTask(mContext: Context) {
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
-                , DownloadServiceV14::class.java))
+                , DownloadService::class.java))
     }
 
     fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {
@@ -88,42 +70,42 @@ class DownloadManager {
     fun startNewTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext
-                    , DownloadServiceV14::class.java, builder.build()))
+                    , DownloadService::class.java, builder.build()))
         }
     }
 
     fun stopTask(mContext: Context, id: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext
-                    , DownloadServiceV14::class.java, id))
+                    , DownloadService::class.java, id))
         }
     }
 
-    fun resumeTask(mContext: Context, id: String, silent: Boolean= false) {
+    fun resumeTask(mContext: Context, id: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext
-                    , DownloadServiceV14::class.java, id))
+                    , DownloadService::class.java, id))
         }
     }
 
-    fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean, silent: Boolean = false) {
+    fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean = true, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
-                    , DownloadServiceV14::class.java, ids, isDeleteFile))
+                    , DownloadService::class.java, ids, isDeleteFile))
         }
     }
 
     fun deleteAllTask(mContext: Context, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext
-                    , DownloadServiceV14::class.java))
+                    , DownloadService::class.java))
         }
     }
 
     fun renameTaskFile(mContext: Context, id: String, fileName: String, silent: Boolean = false) {
         if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext
-                    , DownloadServiceV14::class.java, id, fileName))
+                    , DownloadService::class.java, id, fileName))
         }
     }
 }

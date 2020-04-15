@@ -3,7 +3,6 @@ package com.apkpure.demo.download
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -11,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
-import com.apkpure.components.downloader.service.DownloadManager
-import com.apkpure.components.downloader.service.misc.DownloadTaskChangeLister
-import com.apkpure.components.downloader.service.misc.DownloadTaskFileChangeLister
+import com.apkpure.components.downloader.misc.DownloadTaskChangeLister
+import com.apkpure.components.downloader.misc.DownloadTaskFileChangeLister
+import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
 
@@ -74,17 +73,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             deleteTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.deleteTask(this, arrayListOf(it.id), true)
+                    DownloadManager.deleteTask(this, arrayListOf(it.id), true)
                 }
             }
             renameTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.renameTaskFile(this, it.id, "new_file.apk")
+                    DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
                 }
             }
             pauseBt -> {
                 downloadTask?.let {
-                    DownloadManager.instance.stopTask(this, it.id)
+                    DownloadManager.stopTask(this, it.id)
                 }
             }
         }
@@ -150,14 +149,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun clickDownload() {
-        DownloadManager.instance.startNewTask(this, DownloadTask
+        DownloadManager.startNewTask(this, DownloadTask
                 .Builder()
                 .setUrl(apkUrl2)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
-                .setFileName("abc.apk")
+                .setFileName("王者荣耀.apk")
                 //.setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
-                .setNotificationTitle("Title Abc 123"))
+                .setNotificationTitle("王者荣耀"))
+
     }
 }
