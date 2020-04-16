@@ -5,17 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.webkit.URLUtil
 import androidx.core.app.NotificationCompat
+import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.misc.*
-import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.utils.*
+import com.apkpure.components.downloader.utils.NotifyHelper
 import io.reactivex.disposables.Disposable
 import java.io.File
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
-import com.apkpure.components.downloader.utils.NotifyHelper
 
 /**
  * @author xiongke
@@ -115,7 +115,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     this.totalLength = 0
                 }
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onStart ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onStart ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -125,7 +125,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.totalLength = totalLength
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onInfoReady ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onInfoReady ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -136,7 +136,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 val downloadPercent = CommonUtils.formatPercentInfo(this.currentOffset, this.totalLength)
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onProgress ${this.notificationTitle} ${this.currentOffset} ${this.totalLength} $downloadPercent")
+                Logger.d(logTag, "onProgress ${this.absolutePath} $downloadPercent ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -145,7 +145,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onCancel ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onCancel ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -154,7 +154,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onSuccess ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onSuccess ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
@@ -163,13 +163,13 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onError ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onError ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
         override fun onRetry(downloadTask: DownloadTask?, task: OkDownloadTask, downloadTaskStatus: DownloadTaskStatus, retryCount: Int) {
             downloadTask?.apply {
-                Logger.d(logTag, "onRetry ${this.notificationTitle}  $retryCount")
+                Logger.d(logTag, "onRetry ${this.absolutePath}  $retryCount")
             }
         }
     }
@@ -338,9 +338,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         val downloadTaskBeanList1 = arrayListOf<DownloadTask>()
         taskIds.forEach { it1 ->
             DownloadManager.getDownloadTask(it1)?.let { it2 ->
+                TaskManager.instance.delete(it2.id)
                 downloadTaskBeanList1.add(it2)
                 downloadTaskLists.remove(it2)
-                TaskManager.instance.delete(it2.url)
             }
         }
         if (downloadTaskBeanList1.isEmpty()) {
