@@ -15,4 +15,5 @@
     <string name="q_external_storage_permission_denied">
         <![CDATA[<big><b>We need to access your external storage. Please make sure the permission is granted.</b></big>]]>
     </string>
+    <string name="q_download_service_notify">Download service notify</string>
 </resources>

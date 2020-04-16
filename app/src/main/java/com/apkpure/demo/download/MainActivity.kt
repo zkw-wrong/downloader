@@ -7,12 +7,12 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.Extras
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.misc.DownloadTaskChangeLister
 import com.apkpure.components.downloader.misc.DownloadTaskFileChangeLister
-import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.utils.CommonUtils
 import com.apkpure.components.downloader.utils.FsUtils
 
@@ -51,16 +51,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         getDeleteTaskDeleteReceiver.register()
 
         //开机 恢复下载
-        /*Handler().postDelayed(Runnable {
-            DownloadManager.instance.getDownloadTasks().forEach {
-                if (it.downloadTaskStatus == DownloadTaskStatus.Waiting ||
-                        it.downloadTaskStatus == DownloadTaskStatus.Downloading||
-                        it.downloadTaskStatus==DownloadTaskStatus.Preparing||
-                        it.downloadTaskStatus==DownloadTaskStatus.Stop) {
-                    DownloadManager.instance.resumeTask(this, it.id)
-                }
-            }
-        }, 3000)*/
+        /* Handler().postDelayed(Runnable {
+             DownloadManager.getDownloadTasks().forEach {
+                 Logger.d("DownloadService","${it.absolutePath} ${it.downloadTaskStatus.name}")
+                 if (it.downloadTaskStatus == DownloadTaskStatus.Waiting ||
+                         it.downloadTaskStatus == DownloadTaskStatus.Downloading||
+                         it.downloadTaskStatus==DownloadTaskStatus.Preparing||
+                         it.downloadTaskStatus==DownloadTaskStatus.Stop) {
+                     DownloadManager.resumeTask(this, it.id)
+                 }
+             }
+         }, 3000)*/
     }
 
     override fun onClick(v: View?) {
