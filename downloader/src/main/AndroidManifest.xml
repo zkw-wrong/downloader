@@ -32,10 +32,5 @@
         <service
           android:name=".services.DownloadServiceV21"
           android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
-          android:name=".services.KeepAliveJobService"
-          android:enabled="true"
-          android:exported="true"
-          android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>
