@@ -11,7 +11,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
-        versionName "2.3"
+        versionName "2.4"
     }
 
     compileOptions {
