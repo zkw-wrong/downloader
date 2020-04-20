@@ -37,7 +37,7 @@ object DownloadManager {
     }
 
     fun setNotificationLargeIcon(bitmap: Bitmap) {
-        TaskConfig.setNotificationLargeIcon(bitmap)
+        TaskConfig.notificationLargeIcon = bitmap
     }
 
     fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {

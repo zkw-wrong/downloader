@@ -3,7 +3,6 @@ package com.apkpure.components.downloader.misc
 import android.graphics.Bitmap
 import com.apkpure.components.downloader.utils.FsUtils
 import java.io.File
-import java.lang.ref.SoftReference
 
 /**
  * 下载配置
@@ -16,7 +15,7 @@ object TaskConfig {
     const val failedRetryCount = 3
 
     private var customDownloadDir: File? = null
-    private var notificationLargeIcon: SoftReference<Bitmap>? = null
+    var notificationLargeIcon: Bitmap? = null
     var isDebug = false
 
     fun getOkDownloadAbsolutePath(fileName: String? = null): String {
@@ -31,10 +30,4 @@ object TaskConfig {
             "${downloadFileDir.absolutePath}${File.separator}$fileName"
         }
     }
-
-    fun setNotificationLargeIcon(bitmap: Bitmap) {
-        notificationLargeIcon = SoftReference<Bitmap>(bitmap)
-    }
-
-    fun getNotificationLargeIcon() = notificationLargeIcon?.get()
 }

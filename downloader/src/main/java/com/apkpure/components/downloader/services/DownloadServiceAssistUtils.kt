@@ -446,7 +446,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
             }
-            TaskConfig.getNotificationLargeIcon()?.let {
+            TaskConfig.notificationLargeIcon?.let {
                 this.setLargeIcon(it)
             }
             downloadTask.notificationIntent?.let {
@@ -469,7 +469,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
             }
-            TaskConfig.getNotificationLargeIcon()?.let {
+            TaskConfig.notificationLargeIcon?.let {
                 this.setLargeIcon(it)
             }
             downloadTask.notificationIntent?.let {
@@ -491,7 +491,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             if (downloadTask.notificationTitle.isNotEmpty()) {
                 this.setContentTitle(downloadTask.notificationTitle)
             }
-            TaskConfig.getNotificationLargeIcon()?.let {
+            TaskConfig.notificationLargeIcon?.let {
                 this.setLargeIcon(it)
             }
             downloadTask.notificationIntent?.let {
