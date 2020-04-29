@@ -19,9 +19,10 @@ import com.apkpure.components.downloader.utils.FsUtils
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val LOG_TAG = "MainActivity"
-    private val apkUrl1 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
-    private val apkUrl2 = "https://fd59c3b8ffa5957ceaf5787ea5b08f3d.dlied1.cdntips.com/godlied4.myapp.com/myapp/1104466820/cos.release-40109/10040714_com.tencent.tmgp.sgame_a713640_1.53.1.6_q6wxs5.apk?mkey=5e942cefddddbc96&f=578b&cip=221.221.154.99&proto=https\n" +
+    private val apkUrl2 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
+    private val apkUrl1 = "https://fd59c3b8ffa5957ceaf5787ea5b08f3d.dlied1.cdntips.com/godlied4.myapp.com/myapp/1104466820/cos.release-40109/10040714_com.tencent.tmgp.sgame_a713640_1.53.1.6_q6wxs5.apk?mkey=5e942cefddddbc96&f=578b&cip=221.221.154.99&proto=https\n" +
             "2020-04-13"
+    private val apkUrl3="https://down.qq.com/qqweb/QQ_1/android_apk/Android_8.3.3.4515_537063791.apk"
     private lateinit var clearBt: Button
     private lateinit var apkBt: Button
     private lateinit var deleteTaskBt: Button
@@ -152,13 +153,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun clickDownload() {
         DownloadManager.startNewTask(this, DownloadTask
                 .Builder()
-                .setUrl(apkUrl2)
+                .setUrl(apkUrl3)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
-                .setFileName("王者荣耀.apk")
+                .setFileName("QQ.apk")
                 //.setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
-                .setNotificationTitle("王者荣耀"))
+                .setNotificationTitle("QQ"))
 
     }
 }
