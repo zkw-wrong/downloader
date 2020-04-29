@@ -1,4 +1,4 @@
-# Apkpuew Downloader
+# Apkpure Downloader
 
 [最新版引用地址](http://maven.302e.com:3080/#browse/browse:maven-releases:com%2Fapkpure%2Fcomponents%2Fdownloader)
 
