@@ -82,7 +82,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
             return
         }
         val missionDbBean = DownloadManager.getDownloadTask(task)
-        if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd
+        if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd 多次回调
             task.tag = DownloadTaskActionTag.PROGRESS_100
             taskListener?.onSuccess(missionDbBean, task, DownloadTaskStatus.Success)
         } else {
