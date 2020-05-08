@@ -104,6 +104,7 @@ class TaskManager {
             }
         } else {
             val taskBuilder = OkDownloadTask.Builder(downloadUrl, File(absolutePath))
+                .setConnectionCount(1)//防止部分资源分块大小不一致
             downloadTask.headers?.map?.forEach {
                 taskBuilder.addHeader(it.key, it.value)
             }
