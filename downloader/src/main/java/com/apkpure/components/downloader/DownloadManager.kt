@@ -13,6 +13,7 @@ import com.apkpure.components.downloader.services.DownloadService14
 import com.apkpure.components.downloader.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.services.DownloadServiceV21
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.NetWorkUtils
 import com.apkpure.components.downloader.utils.PermissionUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
@@ -80,8 +81,8 @@ object DownloadManager {
         }
     }
 
-    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, permissionSilent: Boolean = false, tips: Boolean = false) {
+        if (NetWorkUtils.flowTipsDialog(mContext, tips) && PermissionUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newStartNewTaskIntent(mContext, DownloadServiceV21::class.java, builder.build()).apply {
                     DownloadServiceV21.enqueueWorkService(mContext, this)

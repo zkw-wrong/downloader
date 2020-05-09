@@ -16,4 +16,6 @@
         <![CDATA[<big><b>We need to access your external storage. Please make sure the permission is granted.</b></big>]]>
     </string>
     <string name="q_download_service_notify">Download service notify</string>
+    <string name="q_download_over_cellular">Download over Cellular</string>
+    <string name="q_download_over_cellular_content">You are about to download over your cellular network. Continue?</string>
 </resources>
