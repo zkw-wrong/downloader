@@ -4,14 +4,17 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.annotation.IntRange
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
+import com.apkpure.components.downloader.misc.DownloadInitCallback
 import com.apkpure.components.downloader.misc.TaskConfig
 import com.apkpure.components.downloader.misc.TaskManager
 import com.apkpure.components.downloader.services.DownloadService14
 import com.apkpure.components.downloader.services.DownloadServiceAssistUtils
 import com.apkpure.components.downloader.services.DownloadServiceV21
 import com.apkpure.components.downloader.utils.CommonUtils
+import com.apkpure.components.downloader.utils.NetWorkUtils
 import com.apkpure.components.downloader.utils.PermissionUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
@@ -22,11 +25,13 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * date: 2020/3/26
  */
 object DownloadManager {
+    var downloadInitCallback: DownloadInitCallback? = null
 
-    fun initial(application: Application, builder: OkHttpClient.Builder) {
+    fun initial(application: Application, builder: OkHttpClient.Builder, downloadInitCallback: DownloadInitCallback? = null) {
+        this.downloadInitCallback = downloadInitCallback
         DownloadDatabase.initial(application)
         TaskManager.init(application, builder)
-        this.startInitialTask(application)
+        startInitialTask(application)
     }
 
     fun setDebug(isDebug: Boolean) {
@@ -38,6 +43,10 @@ object DownloadManager {
 
     fun setNotificationLargeIcon(bitmap: Bitmap) {
         TaskConfig.notificationLargeIcon = bitmap
+    }
+
+    fun setMaxParallelRunningCount(@IntRange(from = 1) maxRunningCount: Int) {
+        TaskManager.instance.setMaxParallelRunningCount(maxRunningCount)
     }
 
     fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {
@@ -75,8 +84,8 @@ object DownloadManager {
         }
     }
 
-    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, permissionSilent: Boolean = false, tips: Boolean = false) {
+        if (NetWorkUtils.flowTipsDialog(mContext, tips) && PermissionUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newStartNewTaskIntent(mContext, DownloadServiceV21::class.java, builder.build()).apply {
                     DownloadServiceV21.enqueueWorkService(mContext, this)

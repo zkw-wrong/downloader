@@ -145,7 +145,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onCancel ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onCancel ${this.absolutePath} ${this.currentOffset} ${this.totalLength} ${this.notificationId}")
             }
         }
 
@@ -232,6 +232,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         downloadTaskLists.apply {
                             this.addAll(t)
                         }
+                        DownloadManager.downloadInitCallback?.loadCompat()
                     }
 
                     override fun rxOnError(e: Exception) = Unit
@@ -251,20 +252,28 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun reformTaskData(downloadTask: DownloadTask): DownloadTask {
         val url = downloadTask.url
-        var tempFileName = downloadTask.tempFileName
-        if (tempFileName.isEmpty()) {
-            tempFileName = if (url.contains("/")) {
+        val downloadDir = if (downloadTask.absolutePath.isEmpty()) {
+            FsUtils.getDefaultDownloadDir()
+        } else {
+            File(downloadTask.absolutePath).parentFile ?: FsUtils.getDefaultDownloadDir()
+        }
+        val tempFileName = if (downloadTask.tempFileName.isNotEmpty()) {
+            downloadTask.tempFileName
+        } else if (downloadTask.absolutePath.isNotEmpty()) {
+            File(downloadTask.absolutePath).name
+        } else {
+            if (url.contains("/")) {
                 URLUtil.guessFileName(url, null, null)
             } else {
                 url.hashCode().toString()
             }
-            downloadTask.tempFileName = tempFileName
         }
         val taskFile = if (!downloadTask.overrideTaskFile) {
-            CommonUtils.createAvailableFileName(File(FsUtils.getDefaultDownloadDir(), tempFileName))
+            CommonUtils.createAvailableFileName(File(downloadDir, tempFileName))
         } else {
-            File(FsUtils.getDefaultDownloadDir(), tempFileName)
+            File(downloadDir, tempFileName)
         }
+        downloadTask.tempFileName = tempFileName
         downloadTask.absolutePath = taskFile.absolutePath
         downloadTask.id = "${downloadTask.absolutePath.hashCode()}"
         //防止 之前任务是覆盖下载 这个任务是不覆盖下载 导致Id不一样数据库有2个相同任务
@@ -344,7 +353,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
         if (downloadTaskBeanList1.isEmpty()) {
-            DownloadTaskFileChangeLister.sendDeleteBroadcast(mContext1, downloadTaskBeanList1, false)
             return
         }
         AppDbHelper.deleteTasks(downloadTaskBeanList1)
@@ -476,7 +484,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
@@ -498,7 +505,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }

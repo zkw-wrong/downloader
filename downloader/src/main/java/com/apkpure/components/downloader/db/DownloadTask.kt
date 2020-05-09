@@ -105,6 +105,11 @@ class DownloadTask constructor(
             return this
         }
 
+        fun setAbsolutePath(absolutePath: String): Builder {
+            this.downloadTask.absolutePath = absolutePath
+            return this
+        }
+
         fun build(): DownloadTask {
             return this.downloadTask
         }

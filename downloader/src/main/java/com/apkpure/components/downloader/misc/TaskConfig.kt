@@ -11,7 +11,6 @@ import java.io.File
  */
 object TaskConfig {
     const val minIntervalMillisCallbackProcess = 300
-    const val maxRunningCount = 5
     const val failedRetryCount = 3
 
     private var customDownloadDir: File? = null

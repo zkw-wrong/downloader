@@ -1,6 +1,7 @@
 package com.apkpure.components.downloader.misc
 
 import android.content.Context
+import androidx.annotation.IntRange
 import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.db.DownloadTask
 import com.liulishuo.okdownload.DownloadContext
@@ -29,11 +30,7 @@ class TaskManager {
                 if (taskManager == null) {
                     synchronized(TaskManager::class.java) {
                         if (taskManager == null) {
-                            taskManager = TaskManager().apply {
-                                if (!isInitial) {
-                                    throw Exception("TaskManager not is initial!")
-                                }
-                            }
+                            taskManager = TaskManager()
                         }
                     }
                 }
@@ -51,14 +48,18 @@ class TaskManager {
                 OkDownload.Builder(mContext)
                         .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
                         .build())
-        DownloadDispatcher.setMaxParallelRunningCount(TaskConfig.maxRunningCount)
+        setMaxParallelRunningCount()
         DownloadContext.QueueSet().apply {
             this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
-            this.isWifiRequired = true
+            this.isWifiRequired = false
             this.isAutoCallbackToUIThread = true
-            this.isPassIfAlreadyCompleted = false
+            this.isPassIfAlreadyCompleted = true
             downloadBuilder = this.commit()
         }
+    }
+
+    fun setMaxParallelRunningCount(@IntRange(from = 1) maxRunningCount: Int = 5) {
+        DownloadDispatcher.setMaxParallelRunningCount(maxRunningCount)
     }
 
     fun getOkDownloadTaskId(okDownloadTask: OkDownloadTask): String? {
@@ -104,7 +105,6 @@ class TaskManager {
             }
         } else {
             val taskBuilder = OkDownloadTask.Builder(downloadUrl, File(absolutePath))
-                .setConnectionCount(1)//防止部分资源分块大小不一致
             downloadTask.headers?.map?.forEach {
                 taskBuilder.addHeader(it.key, it.value)
             }
