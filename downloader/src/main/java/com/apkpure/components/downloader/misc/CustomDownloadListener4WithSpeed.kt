@@ -45,9 +45,6 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        if (task.tag == DownloadTaskActionTag.PROGRESS_100) {
-            return
-        }
         val downloadTask = DownloadManager.getDownloadTask(task)
         when (cause) {
             EndCause.COMPLETED -> taskListener?.onSuccess(downloadTask, task, DownloadTaskStatus.Success)
@@ -82,12 +79,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
             return
         }
         val missionDbBean = DownloadManager.getDownloadTask(task)
-        if (currentOffset == missionDbBean?.totalLength) {//防止OkDownload Progress到100%不走taskEnd 多次回调
-            task.tag = DownloadTaskActionTag.PROGRESS_100
-            taskListener?.onSuccess(missionDbBean, task, DownloadTaskStatus.Success)
-        } else {
-            taskListener?.onProgress(missionDbBean, task, taskSpeed.speed(), DownloadTaskStatus.Downloading, currentOffset)
-        }
+        taskListener?.onProgress(missionDbBean, task, taskSpeed.speed(), DownloadTaskStatus.Downloading, currentOffset)
     }
 
     override fun connectEnd(task: OkDownloadTask, blockIndex: Int, responseCode: Int, responseHeaderFields: MutableMap<String, MutableList<String>>) = Unit

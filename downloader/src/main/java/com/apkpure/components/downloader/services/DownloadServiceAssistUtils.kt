@@ -145,7 +145,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onCancel ${this.absolutePath} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onCancel ${this.absolutePath} ${this.currentOffset} ${this.totalLength} ${this.notificationId}")
             }
         }
 
@@ -251,19 +251,21 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun reformTaskData(downloadTask: DownloadTask): DownloadTask {
         val url = downloadTask.url
-        val downloadDir= if (downloadTask.absolutePath.isEmpty()){
+        val downloadDir = if (downloadTask.absolutePath.isEmpty()) {
             FsUtils.getDefaultDownloadDir()
-        }else{
+        } else {
             File(downloadTask.absolutePath).parentFile ?: FsUtils.getDefaultDownloadDir()
         }
-        val tempFileName=if (downloadTask.absolutePath.isEmpty()){
+        val tempFileName = if (downloadTask.tempFileName.isNotEmpty()) {
+            downloadTask.tempFileName
+        } else if (downloadTask.absolutePath.isNotEmpty()) {
+            File(downloadTask.absolutePath).name
+        } else {
             if (url.contains("/")) {
                 URLUtil.guessFileName(url, null, null)
             } else {
                 url.hashCode().toString()
             }
-        }else{
-            File(downloadTask.absolutePath).name
         }
         val taskFile = if (!downloadTask.overrideTaskFile) {
             CommonUtils.createAvailableFileName(File(downloadDir, tempFileName))
@@ -482,7 +484,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
@@ -504,7 +505,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }

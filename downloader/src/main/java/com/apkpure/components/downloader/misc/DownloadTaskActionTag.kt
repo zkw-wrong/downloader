@@ -6,7 +6,6 @@ package com.apkpure.components.downloader.misc
  */
 enum class DownloadTaskActionTag {
     Default,
-    PROGRESS_100,
     PAUSED,
     DELETE
 }
