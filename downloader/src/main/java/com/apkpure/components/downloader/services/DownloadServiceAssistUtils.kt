@@ -232,6 +232,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         downloadTaskLists.apply {
                             this.addAll(t)
                         }
+                        DownloadManager.downloadInitCallback?.loadCompat()
                     }
 
                     override fun rxOnError(e: Exception) = Unit
@@ -352,7 +353,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
         }
         if (downloadTaskBeanList1.isEmpty()) {
-            DownloadTaskFileChangeLister.sendDeleteBroadcast(mContext1, downloadTaskBeanList1, false)
             return
         }
         AppDbHelper.deleteTasks(downloadTaskBeanList1)

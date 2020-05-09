@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.annotation.IntRange
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
+import com.apkpure.components.downloader.misc.DownloadInitCallback
 import com.apkpure.components.downloader.misc.TaskConfig
 import com.apkpure.components.downloader.misc.TaskManager
 import com.apkpure.components.downloader.services.DownloadService14
@@ -24,11 +25,13 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * date: 2020/3/26
  */
 object DownloadManager {
+    var downloadInitCallback: DownloadInitCallback? = null
 
-    fun initial(application: Application, builder: OkHttpClient.Builder) {
+    fun initial(application: Application, builder: OkHttpClient.Builder, downloadInitCallback: DownloadInitCallback? = null) {
+        this.downloadInitCallback = downloadInitCallback
         DownloadDatabase.initial(application)
         TaskManager.init(application, builder)
-        this.startInitialTask(application)
+        startInitialTask(application)
     }
 
     fun setDebug(isDebug: Boolean) {
@@ -42,7 +45,7 @@ object DownloadManager {
         TaskConfig.notificationLargeIcon = bitmap
     }
 
-    fun setMaxParallelRunningCount(@IntRange(from = 1) maxRunningCount:Int){
+    fun setMaxParallelRunningCount(@IntRange(from = 1) maxRunningCount: Int) {
         TaskManager.instance.setMaxParallelRunningCount(maxRunningCount)
     }
 

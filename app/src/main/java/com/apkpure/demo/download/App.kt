@@ -8,7 +8,9 @@ import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
+import android.widget.Toast
 import com.apkpure.components.downloader.DownloadManager
+import com.apkpure.components.downloader.misc.DownloadInitCallback
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -17,9 +19,14 @@ import java.util.concurrent.TimeUnit
  * date: 2020/3/19
  */
 class App : Application() {
+
     override fun onCreate() {
         super.onCreate()
-        DownloadManager.initial(this, newOkHttpClientBuilder())
+        DownloadManager.initial(this, newOkHttpClientBuilder(),object :DownloadInitCallback{
+            override fun loadCompat() {
+                Toast.makeText(this@App,"loadCompat",Toast.LENGTH_LONG).show()
+            }
+        })
         DownloadManager.setDebug(true)
 
         getAppIcon(this.packageManager, this.applicationInfo)?.let {
