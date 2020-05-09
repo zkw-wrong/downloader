@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.annotation.IntRange
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.misc.TaskConfig
@@ -38,6 +39,10 @@ object DownloadManager {
 
     fun setNotificationLargeIcon(bitmap: Bitmap) {
         TaskConfig.notificationLargeIcon = bitmap
+    }
+
+    fun setMaxParallelRunningCount(@IntRange(from = 1) maxRunningCount:Int){
+        TaskManager.instance.setMaxParallelRunningCount(maxRunningCount)
     }
 
     fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {

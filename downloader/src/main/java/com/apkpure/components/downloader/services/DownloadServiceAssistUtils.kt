@@ -251,20 +251,26 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
     private fun reformTaskData(downloadTask: DownloadTask): DownloadTask {
         val url = downloadTask.url
-        var tempFileName = downloadTask.tempFileName
-        if (tempFileName.isEmpty()) {
-            tempFileName = if (url.contains("/")) {
+        val downloadDir= if (downloadTask.absolutePath.isEmpty()){
+            FsUtils.getDefaultDownloadDir()
+        }else{
+            File(downloadTask.absolutePath).parentFile ?: FsUtils.getDefaultDownloadDir()
+        }
+        val tempFileName=if (downloadTask.absolutePath.isEmpty()){
+            if (url.contains("/")) {
                 URLUtil.guessFileName(url, null, null)
             } else {
                 url.hashCode().toString()
             }
-            downloadTask.tempFileName = tempFileName
+        }else{
+            File(downloadTask.absolutePath).name
         }
         val taskFile = if (!downloadTask.overrideTaskFile) {
-            CommonUtils.createAvailableFileName(File(FsUtils.getDefaultDownloadDir(), tempFileName))
+            CommonUtils.createAvailableFileName(File(downloadDir, tempFileName))
         } else {
-            File(FsUtils.getDefaultDownloadDir(), tempFileName)
+            File(downloadDir, tempFileName)
         }
+        downloadTask.tempFileName = tempFileName
         downloadTask.absolutePath = taskFile.absolutePath
         downloadTask.id = "${downloadTask.absolutePath.hashCode()}"
         //防止 之前任务是覆盖下载 这个任务是不覆盖下载 导致Id不一样数据库有2个相同任务
