@@ -1,4 +1,4 @@
-package com.apkpure.demo.download
+package com.apkpure.demo.downloader
 
 import android.content.Intent
 import android.net.Uri
