@@ -85,7 +85,7 @@ DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 //删除全部任务
 具体查看 DownloadManager 类的接口
 ```
-[DownloadManager](https://apk.302e.com:3443/mobile/components/downloader/-/blob/master/downloader/src/main/java/com/apkpure/components/downloader/service/DownloadManager.kt)
+[DownloadManager](https://apk.302e.com:3443/mobile/components/downloader/-/blob/master/downloader/src/main/java/com/apkpure/components/downloader/DownloadManager.kt)
 
 5.其他
 ```
