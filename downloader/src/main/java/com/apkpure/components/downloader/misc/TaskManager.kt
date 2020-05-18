@@ -53,7 +53,7 @@ class TaskManager {
             this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
             this.isWifiRequired = false
             this.isAutoCallbackToUIThread = true
-            this.isPassIfAlreadyCompleted = true
+            this.isPassIfAlreadyCompleted = false
             downloadBuilder = this.commit()
         }
     }
