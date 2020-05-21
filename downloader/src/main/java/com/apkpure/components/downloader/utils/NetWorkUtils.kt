@@ -21,8 +21,8 @@ object NetWorkUtils {
         return networkInfo != null && networkInfo.isAvailable && networkInfo.isConnected
     }
 
-    fun flowTipsDialog(mContext: Context, silent: Boolean): Boolean {
-        return !silent && if (!isWifi(mContext)) {
+    fun flowTipsDialog(mContext: Context, tipsSilent: Boolean): Boolean {
+        return !tipsSilent && if (!isWifi(mContext)) {
             HtmlAlertDialogBuilder(mContext)
                     .setTitle(R.string.q_download_over_cellular)
                     .setMessage(R.string.q_download_over_cellular_content)
