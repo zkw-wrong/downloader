@@ -84,8 +84,8 @@ object DownloadManager {
         }
     }
 
-    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, permissionSilent: Boolean = false, tips: Boolean = false) {
-        if (NetWorkUtils.flowTipsDialog(mContext, tips) && PermissionUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+    fun startNewTask(mContext: Context, builder: DownloadTask.Builder, permissionSilent: Boolean = false, tipsSilent: Boolean = false) {
+        if (NetWorkUtils.flowTipsDialog(mContext, tipsSilent) && PermissionUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newStartNewTaskIntent(mContext, DownloadServiceV21::class.java, builder.build()).apply {
                     DownloadServiceV21.enqueueWorkService(mContext, this)
