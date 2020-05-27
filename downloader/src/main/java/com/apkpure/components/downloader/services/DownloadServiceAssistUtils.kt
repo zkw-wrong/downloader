@@ -485,6 +485,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
@@ -506,6 +507,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
             notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
         }
     }
