@@ -12,7 +12,6 @@ import com.apkpure.components.downloader.db.DownloadTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.misc.*
 import com.apkpure.components.downloader.utils.*
-import com.apkpure.components.downloader.utils.NotifyHelper
 import io.reactivex.disposables.Disposable
 import java.io.File
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
@@ -32,21 +31,22 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     companion object {
+        private const val ServiceFlag = "DownloadService"
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
         private const val EXTRA_PARAM_FILE_NAME = "file_name"
         val downloadTaskLists = mutableListOf<DownloadTask>()
 
         object ActionType {
-            const val ACTION_INIT = "init"
-            const val ACTION_NEW_START = "new_start"
-            const val ACTION_STOP = "stop"
-            const val ACTION_RESUME = "resume"
-            const val ACTION_DELETE = "delete"
-            const val ACTION_START_ALL = "start_all"
-            const val ACTION_STOP_ALL = "stop_all"
-            const val ACTION_DELETE_ALL = "delete_all"
-            const val ACTION_FILE_RENAME = "file_rename"
+            const val ACTION_INIT = "$ServiceFlag init"
+            const val ACTION_NEW_START = "$ServiceFlag new_start"
+            const val ACTION_STOP = "$ServiceFlag stop"
+            const val ACTION_RESUME = "$ServiceFlag resume"
+            const val ACTION_DELETE = "$ServiceFlag delete"
+            const val ACTION_START_ALL = "$ServiceFlag start_all"
+            const val ACTION_STOP_ALL = "$ServiceFlag stop_all"
+            const val ACTION_DELETE_ALL = "$ServiceFlag delete_all"
+            const val ACTION_FILE_RENAME = "$ServiceFlag file_rename"
         }
 
         fun newInitIntent(mContext: Context, clazz: Class<*>): Intent {
@@ -218,7 +218,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun initialData() {
-        AppDbHelper.queryAllDownloadTask()
+        AppDbHelper.queryInitAllDownloadTask()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
                 .subscribe(object : RxSubscriber<List<DownloadTask>>() {
