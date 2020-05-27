@@ -334,6 +334,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                             })
                         }
                         missionList.clear()
+                        downloadTaskLists.clear()
                         DownloadTaskFileChangeLister.sendDeleteBroadcast(mContext1, missionList, true)
                     }
 
