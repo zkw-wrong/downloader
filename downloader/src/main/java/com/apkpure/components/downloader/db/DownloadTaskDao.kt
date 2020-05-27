@@ -12,7 +12,7 @@ interface DownloadTaskDao {
     fun queryAllDownloadTask(): List<DownloadTask>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun createOrUpdateDownloadTask(downloadTask: DownloadTask)
+    fun createOrUpdateDownloadTask(downloadTaskList: List<DownloadTask>)
 
     @Delete
     fun deleteTasks(downloadTaskList: List<DownloadTask>)

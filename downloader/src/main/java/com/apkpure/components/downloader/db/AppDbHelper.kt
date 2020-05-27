@@ -1,5 +1,6 @@
 package com.apkpure.components.downloader.db
 
+import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import io.reactivex.Observable
 
 /**
@@ -7,6 +8,19 @@ import io.reactivex.Observable
  * date: 2020/4/4
  */
 object AppDbHelper {
+    fun queryInitAllDownloadTask(): Observable<List<DownloadTask>> {
+        return Observable.fromCallable {
+            val downloadTaskList = DownloadDatabase.instance.downloadTaskDao().queryAllDownloadTask()
+            downloadTaskList.forEach {
+                if (it.downloadTaskStatus == DownloadTaskStatus.Downloading) {
+                    it.downloadTaskStatus = DownloadTaskStatus.Stop
+                }
+            }
+            DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(downloadTaskList)
+            downloadTaskList
+        }
+    }
+
     fun queryAllDownloadTask(): Observable<List<DownloadTask>> {
         return Observable.fromCallable {
             DownloadDatabase.instance.downloadTaskDao().queryAllDownloadTask()
@@ -15,7 +29,7 @@ object AppDbHelper {
 
     fun createOrUpdateDownloadTask(downloadTask: DownloadTask): Observable<Long> {
         return Observable.fromCallable {
-            DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(downloadTask)
+            DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(arrayListOf(downloadTask))
             1L
         }
     }
