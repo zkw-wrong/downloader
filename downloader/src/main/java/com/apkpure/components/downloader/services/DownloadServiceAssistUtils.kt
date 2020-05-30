@@ -9,6 +9,7 @@ import com.apkpure.components.downloader.DownloadManager
 import com.apkpure.components.downloader.R
 import com.apkpure.components.downloader.db.AppDbHelper
 import com.apkpure.components.downloader.db.DownloadTask
+import com.apkpure.components.downloader.db.InitTask
 import com.apkpure.components.downloader.db.enums.DownloadTaskStatus
 import com.apkpure.components.downloader.misc.*
 import com.apkpure.components.downloader.utils.*
@@ -218,19 +219,22 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     }
 
     private fun initialData() {
-        AppDbHelper.queryInitAllDownloadTask()
+        AppDbHelper.queryInitDownloadTask()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
-                .subscribe(object : RxSubscriber<List<DownloadTask>>() {
+                .subscribe(object : RxSubscriber<InitTask>() {
                     override fun onSubscribe(d: Disposable) {
                         super.onSubscribe(d)
                         downloadTaskLists.clear()
                     }
 
-                    override fun rxOnNext(t: List<DownloadTask>) {
-                        Logger.d(logTag, "initialData task size ${t.size}")
+                    override fun rxOnNext(t: InitTask) {
+                        Logger.d(logTag, "initialData task size ${t.allTasks.size}")
                         downloadTaskLists.apply {
-                            this.addAll(t)
+                            this.addAll(t.allTasks)
+                        }
+                        t.downloadIngTasks.forEach {
+                            notifyHelper.notificationManager.cancel(it.notificationId)
                         }
                         DownloadManager.downloadInitCallback?.loadCompat()
                     }
