@@ -8,16 +8,20 @@ import io.reactivex.Observable
  * date: 2020/4/4
  */
 object AppDbHelper {
-    fun queryInitAllDownloadTask(): Observable<List<DownloadTask>> {
+    fun queryInitDownloadTask(): Observable<InitTask> {
         return Observable.fromCallable {
             val downloadTaskList = DownloadDatabase.instance.downloadTaskDao().queryAllDownloadTask()
+            val downloadTaskIngList = arrayListOf<DownloadTask>()
             downloadTaskList.forEach {
-                if (it.downloadTaskStatus == DownloadTaskStatus.Downloading) {
+                if (it.downloadTaskStatus == DownloadTaskStatus.Downloading ||
+                        it.downloadTaskStatus == DownloadTaskStatus.Waiting ||
+                        it.downloadTaskStatus == DownloadTaskStatus.Preparing) {
+                    downloadTaskIngList.add(it)
                     it.downloadTaskStatus = DownloadTaskStatus.Stop
                 }
             }
             DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(downloadTaskList)
-            downloadTaskList
+            InitTask(downloadTaskList, downloadTaskIngList)
         }
     }
 
