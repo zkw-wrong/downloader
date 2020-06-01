@@ -236,7 +236,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 .subscribe(object : RxSubscriber<InitTask>() {
                     override fun onSubscribe(d: Disposable) {
                         super.onSubscribe(d)
-                        downloadTaskLists.clear()
                         if (isInitialService){
                             DownloadManager.isInitDownloadServiceCompat= false
                         }
@@ -244,6 +243,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
                     override fun rxOnNext(t: InitTask) {
                         Logger.d(logTag, "initialData task size ${t.allTasks.size}")
+                        downloadTaskLists.clear()
                         downloadTaskLists.apply {
                             this.addAll(t.allTasks)
                         }
