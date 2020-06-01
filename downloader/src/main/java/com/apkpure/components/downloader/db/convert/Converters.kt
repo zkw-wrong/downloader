@@ -79,7 +79,7 @@ class Converters {
     @TypeConverter
     fun convertToEntityProperty5(databaseValue: String?): Intent? {
         return try {
-            if (databaseValue.isNullOrEmpty()) {
+            if (!databaseValue.isNullOrEmpty()) {
                 Intent.parseUri(databaseValue, 0)
             } else {
                 null
