@@ -44,7 +44,7 @@ object DownloadManager {
         }
     }
 
-    fun updateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
+    fun startUpdateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
         this.downloadTaskUpdateDataCallback = downloadTaskUpdateDataCallback
         startUpdateDownloadTaskData(mContext)
     }
