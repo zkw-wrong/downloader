@@ -10,7 +10,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.widget.Toast
 import com.apkpure.components.downloader.DownloadManager
-import com.apkpure.components.downloader.misc.DownloadInitCallback
+import com.apkpure.components.downloader.misc.DownloadServiceInitCallback
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -22,7 +22,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        DownloadManager.initial(this, newOkHttpClientBuilder(),object :DownloadInitCallback{
+        DownloadManager.initial(this, newOkHttpClientBuilder(),object :DownloadServiceInitCallback{
             override fun loadCompat() {
                 Toast.makeText(this@App,"loadCompat",Toast.LENGTH_LONG).show()
             }
