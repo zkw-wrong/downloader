@@ -92,7 +92,7 @@ class Converters {
     @TypeConverter
     fun convertToDatabaseValue5(entityProperty: Intent?): String? {
         return try {
-            entityProperty?.toString()
+            entityProperty?.toURI()
         } catch (e: Exception) {
             null
         }
