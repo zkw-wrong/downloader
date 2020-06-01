@@ -7,7 +7,8 @@ import android.os.Build
 import androidx.annotation.IntRange
 import com.apkpure.components.downloader.db.DownloadDatabase
 import com.apkpure.components.downloader.db.DownloadTask
-import com.apkpure.components.downloader.misc.DownloadInitCallback
+import com.apkpure.components.downloader.misc.DownloadServiceInitCallback
+import com.apkpure.components.downloader.misc.DownloadTaskUpdateDataCallback
 import com.apkpure.components.downloader.misc.TaskConfig
 import com.apkpure.components.downloader.misc.TaskManager
 import com.apkpure.components.downloader.services.DownloadService14
@@ -25,10 +26,12 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * date: 2020/3/26
  */
 object DownloadManager {
-    var downloadInitCallback: DownloadInitCallback? = null
+    var isInitDownloadServiceCompat = false
+    var downloadServiceInitCallback: DownloadServiceInitCallback? = null
+    var downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback? = null
 
-    fun initial(application: Application, builder: OkHttpClient.Builder, downloadInitCallback: DownloadInitCallback? = null) {
-        this.downloadInitCallback = downloadInitCallback
+    fun initial(application: Application, builder: OkHttpClient.Builder, downloadServiceInitCallback: DownloadServiceInitCallback? = null) {
+        this.downloadServiceInitCallback = downloadServiceInitCallback
         DownloadDatabase.initial(application)
         TaskManager.init(application, builder)
         startInitialTask(application)
@@ -39,6 +42,11 @@ object DownloadManager {
         if (isDebug) {
             Util.enableConsoleLog()
         }
+    }
+
+    fun updateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
+        this.downloadTaskUpdateDataCallback = downloadTaskUpdateDataCallback
+        startUpdateDownloadTaskData(mContext)
     }
 
     fun setNotificationLargeIcon(bitmap: Bitmap) {
@@ -80,6 +88,17 @@ object DownloadManager {
             }
         } else {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext
+                    , DownloadService14::class.java))
+        }
+    }
+
+    private fun startUpdateDownloadTaskData(mContext: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            DownloadServiceAssistUtils.newUpdateTaskDataIntent(mContext, DownloadServiceV21::class.java).apply {
+                DownloadServiceV21.enqueueWorkService(mContext, this)
+            }
+        } else {
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newUpdateTaskDataIntent(mContext
                     , DownloadService14::class.java))
         }
     }

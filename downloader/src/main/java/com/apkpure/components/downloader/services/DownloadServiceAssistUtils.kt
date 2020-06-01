@@ -40,6 +40,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
 
         object ActionType {
             const val ACTION_INIT = "$ServiceFlag init"
+            const val ACTION_UPDATE_TASK_DATA = "$ServiceFlag update_task_data"
             const val ACTION_NEW_START = "$ServiceFlag new_start"
             const val ACTION_STOP = "$ServiceFlag stop"
             const val ACTION_RESUME = "$ServiceFlag resume"
@@ -53,6 +54,12 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         fun newInitIntent(mContext: Context, clazz: Class<*>): Intent {
             return Intent(mContext, clazz).apply {
                 this.action = ActionType.ACTION_INIT
+            }
+        }
+
+        fun newUpdateTaskDataIntent(mContext: Context, clazz: Class<*>): Intent {
+            return Intent(mContext, clazz).apply {
+                this.action = ActionType.ACTION_UPDATE_TASK_DATA
             }
         }
 
@@ -100,9 +107,10 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
-    private fun initial() {
-        initialData()
+    private fun initialService() {
+        DownloadManager.isInitDownloadServiceCompat = false
         TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
+        initialData(true)
     }
 
     private fun getCustomTaskListener() = object : CustomDownloadListener4WithSpeed.TaskListener {
@@ -178,7 +186,10 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     fun handlerIntent(intent: Intent) {
         when (intent.action) {
             ActionType.ACTION_INIT -> {
-                initial()
+                initialService()
+            }
+            ActionType.ACTION_UPDATE_TASK_DATA->{
+                initialData(false)
             }
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
@@ -218,7 +229,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
-    private fun initialData() {
+    private fun initialData(isInitialService: Boolean) {
         AppDbHelper.queryInitDownloadTask()
                 .compose(RxObservableTransformer.io_main())
                 .compose(RxObservableTransformer.errorResult())
@@ -226,6 +237,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     override fun onSubscribe(d: Disposable) {
                         super.onSubscribe(d)
                         downloadTaskLists.clear()
+                        if (isInitialService){
+                            DownloadManager.isInitDownloadServiceCompat= false
+                        }
                     }
 
                     override fun rxOnNext(t: InitTask) {
@@ -236,10 +250,19 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                         t.downloadIngTasks.forEach {
                             notifyHelper.notificationManager.cancel(it.notificationId)
                         }
-                        DownloadManager.downloadInitCallback?.loadCompat()
+                        if (isInitialService) {
+                            DownloadManager.isInitDownloadServiceCompat = true
+                            DownloadManager.downloadServiceInitCallback?.loadCompat()
+                        }
+                        DownloadManager.downloadTaskUpdateDataCallback?.success()
                     }
 
-                    override fun rxOnError(e: Exception) = Unit
+                    override fun rxOnError(e: Exception) {
+                        if (isInitialService){
+                            DownloadManager.isInitDownloadServiceCompat= false
+                        }
+                        DownloadManager.downloadTaskUpdateDataCallback?.failed()
+                    }
                 })
     }
 
