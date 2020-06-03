@@ -137,8 +137,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     //这个删除监听指的从应用里面删除才能收到消息
     private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
-        override fun delete(isSuccess: Boolean, downloadTaskBeanList: ArrayList<DownloadTask>?) {
-            Log.d(LOG_TAG, "delete isSuccess $isSuccess size ${downloadTaskBeanList?.size}")
+        override fun delete(isSuccess: Boolean, downloadTaskList: ArrayList<DownloadTask>?) {
+            Log.d(LOG_TAG, "delete isSuccess $isSuccess size ${downloadTaskList?.size}")
         }
 
         override fun rename(isSuccess: Boolean, downloadTask: DownloadTask?) {
