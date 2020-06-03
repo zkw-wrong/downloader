@@ -11,18 +11,36 @@ import com.apkmatrix.components.downloader.R
  */
 object NetWorkUtils {
     fun isConnected(mContext: Context): Boolean {
-        val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-        return connectivityManager?.activeNetworkInfo?.isConnected ?: false
+        return try {
+            val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            connectivityManager?.activeNetworkInfo?.isConnected ?: false
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun isWifi(mContext: Context): Boolean {
-        val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-        val networkInfo = connectivityManager?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-        return networkInfo != null && networkInfo.isAvailable && networkInfo.isConnected
+        return try {
+            val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val networkInfo = connectivityManager?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+            networkInfo != null && networkInfo.isAvailable && networkInfo.isConnected
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun isMobile(mContext: Context): Boolean {
+        return try {
+            val connectivityManager = mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val networkInfo = connectivityManager?.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
+            networkInfo != null && networkInfo.isAvailable && networkInfo.isConnected
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun flowTipsDialog(mContext: Context, tipsSilent: Boolean): Boolean {
-        return !tipsSilent && if (!isWifi(mContext)) {
+        return !tipsSilent && if (isMobile(mContext)) {
             HtmlAlertDialogBuilder(mContext)
                     .setTitle(R.string.q_download_over_cellular)
                     .setMessage(R.string.q_download_over_cellular_content)
