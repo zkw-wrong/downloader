@@ -3,22 +3,25 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion compile_sdkversion
+    buildToolsVersion build_tools_version
 
     defaultConfig {
-        applicationId "com.apkmatrix.downloade.demo"
-        minSdkVersion 16
-        targetSdkVersion 29
+        applicationId "com.apkmatrix.downloader.demo"
+        minSdkVersion min_sdk_version
+        targetSdkVersion target_sdk_version
         versionCode 1
         versionName "1.0"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     buildTypes {
         release {
-            minifyEnabled true
-            useProguard true
-            shrinkResources true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -28,7 +31,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
     implementation project(':downloader')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
-    implementation "com.squareup.okhttp3:okhttp:3.9.0"
+    implementation "androidx.appcompat:appcompat:${androidx_version}"
+    annotationProcessor "androidx.annotation:annotation:${androidx_version}"
+    implementation "androidx.core:core-ktx:${androidx_ktx_version}"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 }

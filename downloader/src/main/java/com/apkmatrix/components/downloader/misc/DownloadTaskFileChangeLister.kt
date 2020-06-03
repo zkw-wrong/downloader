@@ -34,7 +34,7 @@ class DownloadTaskFileChangeLister {
     }
 
     interface Listener {
-        fun delete(isSuccess: Boolean, downloadTaskBeanList: ArrayList<DownloadTask>?)
+        fun delete(isSuccess: Boolean, downloadTaskList: ArrayList<DownloadTask>?)
 
         fun rename(isSuccess: Boolean, downloadTask: DownloadTask?)
     }
