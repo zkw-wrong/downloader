@@ -52,19 +52,21 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
             EndCause.FILE_BUSY -> taskListener?.onStart(downloadTask, task, DownloadTaskStatus.Waiting)
             EndCause.SAME_TASK_BUSY -> taskListener?.onStart(downloadTask, task, DownloadTaskStatus.Preparing)
             else -> {
-                var retryObj = task.getTag(TaskManager.retryTagKey)
+                val retryObj = task.getTag(TaskManager.retryTagKey)
+                var retryCount = 1
                 if (retryObj == null) {
-                    task.addTag(TaskManager.retryTagKey, 1)
+                    task.addTag(TaskManager.retryTagKey, retryCount)
                     task.enqueue(this)
-                    taskListener?.onRetry(downloadTask, task, DownloadTaskStatus.Retry, 1)
+                    taskListener?.onRetry(downloadTask, task, DownloadTaskStatus.Retry, retryCount)
                 } else if (retryObj is Int) {
-                    retryObj += 1
-                    task.addTag(TaskManager.retryTagKey, retryObj)
-                    if (retryObj >= TaskConfig.failedRetryCount) {
+                    retryCount = retryObj
+                    retryCount += 1
+                    task.addTag(TaskManager.retryTagKey, retryCount)
+                    if (retryCount > TaskConfig.failedRetryCount) {
                         taskListener?.onError(downloadTask, task, DownloadTaskStatus.Failed)
                     } else {
                         task.enqueue(this)
-                        taskListener?.onRetry(downloadTask, task, DownloadTaskStatus.Retry, retryObj)
+                        taskListener?.onRetry(downloadTask, task, DownloadTaskStatus.Retry, retryCount)
                     }
                 }
             }
@@ -90,6 +92,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
+        task.addTag(TaskManager.retryTagKey, 0)
         taskListener?.onInfoReady(DownloadManager.getDownloadTask(task), task, DownloadTaskStatus.Preparing, info.totalLength)
     }
 
