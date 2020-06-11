@@ -22,10 +22,9 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        DownloadManager.initial(this, newOkHttpClientBuilder(),object :
-            DownloadServiceInitCallback {
+        DownloadManager.initial(this, newOkHttpClientBuilder(), object : DownloadServiceInitCallback {
             override fun loadCompat() {
-                Toast.makeText(this@App,"loadCompat",Toast.LENGTH_LONG).show()
+                Toast.makeText(this@App, "loadCompat", Toast.LENGTH_LONG).show()
             }
         })
         DownloadManager.setDebug(true)
