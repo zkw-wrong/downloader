@@ -14,5 +14,5 @@ ext {
     localbroadcastmanager_version = "1.0.0"
     components_dialog = "1.1.0"
 
-    components_downloader_version_name = "3.4"
+    components_downloader_version_name = "3.5"
 }
