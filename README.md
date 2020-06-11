@@ -96,7 +96,7 @@ DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 5.里面加了流量和权限提示弹窗，如果适配多语言替换String资源
 6.删除回调注意别写错了 删除多个任务的时候downloadTaskList为空 单个时候任务时候里面只有一个具体自己打log
 7.默认是不覆盖文件 新名字和绝对路径 优先级 绝对路径>默认路径/新名字>默认路径/hashCode
-8.里面写了2个父母适配Android 8.0系统
+8.里面写了2个Service适配Android 8.0+系统
 9.log日志默认是关闭的 打replace包请关闭
 10.通知的intent中不可携带参数
 ```
