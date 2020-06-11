@@ -34,9 +34,7 @@ object DownloadManager {
         this.downloadServiceInitCallback = downloadServiceInitCallback
         DownloadDatabase.initial(application)
         TaskManager.init(application, builder)
-        this.startInitialTask(
-            application
-        )
+        this.startInitialTask(application)
     }
 
     fun setDebug(isDebug: Boolean) {
@@ -48,9 +46,7 @@ object DownloadManager {
 
     fun startUpdateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
         this.downloadTaskUpdateDataCallback = downloadTaskUpdateDataCallback
-        this.startUpdateDownloadTaskData(
-            mContext
-        )
+        this.startUpdateDownloadTaskData(mContext)
     }
 
     fun setNotificationLargeIcon(bitmap: Bitmap) {
