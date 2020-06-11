@@ -51,18 +51,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
 
-        //开机 恢复下载
-        /* Handler().postDelayed(Runnable {
-             DownloadManager.getDownloadTasks().forEach {
-                 Logger.d("DownloadService","${it.absolutePath} ${it.downloadTaskStatus.name}")
-                 if (it.downloadTaskStatus == DownloadTaskStatus.Waiting ||
-                         it.downloadTaskStatus == DownloadTaskStatus.Downloading||
-                         it.downloadTaskStatus==DownloadTaskStatus.Preparing||
-                         it.downloadTaskStatus==DownloadTaskStatus.Stop) {
-                     DownloadManager.resumeTask(this, it.id)
-                 }
-             }
-         }, 3000)*/
+        DownloadManager.startUpdateDownloadTaskData(this,null)
     }
 
     override fun onClick(v: View?) {
@@ -156,7 +145,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setUrl(apkUrl3)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("QQ.apk")
-                //.setOverrideTaskFile(false)
+                .setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("QQ"))
