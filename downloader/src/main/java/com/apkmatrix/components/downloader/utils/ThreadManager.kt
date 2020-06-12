@@ -29,12 +29,12 @@ object ThreadManager {
 
         fun execute(runnable: Runnable) {
             if (poolExecutor == null || poolExecutor!!.isShutdown) {
-                poolExecutor = ThreadPoolExecutor( //核心线程数量
-                        corePoolSize,  //最大线程数量
-                        maximumPoolSize,  //当线程空闲时，保持活跃的时间
-                        keepAliveTime,  //时间单元 ，毫秒级
-                        TimeUnit.MILLISECONDS,  //线程任务队列
-                        LinkedBlockingQueue(),  //创建线程的工厂
+                poolExecutor = ThreadPoolExecutor(
+                        corePoolSize,
+                        maximumPoolSize,
+                        keepAliveTime,
+                        TimeUnit.MILLISECONDS,
+                        LinkedBlockingQueue(),
                         Executors.defaultThreadFactory())
             }
             poolExecutor!!.execute(runnable)

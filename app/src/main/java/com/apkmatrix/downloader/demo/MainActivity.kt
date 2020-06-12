@@ -50,8 +50,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         pauseBt.setOnClickListener(this)
         downloadTaskChangeReceiver.register()
         getDeleteTaskDeleteReceiver.register()
-
-        DownloadManager.startUpdateDownloadTaskData(this,null)
     }
 
     override fun onClick(v: View?) {
