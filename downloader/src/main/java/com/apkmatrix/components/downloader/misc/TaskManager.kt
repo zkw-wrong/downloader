@@ -6,6 +6,7 @@ import com.apkmatrix.components.downloader.DownloadManager
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.liulishuo.okdownload.DownloadContext
 import com.liulishuo.okdownload.OkDownload
+import com.liulishuo.okdownload.core.cause.EndCause
 import com.liulishuo.okdownload.core.connection.DownloadOkHttp3Connection
 import com.liulishuo.okdownload.core.dispatcher.DownloadDispatcher
 import okhttp3.OkHttpClient
@@ -114,6 +115,7 @@ class TaskManager {
                 this.enqueue(customDownloadListener4WithSpeed)
             }
             downloadBuilder.bindSetTask(task)
+            OkDownload.with().callbackDispatcher().dispatch().taskEnd(task, EndCause.SAME_TASK_BUSY, null)
         }
     }
 
