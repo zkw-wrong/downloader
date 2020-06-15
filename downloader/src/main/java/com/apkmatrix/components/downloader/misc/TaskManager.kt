@@ -108,11 +108,12 @@ class TaskManager {
             downloadTask.headers?.map?.forEach {
                 taskBuilder.addHeader(it.key, it.value)
             }
-            downloadBuilder.bind(taskBuilder).apply {
+            val task = taskBuilder.build().apply {
                 this.tag = DownloadTaskActionTag.Default
                 this.addTag(taskIdTagKey, taskId)
                 this.enqueue(customDownloadListener4WithSpeed)
             }
+            downloadBuilder.bindSetTask(task)
         }
     }
 
