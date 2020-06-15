@@ -115,7 +115,8 @@ class TaskManager {
                 this.enqueue(customDownloadListener4WithSpeed)
             }
             downloadBuilder.bindSetTask(task)
-            OkDownload.with().callbackDispatcher().dispatch().taskEnd(task, EndCause.SAME_TASK_BUSY, null)
+            OkDownload.with().callbackDispatcher().dispatch().taskEnd(task,
+                    EndCause.SAME_TASK_BUSY, null)
         }
     }
 
