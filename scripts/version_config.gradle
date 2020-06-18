@@ -1,6 +1,7 @@
 // Define versions in a single place
 ext {
-    kotlin_version = '1.3.70'
+    kotlin_version = "1.3.72"
+    kotlin_coroutines = '1.2.1'
     compile_sdkversion = 29
     build_tools_version = "29.0.2"
     min_sdk_version = 15

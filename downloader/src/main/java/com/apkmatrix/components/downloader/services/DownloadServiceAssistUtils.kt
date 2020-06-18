@@ -11,7 +11,13 @@ import com.apkmatrix.components.downloader.db.AppDbHelper
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
 import com.apkmatrix.components.downloader.misc.*
-import com.apkmatrix.components.downloader.utils.*
+import com.apkmatrix.components.downloader.utils.CommonUtils
+import com.apkmatrix.components.downloader.utils.FsUtils
+import com.apkmatrix.components.downloader.utils.Logger
+import com.apkmatrix.components.downloader.utils.NotifyHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
@@ -241,21 +247,21 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             initTask.downloadIngTasks.forEach {
                 notifyHelper.notificationManager.cancel(it.notificationId)
             }
-            ThreadUtils.runMainThread(Runnable {
+            GlobalScope.launch(Dispatchers.Main) {
                 if (isInitialService) {
                     DownloadManager.isInitDownloadServiceCompat = true
                     DownloadManager.downloadServiceInitCallback?.loadCompat()
                 }
                 DownloadManager.downloadTaskUpdateDataCallback?.success()
-            })
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             if (isInitialService) {
                 DownloadManager.isInitDownloadServiceCompat = false
             }
-            ThreadUtils.runMainThread(Runnable {
+            GlobalScope.launch(Dispatchers.Main) {
                 DownloadManager.downloadTaskUpdateDataCallback?.failed()
-            })
+            }
         }
     }
 
