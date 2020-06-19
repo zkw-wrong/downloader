@@ -1,7 +1,7 @@
 // Define versions in a single place
 ext {
     packname_id = "com.apkmatrix.components.downloader"
-    compile_sdkversion = 29
+    compile_sdk_version = 29
     min_sdk_version = 15
     target_sdk_version = 29
 
@@ -16,6 +16,6 @@ ext {
     okhttp_version = "3.9.1"
     localbroadcastmanager_version = "1.0.0"
 
-    components_dialog = "1.1.0"
-    components_downloader_version_name = "3.6"
+    apkmatrix_dialog_version = "1.1.0"
+    apkmatrix_downloader_version = "3.6"
 }
