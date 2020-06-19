@@ -18,6 +18,7 @@ import com.apkmatrix.components.downloader.utils.NotifyHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
@@ -238,16 +239,16 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             DownloadManager.isInitDownloadServiceCompat = false
         }
         try {
-            val initTask = AppDbHelper.queryInitDownloadTask()
-            Logger.d(logTag, "initialData task size ${initTask.allTasks.size}")
-            downloadTaskLists.clear()
-            downloadTaskLists.apply {
-                this.addAll(initTask.allTasks)
-            }
-            initTask.downloadIngTasks.forEach {
-                notifyHelper.notificationManager.cancel(it.notificationId)
-            }
             GlobalScope.launch(Dispatchers.Main) {
+                val initTask = withContext(Dispatchers.IO) { AppDbHelper.queryInitDownloadTask() }
+                Logger.d(logTag, "initialData task size ${initTask.allTasks.size}")
+                downloadTaskLists.clear()
+                downloadTaskLists.apply {
+                    this.addAll(initTask.allTasks)
+                }
+                initTask.downloadIngTasks.forEach {
+                    notifyHelper.notificationManager.cancel(it.notificationId)
+                }
                 if (isInitialService) {
                     DownloadManager.isInitDownloadServiceCompat = true
                     DownloadManager.downloadServiceInitCallback?.loadCompat()
