@@ -25,16 +25,17 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
-    implementation "androidx.appcompat:appcompat:${androidx_version}"
-    annotationProcessor "androidx.annotation:annotation:${androidx_version}"
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:${localbroadcastmanager_version}"
+    implementation "androidx.appcompat:appcompat:$androidx_version"
+    annotationProcessor "androidx.annotation:annotation:$androidx_version"
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:$localbroadcastmanager_version"
 
-    implementation "androidx.room:room-runtime:${room_db_version}"
-    kapt "androidx.room:room-compiler:${room_db_version}"
+    implementation "androidx.room:room-runtime:$room_db_version"
+    kapt "androidx.room:room-compiler:$room_db_version"
+
     //implementation "com.liulishuo.okdownload:okdownload:1.0.7"
     implementation 'com.github.RomanBorisenko1991.okdownload:okdownload:v1.0.9'
     implementation "com.liulishuo.okdownload:sqlite:1.0.7"
     implementation "com.liulishuo.okdownload:okhttp:1.0.7"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    implementation "com.apkmatrix.components:dialog:${components_dialog}"
+    implementation "com.apkmatrix.components:dialog:$components_dialog"
 }

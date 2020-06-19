@@ -7,7 +7,7 @@ android {
     buildToolsVersion build_tools_version
 
     defaultConfig {
-        applicationId "com.apkmatrix.downloader.demo"
+        applicationId "${packname_id}.demo"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
         versionCode 1
@@ -18,21 +18,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
     implementation project(':downloader')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "androidx.appcompat:appcompat:${androidx_version}"
-    annotationProcessor "androidx.annotation:annotation:${androidx_version}"
-    implementation "androidx.core:core-ktx:${androidx_ktx_version}"
+    implementation "androidx.appcompat:appcompat:$androidx_version"
+    annotationProcessor "androidx.annotation:annotation:$androidx_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 }
