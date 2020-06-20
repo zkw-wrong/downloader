@@ -1,6 +1,7 @@
 package com.apkmatrix.downloader.demo
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -11,6 +12,9 @@ import android.os.Build
 import android.widget.Toast
 import com.apkmatrix.components.downloader.DownloadManager
 import com.apkmatrix.components.downloader.misc.DownloadServiceInitCallback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -19,19 +23,22 @@ import java.util.concurrent.TimeUnit
  * date: 2020/3/19
  */
 class App : Application() {
+    private lateinit var mContext: Context
 
     override fun onCreate() {
         super.onCreate()
+        mContext = this
         DownloadManager.initial(this, newOkHttpClientBuilder(), object : DownloadServiceInitCallback {
             override fun loadCompat() {
                 Toast.makeText(this@App, "loadCompat", Toast.LENGTH_LONG).show()
             }
         })
         DownloadManager.setDebug(true)
-
-        getAppIcon(this.packageManager, this.applicationInfo)?.let {
-            DownloadManager.setNotificationLargeIcon(it)
-        }
+        GlobalScope.async(Dispatchers.IO) {
+            getAppIcon(mContext.packageManager, mContext.applicationInfo)?.let {
+                DownloadManager.setNotificationLargeIcon(it)
+            }
+        }.onAwait
     }
 
     private fun newOkHttpClientBuilder(): OkHttpClient.Builder {
