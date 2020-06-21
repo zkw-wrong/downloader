@@ -3,25 +3,19 @@ package com.apkmatrix.components.downloader.utils
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.provider.Settings
-import androidx.annotation.CheckResult
-import androidx.core.content.ContextCompat
+import com.apkmatrix.components.dialog.AlertDialogBuilder
 import com.apkmatrix.components.dialog.HtmlAlertDialogBuilder
 import com.apkmatrix.components.downloader.R
 import java.io.File
 
 /**
  * author: mr.xiong
- * date: 2020/4/2
+ * date: 2020/6/21
  */
-object PermissionUtils {
-    @CheckResult
-    fun checkSelfPermission(mContext: Context, permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(mContext, permission) == PackageManager.PERMISSION_GRANTED
-    }
+object DialogUtils {
 
     fun checkWriteExternalStorage(mContext: Context, silent: Boolean): Boolean {
         val externalStorageState: String = Environment.getExternalStorageState()
@@ -35,7 +29,8 @@ object PermissionUtils {
             }
             return false
         }
-        if (!externalStorageDirectory.canWrite() || !checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (!externalStorageDirectory.canWrite() || !CommonUtils.checkSelfPermission(mContext,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (!silent) {
                 HtmlAlertDialogBuilder(mContext)
                         .setMessage(mContext.getString(R.string.q_external_storage_permission_denied))
@@ -43,8 +38,10 @@ object PermissionUtils {
                             val intent = Intent()
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            intent.data = Uri.fromParts("package", mContext.applicationContext.packageName
-                                    , null)
+                            intent.data = Uri.fromParts(
+                                    "package", mContext.applicationContext.packageName
+                                    , null
+                            )
                             mContext.startActivity(intent)
                         }
                         .setNegativeButton(android.R.string.cancel, null)
@@ -53,5 +50,18 @@ object PermissionUtils {
             return false
         }
         return true
+    }
+
+    fun flowTipsDialog(mContext: Context, tipsSilent: Boolean): Boolean {
+        return !tipsSilent && if (NetWorkUtils.isMobile(mContext)) {
+            HtmlAlertDialogBuilder(mContext)
+                    .setTitle(R.string.q_download_over_cellular)
+                    .setMessage(R.string.q_download_over_cellular_content)
+                    .setPositiveButton(R.string.q_continue, null)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .showModal() == AlertDialogBuilder.RESULT_POSITIVE
+        } else {
+            true
+        }
     }
 }

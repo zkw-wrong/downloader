@@ -12,11 +12,11 @@ import com.apkmatrix.components.downloader.misc.DownloadTaskUpdateDataCallback
 import com.apkmatrix.components.downloader.misc.TaskConfig
 import com.apkmatrix.components.downloader.misc.TaskManager
 import com.apkmatrix.components.downloader.services.DownloadService14
-import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
 import com.apkmatrix.components.downloader.services.DownloadService21
+import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
 import com.apkmatrix.components.downloader.utils.CommonUtils
+import com.apkmatrix.components.downloader.utils.DialogUtils
 import com.apkmatrix.components.downloader.utils.NetWorkUtils
-import com.apkmatrix.components.downloader.utils.PermissionUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
@@ -104,7 +104,7 @@ object DownloadManager {
     }
 
     fun startNewTask(mContext: Context, builder: DownloadTask.Builder, permissionSilent: Boolean = false, tipsSilent: Boolean = false) {
-        if (NetWorkUtils.flowTipsDialog(mContext, tipsSilent) && PermissionUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+        if (DialogUtils.flowTipsDialog(mContext, tipsSilent) && DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newStartNewTaskIntent(mContext, DownloadService21::class.java, builder.build()).apply {
                     DownloadService21.enqueueWorkService(mContext, this)
@@ -117,7 +117,7 @@ object DownloadManager {
     }
 
     fun stopTask(mContext: Context, id: String, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+        if (DialogUtils.checkWriteExternalStorage(mContext, silent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newStopIntent(mContext, DownloadService21::class.java, id).apply {
                     DownloadService21.enqueueWorkService(mContext, this)
@@ -130,7 +130,7 @@ object DownloadManager {
     }
 
     fun resumeTask(mContext: Context, id: String, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+        if (DialogUtils.checkWriteExternalStorage(mContext, silent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newResumeIntent(mContext, DownloadService21::class.java, id).apply {
                     DownloadService21.enqueueWorkService(mContext, this)
@@ -143,7 +143,7 @@ object DownloadManager {
     }
 
     fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean = true, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+        if (DialogUtils.checkWriteExternalStorage(mContext, silent)) {
             CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
                     , DownloadService14::class.java, ids, isDeleteFile))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -158,7 +158,7 @@ object DownloadManager {
     }
 
     fun deleteAllTask(mContext: Context, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+        if (DialogUtils.checkWriteExternalStorage(mContext, silent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newDeleteAllIntent(mContext, DownloadService21::class.java).apply {
                     DownloadService21.enqueueWorkService(mContext, this)
@@ -171,7 +171,7 @@ object DownloadManager {
     }
 
     fun renameTaskFile(mContext: Context, id: String, fileName: String, silent: Boolean = false) {
-        if (PermissionUtils.checkWriteExternalStorage(mContext, silent)) {
+        if (DialogUtils.checkWriteExternalStorage(mContext, silent)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newRenameIntent(mContext, DownloadService21::class.java, id, fileName).apply {
                     DownloadService21.enqueueWorkService(mContext, this)
