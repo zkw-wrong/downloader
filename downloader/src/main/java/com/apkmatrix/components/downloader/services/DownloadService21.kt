@@ -12,17 +12,17 @@ import com.apkmatrix.components.downloader.utils.Logger
  * @date 2018/11/5
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class DownloadServiceV21 : JobIntentService() {
-    private val downloadServiceAssistUtils by lazy { DownloadServiceAssistUtils(mContext, DownloadServiceV21::class.java) }
+class DownloadService21 : JobIntentService() {
+    private val downloadServiceAssistUtils by lazy { DownloadServiceAssistUtils(mContext, DownloadService21::class.java) }
     private val logTag: String by lazy { javaClass.simpleName }
     private val mContext by lazy { this }
 
     companion object {
-        private val serviceId = DownloadServiceV21::javaClass.name.hashCode()
+        private val serviceId = DownloadService21::javaClass.name.hashCode()
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         fun enqueueWorkService(mContext: Context, intent: Intent) {
-            enqueueWork(mContext, DownloadServiceV21::class.java, serviceId, intent)
+            enqueueWork(mContext, DownloadService21::class.java, serviceId, intent)
         }
     }
 

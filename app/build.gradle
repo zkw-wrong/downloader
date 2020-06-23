@@ -23,7 +23,9 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
     implementation project(':downloader')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
     implementation "androidx.appcompat:appcompat:$androidx_version"
     annotationProcessor "androidx.annotation:annotation:$androidx_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"

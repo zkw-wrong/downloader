@@ -146,6 +146,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setOverrideTaskFile(false)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
-                .setNotificationTitle("QQ"))
+                .setNotificationTitle("QQ"),false,true)
     }
 }

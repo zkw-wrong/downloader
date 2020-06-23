@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.CheckResult
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.DownloadTask
@@ -97,5 +100,10 @@ object CommonUtils {
         } else {
             defaultFile
         }
+    }
+
+    @CheckResult
+    fun checkSelfPermission(mContext: Context, permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(mContext, permission) == PackageManager.PERMISSION_GRANTED
     }
 }
