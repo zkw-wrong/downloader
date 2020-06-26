@@ -1,16 +1,16 @@
 package com.apkmatrix.components.downloader.services
 
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.webkit.URLUtil
-import androidx.core.app.NotificationCompat
 import com.apkmatrix.components.downloader.DownloadManager
-import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.AppDbHelper
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
-import com.apkmatrix.components.downloader.misc.*
+import com.apkmatrix.components.downloader.misc.CustomDownloadListener4WithSpeed
+import com.apkmatrix.components.downloader.misc.DownloadTaskChangeLister
+import com.apkmatrix.components.downloader.misc.DownloadTaskFileChangeLister
+import com.apkmatrix.components.downloader.misc.TaskManager
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
 import com.apkmatrix.components.downloader.utils.Logger
@@ -29,9 +29,6 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>) {
     private val logTag by lazy { clazz.simpleName }
     private val notifyHelper by lazy { NotifyHelper(mContext1) }
-    private var downloadIngNotification: NotificationCompat.Builder? = null
-    private var downloadCompatNotification: NotificationCompat.Builder? = null
-    private var downloadFailedNotification: NotificationCompat.Builder? = null
     private val customDownloadListener4WithSpeed by lazy {
         CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
     }
@@ -247,7 +244,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     this.addAll(initTask.allTasks)
                 }
                 initTask.downloadIngTasks.forEach {
-                    notifyHelper.notificationManager.cancel(it.notificationId)
+                    notifyHelper.cancel(it.notificationId)
                 }
                 if (isInitialService) {
                     DownloadManager.isInitDownloadServiceCompat = true
@@ -315,7 +312,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         TaskManager.instance.stop(taskId)
         DownloadManager.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
-                notifyHelper.notificationManager.cancel(it.notificationId)
+                notifyHelper.cancel(it.notificationId)
             }
         }
     }
@@ -324,7 +321,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         TaskManager.instance.resume(taskId)
         DownloadManager.getDownloadTask(taskId)?.let {
             if (it.showNotification) {
-                notifyHelper.notificationManager.cancel(it.notificationId)
+                notifyHelper.cancel(it.notificationId)
             }
         }
     }
@@ -333,7 +330,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         TaskManager.instance.stopAll()
         downloadTaskLists.forEach {
             if (it.showNotification) {
-                notifyHelper.notificationManager.cancel(it.notificationId)
+                notifyHelper.cancel(it.notificationId)
             }
         }
     }
@@ -348,7 +345,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             }
             missionList.forEach {
                 if (it.showNotification) {
-                    notifyHelper.notificationManager.cancel(it.notificationId)
+                    notifyHelper.cancel(it.notificationId)
                 }
                 FsUtils.deleteFileOrDir(it.absolutePath)
             }
@@ -385,7 +382,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                     FsUtils.deleteFileOrDir(it.absolutePath)
                 }
                 if (it.showNotification) {
-                    notifyHelper.notificationManager.cancel(it.notificationId)
+                    notifyHelper.cancel(it.notificationId)
                 }
                 it.downloadTaskStatus = DownloadTaskStatus.Delete
                 DownloadTaskChangeLister.sendChangeBroadcast(mContext1, it)
@@ -432,15 +429,15 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             if (downloadTask.showNotification) {
                 downloadTask.downloadTaskStatus.let {
                     when (it) {
-                        DownloadTaskStatus.Waiting -> hintTaskIngNotify(downloadTask)
-                        DownloadTaskStatus.Preparing -> hintTaskIngNotify(downloadTask)
+                        DownloadTaskStatus.Waiting -> notifyHelper.hintTaskIngNotify(downloadTask)
+                        DownloadTaskStatus.Preparing -> notifyHelper.hintTaskIngNotify(downloadTask)
                         DownloadTaskStatus.Stop -> {
                         }
-                        DownloadTaskStatus.Downloading -> hintTaskIngNotify(downloadTask)
+                        DownloadTaskStatus.Downloading -> notifyHelper.hintTaskIngNotify(downloadTask)
                         DownloadTaskStatus.Success -> {
-                            hintDownloadCompleteNotify(downloadTask)
+                            notifyHelper.hintDownloadCompleteNotify(downloadTask)
                         }
-                        DownloadTaskStatus.Failed -> hintDownloadFailed(downloadTask)
+                        DownloadTaskStatus.Failed -> notifyHelper.hintDownloadFailed(downloadTask)
                         else -> {
                         }
                     }
@@ -449,78 +446,5 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    private fun hintTaskIngNotify(downloadTask: DownloadTask) {
-        downloadIngNotification = downloadIngNotification
-                ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
-                        .setSmallIcon(R.drawable.download_status_downloading)
-                        .setOngoing(true)
-                        .setAutoCancel(false)
-                        .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-                        .setShowWhen(false)
-        downloadIngNotification?.apply {
-            if (downloadTask.notificationTitle.isNotEmpty()) {
-                this.setContentTitle(downloadTask.notificationTitle)
-            }
-            TaskConfig.notificationLargeIcon?.let {
-                this.setLargeIcon(it)
-            }
-            downloadTask.notificationIntent?.let {
-                this.setContentIntent(getNotificationContentIntent(it))
-            }
-            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
-            notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
-        }
-    }
-
-    private fun hintDownloadCompleteNotify(downloadTask: DownloadTask) {
-        downloadCompatNotification = downloadCompatNotification
-                ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
-                        .setSmallIcon(R.drawable.ic_apk_status_complete)
-                        .setContentTitle(mContext1.getString(R.string.q_download_complete))
-                        .setOngoing(false)
-                        .setAutoCancel(true)
-        downloadCompatNotification?.apply {
-            if (downloadTask.notificationTitle.isNotEmpty()) {
-                this.setContentTitle(downloadTask.notificationTitle)
-            }
-            TaskConfig.notificationLargeIcon?.let {
-                this.setLargeIcon(it)
-            }
-            downloadTask.notificationIntent?.let {
-                this.setContentIntent(getNotificationContentIntent(it))
-            }
-            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
-            notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
-        }
-    }
-
-    private fun hintDownloadFailed(downloadTask: DownloadTask) {
-        downloadFailedNotification = downloadFailedNotification
-                ?: NotificationCompat.Builder(mContext1, CommonUtils.notificationChannelId)
-                        .setSmallIcon(R.drawable.download_status_failed)
-                        .setOngoing(false)
-                        .setAutoCancel(true)
-        downloadFailedNotification?.apply {
-            if (downloadTask.notificationTitle.isNotEmpty()) {
-                this.setContentTitle(downloadTask.notificationTitle)
-            }
-            TaskConfig.notificationLargeIcon?.let {
-                this.setLargeIcon(it)
-            }
-            downloadTask.notificationIntent?.let {
-                this.setContentIntent(getNotificationContentIntent(it))
-            }
-            this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            notifyHelper.notificationManager.cancel(downloadTask.notificationId)
-            notifyHelper.notificationManager.notify(downloadTask.notificationId, this.build())
-        }
-    }
-
-    private fun getNotificationContentIntent(intent: Intent): PendingIntent {
-        return PendingIntent.getActivity(mContext1, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 }
