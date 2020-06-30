@@ -144,8 +144,6 @@ object DownloadManager {
 
     fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean = true, silent: Boolean = false) {
         if (DialogUtils.checkWriteExternalStorage(mContext, silent)) {
-            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext
-                    , DownloadService14::class.java, ids, isDeleteFile))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadService21::class.java, ids, isDeleteFile).apply {
                     DownloadService21.enqueueWorkService(mContext, this)

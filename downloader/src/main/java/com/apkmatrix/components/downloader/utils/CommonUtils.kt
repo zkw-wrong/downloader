@@ -21,9 +21,6 @@ import kotlin.math.roundToInt
  * date: 2020/3/26
  */
 object CommonUtils {
-    val notificationChannelId by lazy { "Notification-Id" }
-    val notificationChannelName by lazy { "Notification-Name" }
-
     fun register(mContext: Context?, receiver: BroadcastReceiver?, vararg actions: String?) {
         val filter = IntentFilter()
         for (action in actions) {
