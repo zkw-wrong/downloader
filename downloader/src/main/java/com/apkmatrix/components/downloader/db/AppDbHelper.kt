@@ -4,7 +4,7 @@ import androidx.annotation.WorkerThread
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 /**
  * author: mr.xiong
@@ -27,32 +27,32 @@ object AppDbHelper {
                 it.downloadTaskStatus = DownloadTaskStatus.Stop
             }
         }
-        GlobalScope.async(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
             DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(downloadTaskAllList)
-        }.onAwait
+        }
         return InitTask(downloadTaskAllList, downloadTaskIngList)
     }
 
     fun createOrUpdateDownloadTask(downloadTask: DownloadTask): Long {
-        GlobalScope.async(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
             DownloadDatabase.instance.downloadTaskDao().createOrUpdateDownloadTask(arrayListOf(downloadTask))
-        }.onAwait
+        }
         return 1L
     }
 
     fun deleteTasks(downloadTasks: List<DownloadTask>): Long {
-        GlobalScope.async(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
             DownloadDatabase.instance.downloadTaskDao().deleteTasks(downloadTasks)
-        }.onAwait
+        }
         return 1L
     }
 
     fun deleteAllTasks(): Long {
-        GlobalScope.async(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
             DownloadDatabase.instance.downloadTaskDao().apply {
                 this.deleteTasks(this.queryAllDownloadTask())
             }
-        }.onAwait
+        }
         return 1L
     }
 }
