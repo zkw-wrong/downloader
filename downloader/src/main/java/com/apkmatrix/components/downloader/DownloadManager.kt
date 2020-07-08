@@ -25,7 +25,7 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * date: 2020/3/26
  */
 object DownloadManager {
-    var isInitDownloadServiceCompat = false
+
     var downloadServiceInitCallback: DownloadServiceInitCallback? = null
     var downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback? = null
 
@@ -42,6 +42,8 @@ object DownloadManager {
             Util.enableConsoleLog()
         }
     }
+
+    fun isInitDownloadServiceCompat() = DownloadServiceAssistUtils.isInitDownloadServiceCompat
 
     fun startUpdateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
         this.downloadTaskUpdateDataCallback = downloadTaskUpdateDataCallback
