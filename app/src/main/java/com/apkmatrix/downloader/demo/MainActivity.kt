@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 .setUrl(apkUrl3)
                 .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
                 .setFileName("QQ.apk")
-                .setOverrideTaskFile(false)
+                .setOverrideTaskFile(true)
                 .setHeaders(Extras(mutableMapOf()))
                 .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
                 .setNotificationTitle("QQ"),false,true)

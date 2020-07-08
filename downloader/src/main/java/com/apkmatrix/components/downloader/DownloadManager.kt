@@ -16,7 +16,6 @@ import com.apkmatrix.components.downloader.services.DownloadService21
 import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.DialogUtils
-import com.apkmatrix.components.downloader.utils.NetWorkUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask

@@ -268,6 +268,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return
         }
         val downloadTask1 = reformTaskData(downloadTask)
+        removeOverRideDownloadFile(downloadTask1)
         DownloadManager.getDownloadTask(downloadTask1.id) ?: let {
             downloadTaskLists.add(0, downloadTask1)
         }
@@ -302,6 +303,18 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         downloadTask.id = "${downloadTask.absolutePath.hashCode()}"
         //防止 之前任务是覆盖下载 这个任务是不覆盖下载 导致Id不一样数据库有2个相同任务
         return downloadTask
+    }
+
+    private fun removeOverRideDownloadFile(downloadTask: DownloadTask) {
+        if (downloadTask.overrideTaskFile) {
+            val taskFile = File(downloadTask.absolutePath)
+            if (FsUtils.exists(taskFile) && taskFile.isFile) {
+                DownloadManager.getDownloadTask(downloadTask.id)?.let {
+                    TaskManager.instance.stop(downloadTask.id)
+                }
+                FsUtils.deleteFileOrDir(taskFile)
+            }
+        }
     }
 
     private fun startAll() {
