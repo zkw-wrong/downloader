@@ -16,7 +16,6 @@ import com.apkmatrix.components.downloader.services.DownloadService21
 import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.DialogUtils
-import com.apkmatrix.components.downloader.utils.NetWorkUtils
 import com.liulishuo.okdownload.core.Util
 import okhttp3.OkHttpClient
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
@@ -26,7 +25,7 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * date: 2020/3/26
  */
 object DownloadManager {
-    var isInitDownloadServiceCompat = false
+
     var downloadServiceInitCallback: DownloadServiceInitCallback? = null
     var downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback? = null
 
@@ -43,6 +42,8 @@ object DownloadManager {
             Util.enableConsoleLog()
         }
     }
+
+    fun isInitDownloadServiceCompat() = DownloadServiceAssistUtils.isInitDownloadServiceCompat
 
     fun startUpdateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
         this.downloadTaskUpdateDataCallback = downloadTaskUpdateDataCallback

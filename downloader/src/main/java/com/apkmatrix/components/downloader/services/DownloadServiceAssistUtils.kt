@@ -7,10 +7,7 @@ import com.apkmatrix.components.downloader.DownloadManager
 import com.apkmatrix.components.downloader.db.AppDbHelper
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
-import com.apkmatrix.components.downloader.misc.CustomDownloadListener4WithSpeed
-import com.apkmatrix.components.downloader.misc.DownloadTaskChangeLister
-import com.apkmatrix.components.downloader.misc.DownloadTaskFileChangeLister
-import com.apkmatrix.components.downloader.misc.TaskManager
+import com.apkmatrix.components.downloader.misc.*
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
 import com.apkmatrix.components.downloader.utils.Logger
@@ -39,6 +36,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
         private const val EXTRA_PARAM_FILE_NAME = "file_name"
         val downloadTaskLists = mutableListOf<DownloadTask>()
+        var isInitDownloadServiceCompat = false
 
         object ActionType {
             const val ACTION_INIT = "$ServiceFlag init"
@@ -107,12 +105,6 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 this.putExtra(EXTRA_PARAM_FILE_NAME, fileName)
             }
         }
-    }
-
-    private fun initialService() {
-        DownloadManager.isInitDownloadServiceCompat = false
-        TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
-        initialData(true)
     }
 
     private fun getCustomTaskListener() = object : CustomDownloadListener4WithSpeed.TaskListener {
@@ -185,14 +177,37 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         }
     }
 
+    private fun initialService() {
+        isInitDownloadServiceCompat = false
+        TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
+        initialData(object : InitDataCallBack {
+            override fun success(list: List<DownloadTask>) {
+                isInitDownloadServiceCompat = true
+                list.forEach {
+                    notifyHelper.cancel(it.notificationId)
+                }
+                downloadTaskLists.clear()
+                downloadTaskLists.addAll(list)
+                DownloadManager.downloadServiceInitCallback?.loadCompat()
+                Logger.d(logTag, "initialService task size: ${downloadTaskLists.size}")
+            }
+
+            override fun failed() {
+                isInitDownloadServiceCompat = false
+            }
+        })
+    }
+
     fun handlerIntent(intent: Intent) {
+        if (intent.action == ActionType.ACTION_INIT) {
+            initialService()
+        } else if (intent.action == ActionType.ACTION_UPDATE_TASK_DATA) {
+            updateTaskData()
+        }
+        if (!isInitDownloadServiceCompat) {
+            return
+        }
         when (intent.action) {
-            ActionType.ACTION_INIT -> {
-                initialService()
-            }
-            ActionType.ACTION_UPDATE_TASK_DATA -> {
-                initialData(false)
-            }
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
                     startNewTask(this)
@@ -228,39 +243,36 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
                 val fileName = intent.getStringExtra(EXTRA_PARAM_FILE_NAME) ?: return
                 renameTaskFile(taskId, fileName)
             }
+            else -> {
+
+            }
         }
     }
 
-    private fun initialData(isInitialService: Boolean) {
-        if (isInitialService) {
-            DownloadManager.isInitDownloadServiceCompat = false
-        }
+    private fun initialData(initDataCallBack: InitDataCallBack) {
         try {
             GlobalScope.launch(Dispatchers.Main) {
                 val initTask = withContext(Dispatchers.IO) { AppDbHelper.queryInitDownloadTask() }
-                Logger.d(logTag, "initialData task size ${initTask.allTasks.size}")
-                downloadTaskLists.clear()
-                downloadTaskLists.apply {
-                    this.addAll(initTask.allTasks)
-                }
-                initTask.downloadIngTasks.forEach {
-                    notifyHelper.cancel(it.notificationId)
-                }
-                if (isInitialService) {
-                    DownloadManager.isInitDownloadServiceCompat = true
-                    DownloadManager.downloadServiceInitCallback?.loadCompat()
-                }
-                DownloadManager.downloadTaskUpdateDataCallback?.success()
+                initDataCallBack.success(initTask.allTasks)
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            if (isInitialService) {
-                DownloadManager.isInitDownloadServiceCompat = false
+            initDataCallBack.failed()
+        }
+    }
+
+    private fun updateTaskData() {
+        initialData(object : InitDataCallBack {
+            override fun success(list: List<DownloadTask>) {
+                downloadTaskLists.clear()
+                downloadTaskLists.addAll(list)
+                DownloadManager.downloadTaskUpdateDataCallback?.success()
             }
-            GlobalScope.launch(Dispatchers.Main) {
+
+            override fun failed() {
                 DownloadManager.downloadTaskUpdateDataCallback?.failed()
             }
-        }
+        })
     }
 
     private fun startNewTask(downloadTask: DownloadTask) {
@@ -268,6 +280,7 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
             return
         }
         val downloadTask1 = reformTaskData(downloadTask)
+        removeOverRideDownloadFile(downloadTask1)
         DownloadManager.getDownloadTask(downloadTask1.id) ?: let {
             downloadTaskLists.add(0, downloadTask1)
         }
@@ -302,6 +315,18 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         downloadTask.id = "${downloadTask.absolutePath.hashCode()}"
         //防止 之前任务是覆盖下载 这个任务是不覆盖下载 导致Id不一样数据库有2个相同任务
         return downloadTask
+    }
+
+    private fun removeOverRideDownloadFile(downloadTask: DownloadTask) {
+        if (downloadTask.overrideTaskFile) {
+            val taskFile = File(downloadTask.absolutePath)
+            if (FsUtils.exists(taskFile) && taskFile.isFile) {
+                DownloadManager.getDownloadTask(downloadTask.id)?.let {
+                    TaskManager.instance.stop(downloadTask.id)
+                }
+                FsUtils.deleteFileOrDir(taskFile)
+            }
+        }
     }
 
     private fun startAll() {
