@@ -183,6 +183,9 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
         initialData(object : InitDataCallBack {
             override fun success(list: List<DownloadTask>) {
                 isInitDownloadServiceCompat = true
+                list.forEach {
+                    notifyHelper.cancel(it.notificationId)
+                }
                 downloadTaskLists.clear()
                 downloadTaskLists.addAll(list)
                 DownloadManager.downloadServiceInitCallback?.loadCompat()
@@ -249,15 +252,8 @@ class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>
     private fun initialData(initDataCallBack: InitDataCallBack) {
         try {
             GlobalScope.launch(Dispatchers.Main) {
-                val tempDownloadTask = mutableListOf<DownloadTask>()
                 val initTask = withContext(Dispatchers.IO) { AppDbHelper.queryInitDownloadTask() }
-                tempDownloadTask.apply {
-                    this.addAll(initTask.allTasks)
-                }
-                initTask.downloadIngTasks.forEach {
-                    notifyHelper.cancel(it.notificationId)
-                }
-                initDataCallBack.success(tempDownloadTask)
+                initDataCallBack.success(initTask.allTasks)
             }
         } catch (e: Exception) {
             e.printStackTrace()
