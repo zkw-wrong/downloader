@@ -22,9 +22,11 @@ abstract class DownloadDatabase : RoomDatabase() {
         private var appDatabase: DownloadDatabase? = null
         fun initial(application: Application) {
             this.application = application
-            appDatabase = Room.databaseBuilder(application, DownloadDatabase::class.java, DB_NAME)
-                    .fallbackToDestructiveMigration()
-                .build()
+            if (appDatabase == null) {
+                appDatabase = Room.databaseBuilder(application, DownloadDatabase::class.java, DB_NAME)
+                        .fallbackToDestructiveMigration()
+                        .build()
+            }
         }
 
         val instance: DownloadDatabase
