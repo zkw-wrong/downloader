@@ -39,16 +39,17 @@ class TaskManager {
             }
 
         fun init(mContext: Context, builder: OkHttpClient.Builder) {
-            isInitial = true
             instance.initial(mContext, builder)
+            isInitial = true
         }
     }
 
-    fun initial(mContext: Context, builder: OkHttpClient.Builder) {
-        OkDownload.setSingletonInstance(
-                OkDownload.Builder(mContext)
-                        .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
-                        .build())
+    private fun initial(mContext: Context, builder: OkHttpClient.Builder) {
+        if (!isInitial) {
+            OkDownload.setSingletonInstance(OkDownload.Builder(mContext)
+                    .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
+                    .build())
+        }
         setMaxParallelRunningCount()
         DownloadContext.QueueSet().apply {
             this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
