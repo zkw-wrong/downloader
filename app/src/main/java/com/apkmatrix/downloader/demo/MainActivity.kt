@@ -1,23 +1,29 @@
 package com.apkmatrix.downloader.demo
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.apkmatrix.components.downloader.DownloadManager
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.Extras
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
+import com.apkmatrix.components.downloader.misc.DownloadPermission
 import com.apkmatrix.components.downloader.misc.DownloadTaskChangeLister
 import com.apkmatrix.components.downloader.misc.DownloadTaskFileChangeLister
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
+import kotlinx.coroutines.*
+import kotlin.coroutines.resume
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener, DownloadPermission {
+    private lateinit var mContext: Context
     private val LOG_TAG = "MainActivity"
     private val apkUrl2 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
     private val apkUrl1 = "https://fd59c3b8ffa5957ceaf5787ea5b08f3d.dlied1.cdntips.com/godlied4.myapp.com/myapp/1104466820/cos.release-40109/10040714_com.tencent.tmgp.sgame_a713640_1.53.1.6_q6wxs5.apk?mkey=5e942cefddddbc96&f=578b&cip=221.221.154.99&proto=https\n" +
@@ -32,9 +38,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private val downloadTaskChangeReceiver by lazy { getDownloadTaskChangeReceiver2() }
     private val getDeleteTaskDeleteReceiver by lazy { getDeleteTaskDeleteReceiver2() }
     private var downloadTask: DownloadTask? = null
+    private val mainScope: CoroutineScope by lazy { CoroutineScope(Dispatchers.Main + Job()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mContext = this
         setContentView(R.layout.activity_main)
         clearBt = findViewById(R.id.clear_bt)
         apkBt = findViewById(R.id.apk_bt)
@@ -78,10 +86,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun requestPermission(cancellableContinuation: CancellableContinuation<Any>) {
+        mainScope.launch(Dispatchers.IO) {// 此处就更换成 请求权限的代码
+            withContext(Dispatchers.Main) {
+                Toast.makeText(mContext, "模拟请求权限3秒之后,开始下载步骤!", Toast.LENGTH_SHORT).show()
+            }
+            delay(3000)
+            cancellableContinuation.resume(Any())
+            withContext(Dispatchers.Main) {
+                Toast.makeText(mContext, "请求权限了!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
         downloadTaskChangeReceiver.unregister()
         getDeleteTaskDeleteReceiver.unregister()
+        mainScope.cancel()
     }
 
     private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
@@ -138,14 +161,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun clickDownload() {
-        DownloadManager.startNewTask(this, DownloadTask
-                .Builder()
-                .setUrl(apkUrl3)
-                .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
-                .setFileName("QQ.apk")
-                .setOverrideTaskFile(true)
-                .setHeaders(Extras(mutableMapOf()))
-                .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, this, MainActivity::class.java))
-                .setNotificationTitle("QQ"),false,true)
+        mainScope.launch {
+            DownloadManager.startNewTask(mContext, DownloadTask
+                    .Builder()
+                    .setUrl(apkUrl3)
+                    .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
+                    .setFileName("QQ.apk")
+                    .setOverrideTaskFile(true)
+                    .setHeaders(Extras(mutableMapOf()))
+                    .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, mContext, MainActivity::class.java))
+                    .setNotificationTitle("QQ"))
+        }
     }
 }

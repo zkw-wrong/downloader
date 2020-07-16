@@ -8,9 +8,9 @@ import com.apkmatrix.components.downloader.misc.TaskConfig
  * date: 2020/3/23
  */
 object Logger {
-    fun d(message: String, msg: String) {
+    fun d(tag: String, msg: String) {
         if (TaskConfig.isDebug) {
-            Log.d(message, msg)
+            Log.d(tag, msg)
         }
     }
 }
