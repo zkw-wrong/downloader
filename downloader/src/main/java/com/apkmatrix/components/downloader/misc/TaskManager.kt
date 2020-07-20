@@ -20,12 +20,12 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 class TaskManager {
     private var customDownloadListener4WithSpeed: CustomDownloadListener4WithSpeed? = null
     private lateinit var downloadBuilder: DownloadContext.Builder
+    private var okDownload: OkDownload? = null
 
     companion object {
         const val retryTagKey = 999
         const val taskIdTagKey = 998
         private var taskManager: TaskManager? = null
-        private var isInitial = false
         val instance: TaskManager
             get() {
                 if (taskManager == null) {
@@ -40,15 +40,19 @@ class TaskManager {
 
         fun init(mContext: Context, builder: OkHttpClient.Builder) {
             instance.initial(mContext, builder)
-            isInitial = true
         }
     }
 
     private fun initial(mContext: Context, builder: OkHttpClient.Builder) {
-        if (!isInitial) {
-            OkDownload.setSingletonInstance(OkDownload.Builder(mContext)
-                    .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
-                    .build())
+        if (okDownload == null) {
+            synchronized(TaskManager::class.java) {
+                if (okDownload == null) {
+                    okDownload = OkDownload.Builder(mContext)
+                            .connectionFactory(DownloadOkHttp3Connection.Factory().setBuilder(builder))
+                            .build()
+                    OkDownload.setSingletonInstance(okDownload!!)
+                }
+            }
         }
         setMaxParallelRunningCount()
         DownloadContext.QueueSet().apply {
