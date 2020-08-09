@@ -7,22 +7,19 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.apkmatrix.components.appbase.AppBaseActivity
 import com.apkmatrix.components.downloader.DownloadManager
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.Extras
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
-import com.apkmatrix.components.downloader.misc.DownloadPermission
 import com.apkmatrix.components.downloader.misc.DownloadTaskChangeLister
 import com.apkmatrix.components.downloader.misc.DownloadTaskFileChangeLister
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
 import kotlinx.coroutines.*
-import kotlin.coroutines.resume
 
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-class MainActivity : AppCompatActivity(), View.OnClickListener, DownloadPermission {
+class MainActivity : AppBaseActivity(), View.OnClickListener {
     private lateinit var mContext: Context
     private val LOG_TAG = "MainActivity"
     private val apkUrl2 = "https://cdn.llscdn.com/yy/files/tkzpx40x-lls-LLS-5.7-785-20171108-111118.apk"
@@ -85,20 +82,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, DownloadPermissi
             }
         }
     }
-
-    override fun requestPermission(cancellableContinuation: CancellableContinuation<Any>) {
-        mainScope.launch(Dispatchers.IO) {// 此处就更换成 请求权限的代码
-            withContext(Dispatchers.Main) {
-                Toast.makeText(mContext, "模拟请求权限3秒之后,开始下载步骤!", Toast.LENGTH_SHORT).show()
-            }
-            delay(3000)
-            cancellableContinuation.resume(Any())
-            withContext(Dispatchers.Main) {
-                Toast.makeText(mContext, "请求权限了!", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
 
     override fun onDestroy() {
         super.onDestroy()
