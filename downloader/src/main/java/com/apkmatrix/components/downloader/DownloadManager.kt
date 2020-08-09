@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.IntRange
+import com.apkmatrix.components.appbase.baseinterface.BaseAppInterface
 import com.apkmatrix.components.downloader.db.DownloadDatabase
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.misc.*
@@ -109,12 +110,12 @@ object DownloadManager {
     suspend fun startNewTask(mContext: Context, builder: DownloadTask.Builder, permissionSilent: Boolean = false, tipsSilent: Boolean = false) {
         withContext(Dispatchers.Main) {
             val activity = ActivityManager.instance.stackTopActiveActivity
-            if (activity is DownloadPermission) {
+            if (activity is BaseAppInterface) {
                 suspendCancellableCoroutine<Any> { it1 ->
                     it1.invokeOnCancellation {
                         it1.cancel()
                     }
-                    activity.requestPermission(it1)
+                    activity.requestDownloadPermission(it1)
                 }
             }
             if (!DialogUtils.flowTipsDialog(mContext, tipsSilent) ||
