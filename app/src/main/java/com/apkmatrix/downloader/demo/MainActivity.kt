@@ -143,7 +143,7 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
         FsUtils.deleteFileOrDir(FsUtils.getDefaultDownloadDir())
     }
 
-    private fun clickDownload() {
+    private fun clickDownload() { 
         mainScope.launch {
             DownloadManager.startNewTask(mContext, DownloadTask
                     .Builder()
