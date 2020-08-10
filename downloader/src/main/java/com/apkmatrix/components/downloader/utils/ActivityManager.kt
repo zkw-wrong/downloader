@@ -10,8 +10,7 @@ import java.util.*
  * @date 2017/12/6
  */
 class ActivityManager private constructor() {
-    private val lifecycleStackActivity by lazy { Stack<Activity>() }
-    private val baseActivities by lazy { HashSet<Activity>() }
+    private val activeActivityStacks by lazy { Stack<Activity>() }
     private val myActivityLifecycleCallbacks by lazy { MyActivityLifecycleCallbacks() }
     private var isRegister = false
 
@@ -38,40 +37,31 @@ class ActivityManager private constructor() {
     }
 
     val stackActivityCount: Int
-        get() = lifecycleStackActivity.size
+        get() = activeActivityStacks.size
 
     val stackTopActiveActivity: Activity?
-        get() = if (lifecycleStackActivity.isEmpty()) {
+        get() = if (activeActivityStacks.isEmpty()) {
             null
         } else {
-            lifecycleStackActivity.lastElement()
+            activeActivityStacks.lastElement()
         }
 
     private inner class MyActivityLifecycleCallbacks : Application.ActivityLifecycleCallbacks {
         override fun onActivityResumed(activity: Activity?) = Unit
         override fun onActivityPaused(activity: Activity?) = Unit
         override fun onActivitySaveInstanceState(activity: Activity?, bundle: Bundle?) = Unit
-        override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
-            activity?.let {
-                baseActivities.add(it)
-            }
-        }
-
-        override fun onActivityDestroyed(activity: Activity?) {
-            activity?.let {
-                baseActivities.remove(it)
-            }
-        }
+        override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) = Unit
+        override fun onActivityDestroyed(activity: Activity?)  = Unit
 
         override fun onActivityStarted(activity: Activity?) {
             activity?.let {
-                lifecycleStackActivity.add(it)
+                activeActivityStacks.add(it)
             }
         }
 
         override fun onActivityStopped(activity: Activity?) {
             activity?.let {
-                lifecycleStackActivity.remove(it)
+                activeActivityStacks.remove(it)
             }
         }
     }

@@ -2,9 +2,6 @@ package com.apkmatrix.components.downloader.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
-import com.apkmatrix.components.dialog.AlertDialogBuilder
-import com.apkmatrix.components.dialog.HtmlAlertDialogBuilder
-import com.apkmatrix.components.downloader.R
 
 object NetWorkUtils {
     fun isConnected(mContext: Context): Boolean {
