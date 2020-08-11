@@ -4,14 +4,15 @@
 
 [最新版引用地址](http://maven.302e.com:3080/#browse/browse:maven-releases:com/apkmatrix/components/downloader)
 
-1. 添加引用
+- 添加引用
 ```
+//无需引用GitHub的下载库
 maven { url 'http://maven.302e.com:3080/repository/maven-public/' }
 
 implementation 'com.apkmatrix.components:downloader:{版本号}'
 ```
 
-2. 应用初始化初始化
+-  应用初始化初始化
 ```
 DownloadManager.initial(this, OkHttpClient.Builder()
                                .connectTimeout(10, TimeUnit.SECONDS)
@@ -21,7 +22,7 @@ DownloadManager.initial(this, OkHttpClient.Builder()
 //DownloadManager.setDebug(true)
 //DownloadManager.setNotificationLargeIcon(it)
 ```
-3.注册监听
+- 注册监听
 ```
 //下载回调监听
 DownloadTaskChangeLister.Receiver(this,
@@ -67,7 +68,7 @@ DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeListe
         }
     })
 ```
-4.调用 
+- 调用 
 ```
 //下载
 DownloadManager.startNewTask(this, DownloadTask
@@ -89,7 +90,7 @@ DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 ```
 [DownloadManager](https://apk.302e.com:3443/mobile/components/downloader/-/blob/master/downloader/src/main/java/com/apkmatrix/components/downloader/DownloadManager.kt)
 
-5.小技巧
+- 小技巧
 ```
 1.通知点击进来如果数据没有更新完成,判断downloadManager是否更新完成，更新完成有回调，或者主动调用更新数据方法具体看DownloadManager
 2.尽量不要初始化很多次
@@ -102,4 +103,9 @@ DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 9.log日志默认是关闭的 打replace包请关闭
 10.通知的intent中不可携带参数
 ```
- 
+- 权限
+```kotlin
+调用会请求存储权限
+下载权限需要实现BaseAppInterface接口 或者直接引用BaseAppActivityUi的包
+具体包再服务器上这里不作解释
+```
