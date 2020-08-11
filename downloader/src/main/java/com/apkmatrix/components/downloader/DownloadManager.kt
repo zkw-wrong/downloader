@@ -5,7 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.IntRange
-import com.apkmatrix.components.appbase.baseinterface.BaseAppInterface
+import com.apkmatrix.components.appbaseinterface.BaseAppInterface
 import com.apkmatrix.components.downloader.db.DownloadDatabase
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.misc.*
@@ -115,7 +115,7 @@ object DownloadManager {
                     it1.invokeOnCancellation {
                         it1.cancel()
                     }
-                    activity.requestDownloadPermission(it1)
+                    activity.requestStoragePermission(it1)
                 }
             }
             if (!DialogUtils.flowTipsDialog(mContext, tipsSilent) ||

@@ -14,7 +14,6 @@ import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
 import java.io.File
 import java.text.DecimalFormat
-import kotlin.math.roundToInt
 
 /**
  * author: mr.xiong
@@ -31,10 +30,6 @@ object CommonUtils {
 
     fun unregister(mContext: Context?, receiver: BroadcastReceiver?) {
         LocalBroadcastManager.getInstance(mContext!!).unregisterReceiver(receiver!!)
-    }
-
-    fun randomNumber(min: Int, max: Int): Int {
-        return (Math.random() * (max - min) + min).roundToInt()
     }
 
     fun formatFileLength(sizeBytes: Long): String {

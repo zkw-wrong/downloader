@@ -38,5 +38,5 @@ dependencies {
     implementation "com.liulishuo.okdownload:okhttp:1.0.7"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.apkmatrix.components:dialog:$apkmatrix_dialog_version"
-    implementation "com.apkmatrix.components:appbase:$apkmatrix_appbase_version"
+    implementation "com.apkmatrix.components.appbase:interface:$apkmatrix_base"
 }
