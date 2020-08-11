@@ -29,5 +29,6 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidx_version"
     annotationProcessor "androidx.annotation:annotation:$androidx_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-    implementation "com.apkmatrix.components:appbase:$apkmatrix_appbase_version"
+    implementation "com.apkmatrix.components.appbase:interface:$apkmatrix_base"
+    implementation "com.apkmatrix.components:appbase:$apkmatrix_base"
 }
