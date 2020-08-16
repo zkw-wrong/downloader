@@ -8,7 +8,10 @@ import androidx.annotation.IntRange
 import com.apkmatrix.components.appbaseinterface.BaseAppInterface
 import com.apkmatrix.components.downloader.db.DownloadDatabase
 import com.apkmatrix.components.downloader.db.DownloadTask
-import com.apkmatrix.components.downloader.misc.*
+import com.apkmatrix.components.downloader.misc.DownloadServiceInitCallback
+import com.apkmatrix.components.downloader.misc.DownloadTaskUpdateDataCallback
+import com.apkmatrix.components.downloader.misc.TaskConfig
+import com.apkmatrix.components.downloader.misc.TaskManager
 import com.apkmatrix.components.downloader.services.DownloadService14
 import com.apkmatrix.components.downloader.services.DownloadService21
 import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
@@ -17,7 +20,6 @@ import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.DialogUtils
 import com.liulishuo.okdownload.core.Util
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
@@ -111,12 +113,7 @@ object DownloadManager {
         withContext(Dispatchers.Main) {
             val activity = ActivityManager.instance.stackTopActiveActivity
             if (activity is BaseAppInterface) {
-                suspendCancellableCoroutine<Any> { it1 ->
-                    it1.invokeOnCancellation {
-                        it1.cancel()
-                    }
-                    activity.requestStoragePermission(it1)
-                }
+                activity.requestStoragePermission()
             }
             if (!DialogUtils.flowTipsDialog(mContext, tipsSilent) ||
                     !DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
