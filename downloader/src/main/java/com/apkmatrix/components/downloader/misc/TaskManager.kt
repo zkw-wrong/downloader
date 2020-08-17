@@ -17,7 +17,7 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * @author xiongke
  * @date 2018/11/19
  */
-class TaskManager {
+internal class TaskManager {
     private var customDownloadListener4WithSpeed: CustomDownloadListener4WithSpeed? = null
     private lateinit var downloadBuilder: DownloadContext.Builder
     private var okDownload: OkDownload? = null

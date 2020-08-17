@@ -23,7 +23,7 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * @author xiongke
  * @date 2019/1/23
  */
-class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>) {
+internal class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>) {
     private val logTag by lazy { clazz.simpleName }
     private val notifyHelper by lazy { NotifyHelper(mContext1) }
     private val customDownloadListener4WithSpeed by lazy {

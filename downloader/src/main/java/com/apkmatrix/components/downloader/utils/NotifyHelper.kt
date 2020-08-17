@@ -15,7 +15,7 @@ import com.apkmatrix.components.downloader.misc.TaskConfig
  * @author xiongke
  * @date 2019/2/21
  */
-class NotifyHelper(private val mContext1: Context) {
+internal class NotifyHelper(private val mContext1: Context) {
     private val notificationChannelId by lazy { "Notification-Id" }
     private val notificationChannelName by lazy { "Notification-Name" }
     private val notificationManager by lazy { mContext1.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
