@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
  * author: mr.xiong
  * date: 2020/4/4
  */
-object AppDbHelper {
-    //此处协程比如await等待其执行完毕
+internal object AppDbHelper {
+
     @WorkerThread
     fun queryInitDownloadTask(): InitTask {
         val downloadTaskIngList = arrayListOf<DownloadTask>()

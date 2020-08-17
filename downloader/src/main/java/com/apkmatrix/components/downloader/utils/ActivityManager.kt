@@ -9,7 +9,7 @@ import java.util.*
  * @author Xiong Ke
  * @date 2017/12/6
  */
-class ActivityManager private constructor() {
+internal class ActivityManager private constructor() {
     private val activeActivityStacks by lazy { Stack<Activity>() }
     private val myActivityLifecycleCallbacks by lazy { MyActivityLifecycleCallbacks() }
     private var isRegister = false
