@@ -9,10 +9,10 @@ import com.apkmatrix.components.downloader.utils.Logger
  * @author xiongke
  * @date 2019/1/23
  */
-class DownloadService14 : Service() {
+class DownloadService : Service() {
     private val logTag: String by lazy { javaClass.simpleName }
     private val downloadServiceAssistUtils by lazy {
-        DownloadServiceAssistUtils(mContext, DownloadService14::class.java)
+        DownloadServiceAssistUtils(mContext, DownloadService::class.java)
     }
     private val mContext by lazy { this }
 
