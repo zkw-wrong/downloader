@@ -1,9 +1,7 @@
 package com.apkmatrix.components.downloader.utils
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.annotation.SuppressLint
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -18,6 +16,7 @@ import com.apkmatrix.components.downloader.misc.TaskConfig
  */
 internal class NotifyHelper(private val mService: Service) {
     private val mContext1: Context = mService
+    private var foregroundId = 0
     private val notificationChannelId by lazy { "Notification-Id" }
     private val notificationChannelName by lazy { "Notification-Name" }
     private val notificationManager by lazy { mContext1.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -38,6 +37,7 @@ internal class NotifyHelper(private val mService: Service) {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     fun hintTaskIngNotify(downloadTask: DownloadTask) {
         downloadIngNotification = downloadIngNotification
                 ?: NotificationCompat.Builder(mContext1, notificationChannelId)
@@ -58,7 +58,12 @@ internal class NotifyHelper(private val mService: Service) {
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
-            mService.startForeground(downloadTask.notificationId, this.build())
+            if (!CommonUtils.isServiceForegroundRunning(mContext)) {
+                foregroundId = downloadTask.notificationId
+                mService.startForeground(foregroundId, this.build())
+            } else {
+                notificationManager.notify(downloadTask.notificationId, this.build())
+            }
         }
     }
 
@@ -80,6 +85,9 @@ internal class NotifyHelper(private val mService: Service) {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            if (downloadTask.notificationId == foregroundId) {
+                mService.stopForeground(true)
+            }
             notificationManager.cancel(downloadTask.notificationId)
             notificationManager.notify(downloadTask.notificationId, this.build())
         }
@@ -102,6 +110,9 @@ internal class NotifyHelper(private val mService: Service) {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
+            if (downloadTask.notificationId == foregroundId) {
+                mService.stopForeground(true)
+            }
             notificationManager.cancel(downloadTask.notificationId)
             notificationManager.notify(downloadTask.notificationId, this.build())
         }

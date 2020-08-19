@@ -1,5 +1,6 @@
 package com.apkmatrix.components.downloader.utils
 
+import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,8 +13,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
+import com.apkmatrix.components.downloader.services.DownloadService
 import java.io.File
 import java.text.DecimalFormat
+import java.util.ArrayList
 
 /**
  * author: mr.xiong
@@ -97,5 +100,24 @@ object CommonUtils {
     @CheckResult
     fun checkSelfPermission(mContext: Context, permission: String): Boolean {
         return ContextCompat.checkSelfPermission(mContext, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    internal fun isServiceForegroundRunning(mContext: Context): Boolean {
+        try {
+            val downloadServiceClassName = DownloadService::class.java.name
+            val myManager = mContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val runningServiceList = myManager.getRunningServices(99)
+                    as ArrayList<ActivityManager.RunningServiceInfo>
+            for (i in runningServiceList.indices) {
+                val runningService = runningServiceList[i]
+                val service = runningService.service
+                val className = service.className
+                if (className == downloadServiceClassName && runningService.foreground) {
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+        }
+        return false
     }
 }
