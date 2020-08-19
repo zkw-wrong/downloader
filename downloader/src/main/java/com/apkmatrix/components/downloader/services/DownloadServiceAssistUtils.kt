@@ -1,5 +1,6 @@
 package com.apkmatrix.components.downloader.services
 
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.webkit.URLUtil
@@ -23,9 +24,10 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * @author xiongke
  * @date 2019/1/23
  */
-internal class DownloadServiceAssistUtils(private val mContext1: Context, clazz: Class<*>) {
+internal class DownloadServiceAssistUtils(private val mService: Service, clazz: Class<*>) {
+    private val mContext1 by lazy { mService }
     private val logTag by lazy { clazz.simpleName }
-    private val notifyHelper by lazy { NotifyHelper(mContext1) }
+    private val notifyHelper by lazy { NotifyHelper(mService) }
     private val customDownloadListener4WithSpeed by lazy {
         CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
     }

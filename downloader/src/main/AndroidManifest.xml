@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:requestLegacyExternalStorage="true"
@@ -24,9 +23,6 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
-        <service android:name=".services.DownloadService14" />
-        <service
-            android:name=".services.DownloadService21"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service android:name=".services.DownloadService" />
     </application>
 </manifest>

@@ -3,6 +3,7 @@ package com.apkmatrix.components.downloader.utils
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -15,7 +16,8 @@ import com.apkmatrix.components.downloader.misc.TaskConfig
  * @author xiongke
  * @date 2019/2/21
  */
-internal class NotifyHelper(private val mContext1: Context) {
+internal class NotifyHelper(private val mService: Service) {
+    private val mContext1: Context = mService
     private val notificationChannelId by lazy { "Notification-Id" }
     private val notificationChannelName by lazy { "Notification-Name" }
     private val notificationManager by lazy { mContext1.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -56,7 +58,7 @@ internal class NotifyHelper(private val mContext1: Context) {
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
-            notificationManager.notify(downloadTask.notificationId, this.build())
+            mService.startForeground(downloadTask.notificationId, this.build())
         }
     }
 

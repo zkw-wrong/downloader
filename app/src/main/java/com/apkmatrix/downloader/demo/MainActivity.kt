@@ -143,7 +143,7 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
         FsUtils.deleteFileOrDir(FsUtils.getDefaultDownloadDir())
     }
 
-    private fun clickDownload() { 
+    private fun clickDownload() {
         mainScope.launch {
             DownloadManager.startNewTask(mContext, DownloadTask
                     .Builder()
@@ -153,7 +153,8 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
                     .setOverrideTaskFile(true)
                     .setHeaders(Extras(mutableMapOf()))
                     .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, mContext, MainActivity::class.java))
-                    .setNotificationTitle("QQ"))
+                    .setNotificationTitle("QQ")
+                    .setShowNotification(true))
         }
     }
 }
