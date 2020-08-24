@@ -80,7 +80,7 @@ class Converters {
     fun convertToEntityProperty5(databaseValue: String?): Intent? {
         return try {
             if (!databaseValue.isNullOrEmpty()) {
-                Intent.parseUri(databaseValue, 0)
+                Intent.getIntent(databaseValue)
             } else {
                 null
             }
