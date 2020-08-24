@@ -66,14 +66,10 @@ object CommonUtils {
     }
 
     fun startService(mContext: Context, intent: Intent) {
-        mContext.startService(intent)
-    }
-
-    private fun startForegroundService(mContext: Context, intent: Intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mContext.startForegroundService(intent)
-        } else {
+        try {
             mContext.startService(intent)
+        }catch (e:Exception){
+            e.printStackTrace()
         }
     }
 
