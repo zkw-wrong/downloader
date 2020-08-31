@@ -109,3 +109,33 @@ DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 下载权限需要实现BaseAppInterface接口 或者直接引用BaseAppActivityUi的包
 具体包再服务器上这里不作解释
 ```
+- 混淆
+```kotlin
+# Okio
+-dontwarn com.squareup.**
+-dontwarn okio.**
+-keep public class org.codehaus.* { *; }
+-keep public class java.nio.* { *; }
+
+# OkHttp3
+-dontwarn okhttp3.logging.**
+-keep class okhttp3.internal.**{*;}
+-dontwarn com.squareup.okhttp.**
+-keep class com.squareup.okhttp.** { *; }
+-dontwarn okio.**
+
+# Gson
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# okdownload
+-keep class com.liulishuo.okdownload.core.breakpoint.BreakpointStoreOnSQLite {
+    public com.liulishuo.okdownload.core.breakpoint.DownloadStore createRemitSelf();
+    public com.liulishuo.okdownload.core.breakpoint.BreakpointStoreOnSQLite(android.content.Context);
+}
+```
