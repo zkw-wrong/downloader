@@ -52,7 +52,7 @@ object DialogUtils {
         return true
     }
 
-    fun flowTipsDialog(mContext: Context, tipsSilent: Boolean): Boolean {
+    fun mobileNetworkDialog(mContext: Context, tipsSilent: Boolean): Boolean {
         return if (!tipsSilent && NetWorkUtils.isMobile(mContext)) {
             HtmlAlertDialogBuilder(mContext)
                     .setTitle(R.string.q_download_over_cellular)
