@@ -119,36 +119,36 @@ object DownloadManager {
         }
     }
 
-    fun stopTask(mContext: Context, id: String, silent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun stopTask(mContext: Context, id: String, permissionSilent: Boolean = false) {
+        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext, DownloadService::class.java, id))
     }
 
-    fun resumeTask(mContext: Context, id: String, silent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun resumeTask(mContext: Context, id: String, permissionSilent: Boolean = false) {
+        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext, DownloadService::class.java, id))
     }
 
-    fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean = true, silent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean = true, permissionSilent: Boolean = false) {
+        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadService::class.java, ids, isDeleteFile))
     }
 
-    fun deleteAllTask(mContext: Context, silent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun deleteAllTask(mContext: Context, permissionSilent: Boolean = false) {
+        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext, DownloadService::class.java))
     }
 
-    fun renameTaskFile(mContext: Context, id: String, fileName: String, silent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, silent)) {
+    fun renameTaskFile(mContext: Context, id: String, fileName: String, permissionSilent: Boolean = false) {
+        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext, DownloadService::class.java, id, fileName))
