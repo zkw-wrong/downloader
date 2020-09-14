@@ -9,7 +9,6 @@ import android.provider.Settings
 import com.apkmatrix.components.dialog.AlertDialogBuilder
 import com.apkmatrix.components.dialog.HtmlAlertDialogBuilder
 import com.apkmatrix.components.downloader.R
-import java.io.File
 
 /**
  * author: mr.xiong
@@ -18,9 +17,8 @@ import java.io.File
 object DialogUtils {
 
     fun checkWriteExternalStorage(mContext: Context, silent: Boolean): Boolean {
-        val externalStorageState: String = Environment.getExternalStorageState()
-        val externalStorageDirectory: File = Environment.getExternalStorageDirectory()
-        if (Environment.MEDIA_MOUNTED != externalStorageState) {
+        val isSdUsable = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+        if (!isSdUsable) {
             if (!silent) {
                 HtmlAlertDialogBuilder(mContext)
                         .setMessage(mContext.getString(R.string.q_external_storage_not_usable))
@@ -29,8 +27,7 @@ object DialogUtils {
             }
             return false
         }
-        if (!externalStorageDirectory.canWrite() || !CommonUtils.checkSelfPermission(mContext,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (!CommonUtils.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (!silent) {
                 HtmlAlertDialogBuilder(mContext)
                         .setMessage(mContext.getString(R.string.q_external_storage_permission_denied))

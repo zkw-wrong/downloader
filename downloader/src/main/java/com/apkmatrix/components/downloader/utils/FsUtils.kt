@@ -2,10 +2,7 @@ package com.apkmatrix.components.downloader.utils
 
 import android.os.Environment
 import android.text.TextUtils
-import androidx.annotation.WorkerThread
 import java.io.File
-import java.io.FileFilter
-import java.util.*
 
 /**
  * @author Xiong Ke
@@ -72,50 +69,6 @@ object FsUtils {
         } else {
             null
         }
-    }
-
-    //获取文件夹下所有的文件
-    @WorkerThread
-    fun getDirFilesArray(file: File?, fileFilter: FileFilter? = null): ArrayList<File> {
-        val listFile = ArrayList<File>()
-        file?.apply {
-            if (this.isFile) {
-                if (fileFilter != null) {
-                    if (fileFilter.accept(this)) {
-                        listFile.add(this)
-                    }
-                } else {
-                    listFile.add(this)
-                }
-            } else if (this.isDirectory) {
-                this.listFiles()?.forEach {
-                    listFile.addAll(getDirFilesArray(it, fileFilter))
-                }
-            }
-        }
-        return listFile
-    }
-
-    fun getFileOrDirLength(filePath: String?): Long {
-        return if (!TextUtils.isEmpty(filePath)) {
-            this.getFileOrDirLength(File(filePath))
-        } else {
-            0L
-        }
-    }
-
-    fun getFileOrDirLength(dirFile: File?): Long {
-        var length = 0L
-        if (dirFile != null && exists(dirFile)) {
-            if (dirFile.isFile) {
-                length += dirFile.length()
-            } else if (dirFile.isDirectory) {
-                getDirFilesArray(dirFile).forEach {
-                    length += getFileOrDirLength(it)
-                }
-            }
-        }
-        return length
     }
 
     fun getDefaultDownloadDir() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
