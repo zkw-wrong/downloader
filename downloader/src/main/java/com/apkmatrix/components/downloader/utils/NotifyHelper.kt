@@ -70,7 +70,7 @@ internal class NotifyHelper(private val mService: Service) {
     fun hintDownloadCompleteNotify(downloadTask: DownloadTask) {
         downloadCompatNotification = downloadCompatNotification
                 ?: NotificationCompat.Builder(mContext1, notificationChannelId)
-                        .setSmallIcon(R.drawable.ic_apk_status_complete)
+                        .setSmallIcon(R.drawable.download_status_success)
                         .setContentTitle(mContext1.getString(R.string.q_download_complete))
                         .setOngoing(false)
                         .setAutoCancel(true)
