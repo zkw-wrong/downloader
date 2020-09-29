@@ -252,14 +252,14 @@ internal class DownloadServiceAssistUtils(private val mService: Service, clazz: 
     }
 
     private fun initialData(initDataCallBack: InitDataCallBack) {
-        try {
-            GlobalScope.launch(Dispatchers.Main) {
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
                 val initTask = withContext(Dispatchers.IO) { AppDbHelper.queryInitDownloadTask() }
                 initDataCallBack.success(initTask.allTasks)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                initDataCallBack.failed()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            initDataCallBack.failed()
         }
     }
 
