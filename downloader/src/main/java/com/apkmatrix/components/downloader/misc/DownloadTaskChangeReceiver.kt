@@ -12,10 +12,10 @@ import com.apkmatrix.components.downloader.utils.CommonUtils.unregister
  * @author xiongke
  * @date 2018/11/19
  */
-class DownloadTaskChangeLister {
+class DownloadTaskChangeReceiver {
     companion object {
-        private val Action_Change = DownloadTaskChangeLister::class.java.simpleName + ".change"
-        private const val PARAM_DATA = "PARAM_DATA"
+        private val Action_Change = DownloadTaskChangeReceiver::class.java.simpleName + ".change"
+        private const val PARAM_DATA = "params_data"
         fun sendChangeBroadcast(mContext: Context, downloadTask: DownloadTask) {
             val intent = Intent(Action_Change)
             intent.putExtra(PARAM_DATA, downloadTask)

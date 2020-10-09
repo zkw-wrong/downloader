@@ -1,7 +1,10 @@
 package com.apkmatrix.components.downloader.utils
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -57,7 +60,8 @@ internal class NotifyHelper(private val mService: Service) {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            this.setProgress(downloadTask.totalLength.toInt(), downloadTask.currentOffset.toInt(), false)
+            val progress = CommonUtils.formatPercent(downloadTask.currentOffset, downloadTask.totalLength)
+            this.setProgress(100, progress, false)
             if (!CommonUtils.isServiceForegroundRunning(mContext)) {
                 foregroundNotifyId = downloadTask.notificationId
                 mService.startForeground(foregroundNotifyId, this.build())

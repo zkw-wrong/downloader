@@ -11,7 +11,7 @@ import java.io.File
 
 object FsUtils {
 
-    private val isSdUsable: Boolean
+    val isSdUsable: Boolean
         get() = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
 
     fun getStorageDir(): File? {

@@ -25,7 +25,7 @@ DownloadManager.initial(this, OkHttpClient.Builder()
 - 注册监听
 ```
 //下载回调监听
-DownloadTaskChangeLister.Receiver(this,
+DownloadTaskChangeReceiver.Receiver(this,
             object : DownloadTaskChangeLister.Listener {
                 override fun onChange(downloadTaskBean1: DownloadTaskBean) {
                     val info = when (downloadTaskBean1.downloadTaskStatusType) {
@@ -58,7 +58,7 @@ DownloadTaskChangeLister.Receiver(this,
             })
 
 //下载任务单个删除，全部删除，重命名，下载文件回调
-DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
+DownloadTaskFileChangeReceiver.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
         override fun delete(isSuccess: Boolean, downloadTask: ArrayList<DownloadTaskBean>?) {
             Log.d(LOG_TAG, "delete isSuccess $isSuccess size ${downloadTask?.size}")
         }
