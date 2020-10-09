@@ -5,8 +5,15 @@ stages:
 
 before_script:
   - date
-  - echo >> gradle.properties
+  - echo "systemProp.http.proxyHost=172.16.8.8" >> gradle.properties
+  - echo "systemProp.http.proxyPort=31801" >> gradle.properties
+  #- echo "systemProp.http.proxyUser=v2ray" >> gradle.properties
+  - echo "systemProp.http.nonProxyHosts=*.nonproxyrepos.com|localhost" >> gradle.properties
 
+  - echo "systemProp.https.proxyHost=172.16.8.8" >> gradle.properties
+  - echo "systemProp.https.proxyPort=31801" >> gradle.properties
+  #- echo "systemProp.https.proxyUser=v2ray" >> gradle.properties
+  - echo "systemProp.https.nonProxyHosts=*.nonproxyrepos.com|localhost" >> gradle.properties
   - cat gradle.properties
 
 after_script:
