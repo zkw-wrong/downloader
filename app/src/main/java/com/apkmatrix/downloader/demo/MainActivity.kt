@@ -12,8 +12,8 @@ import com.apkmatrix.components.downloader.DownloadManager
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.db.Extras
 import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
-import com.apkmatrix.components.downloader.misc.DownloadTaskChangeLister
-import com.apkmatrix.components.downloader.misc.DownloadTaskFileChangeLister
+import com.apkmatrix.components.downloader.misc.DownloadTaskChangeReceiver
+import com.apkmatrix.components.downloader.misc.DownloadTaskFileReceiver
 import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
 import kotlinx.coroutines.*
@@ -67,7 +67,7 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
             }
             deleteTaskBt -> {
                 downloadTask?.let {
-                    DownloadManager.deleteTask(this, arrayListOf(it.id), true)
+                    DownloadManager.deleteTask(this, it.id, true)
                 }
             }
             renameTaskBt -> {
@@ -90,8 +90,8 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
         mainScope.cancel()
     }
 
-    private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeLister.Receiver(this,
-            object : DownloadTaskChangeLister.Listener {
+    private fun getDownloadTaskChangeReceiver2() = DownloadTaskChangeReceiver.Receiver(this,
+            object : DownloadTaskChangeReceiver.Listener {
                 override fun onChange(task: DownloadTask) {
                     downloadTask = task
                     val info = when (task.downloadTaskStatus) {
@@ -129,13 +129,13 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
             })
 
     //这个删除监听指的从应用里面删除才能收到消息
-    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileChangeLister.Receiver(this, object : DownloadTaskFileChangeLister.Listener {
-        override fun delete(isSuccess: Boolean, downloadTaskList: ArrayList<DownloadTask>?) {
-            Log.d(LOG_TAG, "delete isSuccess $isSuccess size ${downloadTaskList?.size}")
+    private fun getDeleteTaskDeleteReceiver2() = DownloadTaskFileReceiver.Receiver(this, object : DownloadTaskFileReceiver.Listener {
+        override fun delete(isSuccess: Boolean, downloadTask: DownloadTask?) {
+            Log.d(LOG_TAG, "delete isSuccess $isSuccess ${downloadTask?.notificationId} ${downloadTask?.notificationTitle}")
         }
 
         override fun rename(isSuccess: Boolean, downloadTask: DownloadTask?) {
-            Log.d(LOG_TAG, "rename isSuccess $isSuccess")
+            Log.d(LOG_TAG, "rename isSuccess $isSuccess ${downloadTask?.notificationId} ${downloadTask?.notificationTitle}")
         }
     })
 

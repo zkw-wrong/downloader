@@ -11,16 +11,16 @@ import com.apkmatrix.components.downloader.utils.CommonUtils
  * @author xiongke
  * @date 2018/11/19
  */
-class DownloadTaskFileChangeLister {
+class DownloadTaskFileReceiver {
     companion object {
-        private val ActionDelete = DownloadTaskFileChangeLister::class.java.name + ".delete"
-        private val ActionRename = DownloadTaskFileChangeLister::class.java.name + ".file_rename"
+        private val ActionDelete = DownloadTaskFileReceiver::class.java.name + ".delete"
+        private val ActionRename = DownloadTaskFileReceiver::class.java.name + ".file_rename"
         private const val paramsData = "params_data"
         private const val paramsIsSuccess = "is_success"
 
-        fun sendDeleteBroadcast(mContext: Context, downloadTaskBeanList: ArrayList<DownloadTask>?, isSuccess: Boolean) {
+        fun sendDeleteBroadcast(mContext: Context, downloadTask: DownloadTask?, isSuccess: Boolean) {
             val intent = Intent(ActionDelete)
-            intent.putParcelableArrayListExtra(paramsData, downloadTaskBeanList)
+            intent.putExtra(paramsData, downloadTask)
             intent.putExtra(paramsIsSuccess, isSuccess)
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent)
         }
@@ -34,7 +34,7 @@ class DownloadTaskFileChangeLister {
     }
 
     interface Listener {
-        fun delete(isSuccess: Boolean, downloadTaskList: ArrayList<DownloadTask>?)
+        fun delete(isSuccess: Boolean, downloadTask: DownloadTask?)
 
         fun rename(isSuccess: Boolean, downloadTask: DownloadTask?)
     }
@@ -44,7 +44,7 @@ class DownloadTaskFileChangeLister {
             try {
                 when (intent.action) {
                     ActionDelete -> {
-                        val downloadTask = intent.getParcelableArrayListExtra<DownloadTask>(paramsData)
+                        val downloadTask = intent.getParcelableExtra<DownloadTask>(paramsData)
                         val isSuccess = intent.getBooleanExtra(paramsIsSuccess, false)
                         listener.delete(isSuccess, downloadTask)
                     }

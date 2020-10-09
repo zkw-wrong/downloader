@@ -7,10 +7,7 @@ import androidx.annotation.IntRange
 import com.apkmatrix.components.appbaseinterface.BaseAppInterface
 import com.apkmatrix.components.downloader.db.DownloadDatabase
 import com.apkmatrix.components.downloader.db.DownloadTask
-import com.apkmatrix.components.downloader.misc.DownloadServiceInitCallback
-import com.apkmatrix.components.downloader.misc.DownloadTaskUpdateDataCallback
-import com.apkmatrix.components.downloader.misc.TaskConfig
-import com.apkmatrix.components.downloader.misc.TaskManager
+import com.apkmatrix.components.downloader.misc.*
 import com.apkmatrix.components.downloader.services.DownloadService
 import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
 import com.apkmatrix.components.downloader.utils.ActivityManager
@@ -62,21 +59,16 @@ object DownloadManager {
     }
 
     fun getDownloadTasks() = mutableListOf<DownloadTask>().apply {
-        addAll(DownloadServiceAssistUtils.downloadTaskLists)
+        addAll(DownloadDataManager.instance.getAll())
     }
 
     fun getDownloadTask(taskId: String): DownloadTask? {
-        DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach {
-            if (it.id == taskId) {
-                return it
-            }
-        }
-        return null
+        return DownloadDataManager.instance.findDownloadTask(taskId)
     }
 
     fun getDownloadTask(okDownloadTask: OkDownloadTask): DownloadTask? {
         TaskManager.instance.getOkDownloadTaskId(okDownloadTask)?.let { it1 ->
-            DownloadServiceAssistUtils.downloadTaskLists.iterator().forEach { it2 ->
+            DownloadDataManager.instance.getAll().iterator().forEach { it2 ->
                 if (it1 == it2.id) {
                     return it2
                 }
@@ -133,11 +125,11 @@ object DownloadManager {
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext, DownloadService::class.java, id))
     }
 
-    fun deleteTask(mContext: Context, ids: ArrayList<String>, isDeleteFile: Boolean = true, permissionSilent: Boolean = false) {
+    fun deleteTask(mContext: Context, id: String, isDeleteFile: Boolean = true, permissionSilent: Boolean = false) {
         if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
             return
         }
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadService::class.java, ids, isDeleteFile))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadService::class.java, id, isDeleteFile))
     }
 
     fun deleteAllTask(mContext: Context, permissionSilent: Boolean = false) {

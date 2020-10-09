@@ -46,13 +46,20 @@ object CommonUtils {
     }
 
     fun formatPercent(progress: Long, count: Long): Int {
-        return (progress * 1f / count * 100f).toInt()
+        return if (count > 0 && progress <= count) {
+            (progress * 1f / count * 100f).toInt()
+        } else {
+            0
+        }
     }
 
     fun formatPercentInfo(progress: Long, count: Long): String {
-        return DecimalFormat("##%").format(progress.toDouble() / count.toDouble())
+        return if (count > 0 && progress <= count) {
+            DecimalFormat("##%").format(progress.toDouble() / count.toDouble())
+        } else {
+            "0%"
+        }
     }
-
     fun downloadStateNotificationInfo(mContext: Context, downloadTask: DownloadTask): String {
         return when (downloadTask.downloadTaskStatus) {
             DownloadTaskStatus.Waiting -> mContext.getString(R.string.q_waiting)
