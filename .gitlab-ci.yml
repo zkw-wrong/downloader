@@ -1,20 +1,19 @@
-image: apk.302e.com:3000/docker/android:29.0.2
+image: apk.302e.com:3000/docker/android:29.0.3
 
 stages:
   - build
 
 before_script:
   - date
-  - echo "systemProp.http.proxyHost=192.168.0.18" >> gradle.properties
-  - echo "systemProp.http.proxyPort=10081" >> gradle.properties
-  #  - echo "systemProp.http.proxyUser=jp01" >> gradle.properties
+  - echo "systemProp.http.proxyHost=172.16.8.8" >> gradle.properties
+  - echo "systemProp.http.proxyPort=31801" >> gradle.properties
+  #- echo "systemProp.http.proxyUser=v2ray" >> gradle.properties
   - echo "systemProp.http.nonProxyHosts=*.nonproxyrepos.com|localhost" >> gradle.properties
 
-  - echo "systemProp.https.proxyHost=192.168.0.18" >> gradle.properties
-  - echo "systemProp.https.proxyPort=10081" >> gradle.properties
-  #  - echo "systemProp.https.proxyUser=jp01" >> gradle.properties
+  - echo "systemProp.https.proxyHost=172.16.8.8" >> gradle.properties
+  - echo "systemProp.https.proxyPort=31801" >> gradle.properties
+  #- echo "systemProp.https.proxyUser=v2ray" >> gradle.properties
   - echo "systemProp.https.nonProxyHosts=*.nonproxyrepos.com|localhost" >> gradle.properties
-
   - cat gradle.properties
 
 after_script:
