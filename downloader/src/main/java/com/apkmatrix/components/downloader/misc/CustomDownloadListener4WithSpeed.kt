@@ -63,6 +63,7 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
                     retryCount += 1
                     task.addTag(TaskManager.retryTagKey, retryCount)
                     if (retryCount > TaskConfig.failedRetryCount) {
+                        task.addTag(TaskManager.retryTagKey, 0)
                         taskListener?.onError(downloadTask, task, DownloadTaskStatus.Failed)
                     } else {
                         task.enqueue(this)
@@ -92,7 +93,6 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         if (task.tag == DownloadTaskActionTag.DELETE) {
             return
         }
-        task.addTag(TaskManager.retryTagKey, 0)
         taskListener?.onInfoReady(DownloadManager.getDownloadTask(task), task, DownloadTaskStatus.Preparing, info.totalLength)
     }
 
