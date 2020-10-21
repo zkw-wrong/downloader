@@ -149,11 +149,16 @@ internal class NotifyHelper(private val mService: Service) {
     }
 
     fun cancel(notifyId: Int) {
-        if (notifyId == foregroundNotifyId) {
-            mService.stopForeground(true)
-            foregroundNotifyId = 0
+        GlobalScope.launch {
+            if (notifyId == foregroundNotifyId) {
+                mService.stopForeground(true)
+                foregroundNotifyId = 0
+                withContext(Dispatchers.IO) {
+                    delay(timeMillisForeground)
+                }
+            }
+            notificationManager.cancel(notifyId)
         }
-        notificationManager.cancel(notifyId)
     }
 
     private fun getNotificationContentIntent(intent: Intent): PendingIntent {

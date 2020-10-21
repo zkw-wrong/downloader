@@ -31,6 +31,7 @@ class DownloadService : Service() {
     }
 
     override fun onDestroy() {
+        getDownloadServiceAssistUtils()?.destroy()
         super.onDestroy()
         Logger.d(logTag, "onDestroy")
     }

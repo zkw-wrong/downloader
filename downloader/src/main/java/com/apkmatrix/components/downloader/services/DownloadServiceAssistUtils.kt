@@ -470,4 +470,8 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             e.printStackTrace()
         }
     }
+
+    fun destroy() {
+        notifyHelper.destroy()
+    }
 }
