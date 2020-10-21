@@ -11,10 +11,7 @@ import com.apkmatrix.components.downloader.utils.Logger
  */
 class DownloadService : Service() {
     private val logTag: String by lazy { javaClass.simpleName }
-    private val downloadServiceAssistUtils by lazy {
-        DownloadServiceAssistUtils(mContext, DownloadService::class.java)
-    }
-    private val mContext by lazy { this }
+    private var downloadServiceAssistUtils: DownloadServiceAssistUtils? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -28,7 +25,7 @@ class DownloadService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Logger.d(logTag, "onStartCommand ${intent?.action}")
         intent?.let {
-            downloadServiceAssistUtils.handlerIntent(it)
+            getDownloadServiceAssistUtils()?.handlerIntent(it)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -36,5 +33,12 @@ class DownloadService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Logger.d(logTag, "onDestroy")
+    }
+
+    private fun getDownloadServiceAssistUtils(): DownloadServiceAssistUtils? {
+        if (downloadServiceAssistUtils == null) {
+            downloadServiceAssistUtils = DownloadServiceAssistUtils(this)
+        }
+        return downloadServiceAssistUtils
     }
 }

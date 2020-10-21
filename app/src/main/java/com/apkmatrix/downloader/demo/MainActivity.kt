@@ -18,6 +18,7 @@ import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
 import kotlinx.coroutines.*
 
+
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 class MainActivity : AppBaseActivity(), View.OnClickListener {
     private lateinit var mContext: Context
@@ -71,9 +72,10 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
                 }
             }
             renameTaskBt -> {
-                downloadTask?.let {
+               /* downloadTask?.let {
                     DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
-                }
+                }*/
+                DownloadManager.renameTaskFile(this, "123", "new_file.apk")
             }
             pauseBt -> {
                 downloadTask?.let {
@@ -145,11 +147,12 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
 
     private fun clickDownload() {
         mainScope.launch {
+            val fileName = "QQ.apk"
             DownloadManager.startNewTask(mContext, DownloadTask
                     .Builder()
                     .setUrl(apkUrl3)
                     .setExtras(Extras(mutableMapOf(Pair("qwe", "123"))))
-                    .setFileName("QQ.apk")
+                    .setFileName(fileName)
                     .setOverrideTaskFile(false)
                     .setHeaders(Extras(mutableMapOf()))
                     .setNotificationIntent(Intent(Intent.ACTION_VIEW, Uri.EMPTY, mContext, MainActivity::class.java))

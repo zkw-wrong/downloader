@@ -47,22 +47,18 @@ internal class ActivityManager private constructor() {
         }
 
     private inner class MyActivityLifecycleCallbacks : Application.ActivityLifecycleCallbacks {
-        override fun onActivityResumed(activity: Activity?) = Unit
-        override fun onActivityPaused(activity: Activity?) = Unit
-        override fun onActivitySaveInstanceState(activity: Activity?, bundle: Bundle?) = Unit
-        override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) = Unit
-        override fun onActivityDestroyed(activity: Activity?)  = Unit
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+        override fun onActivityResumed(activity: Activity) = Unit
+        override fun onActivityPaused(activity: Activity) = Unit
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+        override fun onActivityDestroyed(activity: Activity) = Unit
 
-        override fun onActivityStarted(activity: Activity?) {
-            activity?.let {
-                activeActivityStacks.add(it)
-            }
+        override fun onActivityStarted(activity: Activity) {
+            activeActivityStacks.add(activity)
         }
 
-        override fun onActivityStopped(activity: Activity?) {
-            activity?.let {
-                activeActivityStacks.remove(it)
-            }
+        override fun onActivityStopped(activity: Activity) {
+            activeActivityStacks.remove(activity)
         }
     }
 

@@ -5,10 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
-import androidx.annotation.CheckResult
-import androidx.core.content.ContextCompat
+import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.DownloadTask
@@ -16,7 +16,7 @@ import com.apkmatrix.components.downloader.db.enums.DownloadTaskStatus
 import com.apkmatrix.components.downloader.services.DownloadService
 import java.io.File
 import java.text.DecimalFormat
-import java.util.ArrayList
+import java.util.*
 
 /**
  * author: mr.xiong
@@ -60,6 +60,7 @@ object CommonUtils {
             "0%"
         }
     }
+
     fun downloadStateNotificationInfo(mContext: Context, downloadTask: DownloadTask): String {
         return when (downloadTask.downloadTaskStatus) {
             DownloadTaskStatus.Waiting -> mContext.getString(R.string.q_waiting)
@@ -75,7 +76,7 @@ object CommonUtils {
     fun startService(mContext: Context, intent: Intent) {
         try {
             mContext.startService(intent)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
@@ -100,9 +101,20 @@ object CommonUtils {
         }
     }
 
-    @CheckResult
-    fun checkSelfPermission(mContext: Context, permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(mContext, permission) == PackageManager.PERMISSION_GRANTED
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun getSettingAllFilesPermission(mContext: Context): Intent {
+        return Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+            this.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            this.data = Uri.parse("package:${mContext.packageName}")
+        }
+    }
+
+    fun getDetailSetting(mContext: Context): Intent {
+        return Intent().apply {
+            this.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            this.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            this.data = Uri.parse("package:${mContext.packageName}")
+        }
     }
 
     internal fun isServiceForegroundRunning(mContext: Context): Boolean {

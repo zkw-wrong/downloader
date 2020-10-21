@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.misc.TaskConfig
+import kotlinx.coroutines.*
 
 /**
  * @author xiongke
@@ -19,7 +20,6 @@ import com.apkmatrix.components.downloader.misc.TaskConfig
  */
 internal class NotifyHelper(private val mService: Service) {
     private val mContext1: Context = mService
-    private var foregroundNotifyId = 0
     private val notificationChannelId by lazy { "Notification-Id" }
     private val notificationChannelName by lazy { "Notification-Name" }
     private val notificationManager by lazy { mContext1.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -38,6 +38,17 @@ internal class NotifyHelper(private val mService: Service) {
                 notificationManager.createNotificationChannel(this)
             }
         }
+    }
+
+    companion object {
+        private const val timeMillisForeground = 250L
+        var foregroundNotifyId = 0
+    }
+
+    fun init() {
+        foregroundNotifyId = 0
+        mService.stopForeground(true)
+        notificationManager.cancel(foregroundNotifyId)
     }
 
     @SuppressLint("RestrictedApi")
@@ -62,11 +73,12 @@ internal class NotifyHelper(private val mService: Service) {
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
             val progress = CommonUtils.formatPercent(downloadTask.currentOffset, downloadTask.totalLength)
             this.setProgress(100, progress, false)
-            if (!CommonUtils.isServiceForegroundRunning(mContext)) {
+            val build = this.build()
+            if (foregroundNotifyId == 0 && !CommonUtils.isServiceForegroundRunning(mContext)) {
                 foregroundNotifyId = downloadTask.notificationId
-                mService.startForeground(foregroundNotifyId, this.build())
+                mService.startForeground(foregroundNotifyId, build)
             } else {
-                notificationManager.notify(downloadTask.notificationId, this.build())
+                notificationManager.notify(downloadTask.notificationId, build)
             }
         }
     }
@@ -93,8 +105,14 @@ internal class NotifyHelper(private val mService: Service) {
                 mService.stopForeground(true)
                 foregroundNotifyId = 0
             }
-            notificationManager.cancel(downloadTask.notificationId)
-            notificationManager.notify(downloadTask.notificationId, this.build())
+            val build = this.build()
+            GlobalScope.launch {
+                withContext(Dispatchers.IO) {
+                    delay(timeMillisForeground)
+                }
+                notificationManager.cancel(downloadTask.notificationId)
+                notificationManager.notify(downloadTask.notificationId, build)
+            }
         }
     }
 
@@ -119,8 +137,14 @@ internal class NotifyHelper(private val mService: Service) {
                 mService.stopForeground(true)
                 foregroundNotifyId = 0
             }
-            notificationManager.cancel(downloadTask.notificationId)
-            notificationManager.notify(downloadTask.notificationId, this.build())
+            val build = this.build()
+            GlobalScope.launch {
+                withContext(Dispatchers.IO) {
+                    delay(timeMillisForeground)
+                }
+                notificationManager.cancel(downloadTask.notificationId)
+                notificationManager.notify(downloadTask.notificationId, build)
+            }
         }
     }
 
@@ -134,5 +158,11 @@ internal class NotifyHelper(private val mService: Service) {
 
     private fun getNotificationContentIntent(intent: Intent): PendingIntent {
         return PendingIntent.getActivity(mContext1, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    fun destroy() {
+        foregroundNotifyId = 0
+        mService.stopForeground(true)
+        notificationManager.cancelAll()
     }
 }
