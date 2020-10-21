@@ -72,10 +72,9 @@ class MainActivity : AppBaseActivity(), View.OnClickListener {
                 }
             }
             renameTaskBt -> {
-               /* downloadTask?.let {
+                downloadTask?.let {
                     DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
-                }*/
-                DownloadManager.renameTaskFile(this, "123", "new_file.apk")
+                }
             }
             pauseBt -> {
                 downloadTask?.let {
