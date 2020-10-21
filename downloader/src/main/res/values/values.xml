@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <color name="base_dialog_message_color">#CC000000</color>
+    <dimen name="base_dialog_massage_size">16px</dimen>
     <string name="q_download_complete">Download completed</string>
     <string name="q_waiting">Waiting&#8230;</string>
     <string name="q_preparing">preparing&#8230;</string>
@@ -10,12 +12,16 @@
     <string name="q_downloading">Downloading&#8230;</string>
     <string name="q_setting">Setting</string>
     <string name="q_external_storage_not_usable">
-        <![CDATA[<big><b>We need to access your external storage. Please make sure it\'s usable.</b></big>]]>
+        We need to access your external storage. Please make sure it\'s usable.
     </string>
     <string name="q_external_storage_permission_denied">
-        <![CDATA[<big><b>We need to access your external storage. Please make sure the permission is granted.</b></big>]]>
+        We need to access your external storage. Please make sure the permission is granted.
     </string>
+    <string name="q_hint">Notification</string>
     <string name="q_download_service_notify">Download service notify</string>
     <string name="q_download_over_cellular">Download over Cellular</string>
     <string name="q_download_over_cellular_content">You are about to download over your cellular network. Continue?</string>
+    <string name="base_dialog_get_all_file_access_allow">ALLOW</string>
+    <string name="base_dialog_get_all_file_access_content">We needs All files access to use this feature.</string>
+    <string name="base_dialog_get_all_file_access_title">Requesting permission</string>
 </resources>

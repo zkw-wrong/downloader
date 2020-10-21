@@ -94,53 +94,69 @@ object DownloadManager {
         }
     }
 
-    fun isCheckDownload(mContext: Context, permissionSilent: Boolean, mobileNetworkSilent: Boolean): Boolean {
-        return DialogUtils.mobileNetworkDialog(mContext, mobileNetworkSilent)
-                && DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)
-    }
-
     suspend fun startNewTask(mContext: Context, builder: DownloadTask.Builder,
                              permissionSilent: Boolean = false,
                              mobileNetworkSilent: Boolean = false) {
         withContext(Dispatchers.Main) {
-            tryRequestStoragePermission()
-            if (isCheckDownload(mContext, permissionSilent, mobileNetworkSilent)) {
-                CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext,
-                        DownloadService::class.java, builder.build()))
+            if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
+                return@withContext
             }
+            if (!tryRequestStoragePermission()) {
+                return@withContext
+            }
+            if (!DialogUtils.mobileNetworkDialog(mContext, mobileNetworkSilent)) {
+                return@withContext
+            }
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext,
+                    DownloadService::class.java, builder.build()))
         }
     }
 
     fun stopTask(mContext: Context, id: String, permissionSilent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+        if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
+            return
+        }
+        if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext, DownloadService::class.java, id))
     }
 
     fun resumeTask(mContext: Context, id: String, permissionSilent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+        if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
+            return
+        }
+        if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext, DownloadService::class.java, id))
     }
 
     fun deleteTask(mContext: Context, id: String, isDeleteFile: Boolean = true, permissionSilent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+        if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
+            return
+        }
+        if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadService::class.java, id, isDeleteFile))
     }
 
     fun deleteAllTask(mContext: Context, permissionSilent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+        if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
+            return
+        }
+        if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext, DownloadService::class.java))
     }
 
     fun renameTaskFile(mContext: Context, id: String, fileName: String, permissionSilent: Boolean = false) {
-        if (!DialogUtils.checkWriteExternalStorage(mContext, permissionSilent)) {
+        if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
+            return
+        }
+        if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext, DownloadService::class.java, id, fileName))

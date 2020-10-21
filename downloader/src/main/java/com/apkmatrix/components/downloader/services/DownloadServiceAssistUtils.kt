@@ -24,9 +24,9 @@ import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
  * @author xiongke
  * @date 2019/1/23
  */
-internal class DownloadServiceAssistUtils(private val mService: Service, clazz: Class<*>) {
+internal class DownloadServiceAssistUtils(private val mService: Service) {
     private val mContext1 by lazy { mService }
-    private val logTag by lazy { clazz.simpleName }
+    private val logTag by lazy { mService.javaClass.simpleName }
     private val notifyHelper by lazy { NotifyHelper(mService) }
     private val customDownloadListener4WithSpeed by lazy {
         CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
@@ -119,7 +119,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service, clazz: 
                     this.totalLength = 0
                 }
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onStart ${this.id} ${this.notificationTitle}")
+                Logger.d(logTag, "onStart ${this.id} ${this.notificationTitle} ${this.absolutePath}")
             }
         }
 
@@ -129,7 +129,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service, clazz: 
                 this.totalLength = totalLength
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onInfoReady ${this.id} ${this.notificationTitle}")
+                Logger.d(logTag, "onInfoReady ${this.id} ${this.notificationTitle} ${this.absolutePath}")
             }
         }
 
@@ -157,7 +157,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service, clazz: 
                 this.downloadTaskStatus = downloadTaskStatus
                 this.taskSpeed = String()
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onSuccess ${this.id} ${this.notificationTitle}")
+                Logger.d(logTag, "onSuccess ${this.id} ${this.notificationTitle} ${this.absolutePath}")
             }
         }
 
@@ -179,6 +179,9 @@ internal class DownloadServiceAssistUtils(private val mService: Service, clazz: 
 
     private fun initialService() {
         isInitDownloadServiceCompat = false
+        DownloadDataManager.instance.clear()
+        DownloadDataManager.instance.clear()
+        notifyHelper.init()
         TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
         initialData(object : InitDataCallBack {
             override fun success(list: List<DownloadTask>) {
@@ -186,7 +189,6 @@ internal class DownloadServiceAssistUtils(private val mService: Service, clazz: 
                 list.forEach {
                     notifyHelper.cancel(it.notificationId)
                 }
-                DownloadDataManager.instance.clear()
                 DownloadDataManager.instance.addAll(list)
                 DownloadManager.downloadServiceInitCallback?.loadCompat()
                 Logger.d(logTag, "initialService task size: ${ DownloadDataManager.instance.size()}")

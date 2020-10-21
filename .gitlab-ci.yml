@@ -5,7 +5,6 @@ stages:
 
 before_script:
   - date
- 
   - cat gradle.properties
 
 after_script:
@@ -23,18 +22,3 @@ build-release:
     paths:
       - "outputs"
     expire_in: 3 month
-
-build-snapshot:
-  stage: build
-  script:
-    - echo >> downloader/gradle.properties
-    - echo "VERSION_SUFFIX=SNAPSHOT" >> downloader/gradle.properties
-    - cat downloader/gradle.properties
-    - ./gradlew :downloader:uploadArchives
-  only:
-    - master
-  artifacts:
-    name: "components_download_snapshot_${CI_JOB_ID}"
-    paths:
-      - "outputs"
-    expire_in: 2 weeks
