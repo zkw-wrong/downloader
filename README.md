@@ -102,6 +102,7 @@ DownloadManager.renameTaskFile(this, it.id, "new_file.apk")
 8.里面写了2个Service适配Android 8.0+系统
 9.log日志默认是关闭的 打replace包请关闭
 10.通知的intent中不可携带参数
+11.targetSdkVersion<=29 不支持Android 11
 ```
 - 权限
 ```kotlin
