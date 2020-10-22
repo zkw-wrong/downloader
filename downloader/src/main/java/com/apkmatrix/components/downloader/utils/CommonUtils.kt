@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
-import androidx.annotation.RequiresApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.DownloadTask
@@ -98,14 +96,6 @@ object CommonUtils {
             }
         } else {
             defaultFile
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun getSettingAllFilesPermission(mContext: Context): Intent {
-        return Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-            this.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            this.data = Uri.parse("package:${mContext.packageName}")
         }
     }
 
