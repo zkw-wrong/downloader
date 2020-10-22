@@ -3,8 +3,6 @@ package com.apkmatrix.components.downloader.utils
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Environment
 import androidx.core.content.ContextCompat
 import com.apkmatrix.components.dialog.AlertDialogBuilder
 import com.apkmatrix.components.dialog.HtmlAlertDialogBuilder
@@ -29,44 +27,25 @@ object DialogUtils {
     }
 
     private fun checkSelfStoragePermission(mContext: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED
-        }
+        return ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
     }
 
     fun checkExternalStorageUsable(mContext: Context, silent: Boolean): Boolean {
         if (!checkSelfStoragePermission(mContext)) {
             if (!silent) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    HtmlAlertDialogBuilder(mContext)
-                            .setTitle(mContext.getString(R.string.q_hint))
-                            .setMessage(mContext.getString(R.string.base_dialog_get_all_file_access_content))
-                            .setMessageTextViewSize(mContext.resources.getDimension(R.dimen.base_dialog_massage_size))
-                            .setMessageTextViewColor(R.color.base_dialog_message_color)
-                            .setPositiveButton(R.string.q_setting) { _, _ ->
-                                mContext.startActivity(CommonUtils.getSettingAllFilesPermission(mContext))
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .setCancelable(true)
-                            .setCanceledOnTouchOutside(true)
-                            .show()
-                } else {
-                    HtmlAlertDialogBuilder(mContext)
-                            .setTitle(mContext.getString(R.string.q_hint))
-                            .setMessage(mContext.getString(R.string.q_external_storage_permission_denied))
-                            .setMessageTextViewSize(mContext.resources.getDimension(R.dimen.base_dialog_massage_size))
-                            .setMessageTextViewColor(R.color.base_dialog_message_color)
-                            .setPositiveButton(R.string.q_setting) { _, _ ->
-                                mContext.startActivity(CommonUtils.getDetailSetting(mContext))
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .setCancelable(true)
-                            .setCanceledOnTouchOutside(true)
-                            .show()
-                }
+                HtmlAlertDialogBuilder(mContext)
+                        .setTitle(mContext.getString(R.string.q_hint))
+                        .setMessage(mContext.getString(R.string.q_external_storage_permission_denied))
+                        .setMessageTextViewSize(mContext.resources.getDimension(R.dimen.base_dialog_massage_size))
+                        .setMessageTextViewColor(R.color.base_dialog_message_color)
+                        .setPositiveButton(R.string.q_setting) { _, _ ->
+                            mContext.startActivity(CommonUtils.getDetailSetting(mContext))
+                        }
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setCancelable(true)
+                        .setCanceledOnTouchOutside(true)
+                        .show()
             }
             return false
         }
