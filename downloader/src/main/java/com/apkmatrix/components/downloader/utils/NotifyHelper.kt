@@ -101,14 +101,14 @@ internal class NotifyHelper(private val mService: Service) {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            if (downloadTask.notificationId == foregroundNotifyId) {
-                mService.stopForeground(true)
-                foregroundNotifyId = 0
-            }
             val build = this.build()
             GlobalScope.launch {
-                withContext(Dispatchers.IO) {
-                    delay(timeMillisForeground)
+                if (downloadTask.notificationId == foregroundNotifyId) {
+                    mService.stopForeground(true)
+                    foregroundNotifyId = 0
+                    withContext(Dispatchers.IO) {
+                        delay(timeMillisForeground)
+                    }
                 }
                 notificationManager.cancel(downloadTask.notificationId)
                 notificationManager.notify(downloadTask.notificationId, build)
@@ -133,14 +133,14 @@ internal class NotifyHelper(private val mService: Service) {
                 this.setContentIntent(getNotificationContentIntent(it))
             }
             this.setContentText(CommonUtils.downloadStateNotificationInfo(mContext1, downloadTask))
-            if (downloadTask.notificationId == foregroundNotifyId) {
-                mService.stopForeground(true)
-                foregroundNotifyId = 0
-            }
             val build = this.build()
             GlobalScope.launch {
-                withContext(Dispatchers.IO) {
-                    delay(timeMillisForeground)
+                if (downloadTask.notificationId == foregroundNotifyId) {
+                    mService.stopForeground(true)
+                    foregroundNotifyId = 0
+                    withContext(Dispatchers.IO) {
+                        delay(timeMillisForeground)
+                    }
                 }
                 notificationManager.cancel(downloadTask.notificationId)
                 notificationManager.notify(downloadTask.notificationId, build)
