@@ -287,6 +287,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             DownloadDataManager.instance.add(0, downloadTask1)
         }
         TaskManager.instance.start(downloadTask1)
+        Logger.d(logTag, "startNewTask ${downloadTask.id} ${downloadTask.notificationTitle}")
     }
 
     private fun reformTaskData(downloadTask: DownloadTask): DownloadTask {

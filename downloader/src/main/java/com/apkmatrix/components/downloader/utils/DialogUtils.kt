@@ -1,9 +1,6 @@
 package com.apkmatrix.components.downloader.utils
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import com.apkmatrix.components.dialog.AlertDialogBuilder
 import com.apkmatrix.components.dialog.HtmlAlertDialogBuilder
 import com.apkmatrix.components.downloader.R
@@ -26,13 +23,8 @@ object DialogUtils {
         return true
     }
 
-    private fun checkSelfStoragePermission(mContext: Context): Boolean {
-        return ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                PackageManager.PERMISSION_GRANTED
-    }
-
     fun checkExternalStorageUsable(mContext: Context, silent: Boolean): Boolean {
-        if (!checkSelfStoragePermission(mContext)) {
+        if (!CommonUtils.checkSelfStoragePermission(mContext)) {
             if (!silent) {
                 HtmlAlertDialogBuilder(mContext)
                         .setTitle(mContext.getString(R.string.q_hint))
