@@ -85,12 +85,12 @@ object DownloadManager {
         CommonUtils.startService(mContext, DownloadServiceAssistUtils.newUpdateTaskDataIntent(mContext, DownloadService::class.java))
     }
 
-    suspend fun tryRequestStoragePermission(): Boolean {
+    suspend fun tryRequestStoragePermission(mContext: Context): Boolean {
         val activity = ActivityManager.instance.stackTopActiveActivity
         return if (activity is BaseAppInterface) {
             activity.requestStoragePermission()
         } else {
-            false
+            CommonUtils.checkSelfStoragePermission(mContext)
         }
     }
 
@@ -101,7 +101,7 @@ object DownloadManager {
             if (!DialogUtils.checkSdUsable(mContext, permissionSilent)) {
                 return@withContext
             }
-            if (!tryRequestStoragePermission()) {
+            if (!tryRequestStoragePermission(mContext)) {
                 return@withContext
             }
             if (!DialogUtils.mobileNetworkDialog(mContext, mobileNetworkSilent)) {

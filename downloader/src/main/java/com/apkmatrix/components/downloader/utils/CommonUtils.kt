@@ -1,12 +1,15 @@
 package com.apkmatrix.components.downloader.utils
 
+import android.Manifest
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.apkmatrix.components.downloader.R
 import com.apkmatrix.components.downloader.db.DownloadTask
@@ -21,6 +24,11 @@ import java.util.*
  * date: 2020/3/26
  */
 object CommonUtils {
+    fun checkSelfStoragePermission(mContext: Context): Boolean {
+        return ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
+    }
+
     fun register(mContext: Context?, receiver: BroadcastReceiver?, vararg actions: String?) {
         val filter = IntentFilter()
         for (action in actions) {
