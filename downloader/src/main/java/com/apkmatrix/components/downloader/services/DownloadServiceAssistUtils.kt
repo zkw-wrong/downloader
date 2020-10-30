@@ -139,7 +139,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                 this.currentOffset = currentOffset
                 this.downloadTaskStatus = downloadTaskStatus
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onProgress ${this.id} ${this.notificationTitle} ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
+                Logger.d(logTag, "onProgress ${this.id} ${this.notificationTitle} ${this.currentOffset} ${this.totalLength}")
             }
         }
 
