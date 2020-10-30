@@ -49,8 +49,8 @@ class CustomDownloadListener4WithSpeed : DownloadListener4WithSpeed() {
         when (cause) {
             EndCause.COMPLETED -> taskListener?.onSuccess(downloadTask, task, DownloadTaskStatus.Success)
             EndCause.CANCELED -> taskListener?.onCancel(downloadTask, task, DownloadTaskStatus.Stop)
-            EndCause.FILE_BUSY -> taskListener?.onStart(downloadTask, task, DownloadTaskStatus.Waiting)
-            EndCause.SAME_TASK_BUSY -> taskListener?.onStart(downloadTask, task, DownloadTaskStatus.Preparing)
+            EndCause.FILE_BUSY -> { }
+            EndCause.SAME_TASK_BUSY -> { }
             else -> {
                 val retryObj = task.getTag(TaskManager.retryTagKey)
                 var retryCount = 1

@@ -55,13 +55,7 @@ internal class TaskManager {
             }
         }
         setMaxParallelRunningCount()
-        DownloadContext.QueueSet().apply {
-            this.minIntervalMillisCallbackProcess = TaskConfig.minIntervalMillisCallbackProcess
-            this.isWifiRequired = false
-            this.isAutoCallbackToUIThread = true
-            this.isPassIfAlreadyCompleted = false
-            downloadBuilder = this.commit()
-        }
+        downloadBuilder = DownloadContext.QueueSet().commit()
     }
 
     fun setMaxParallelRunningCount(@IntRange(from = 1) maxRunningCount: Int = 5) {
@@ -111,6 +105,10 @@ internal class TaskManager {
             }
         } else {
             val taskBuilder = OkDownloadTask.Builder(downloadUrl, File(absolutePath))
+                    .setMinIntervalMillisCallbackProcess(TaskConfig.minIntervalMillisCallbackProcess)
+                    .setPassIfAlreadyCompleted(false)//下载完成是否继续下载这个文件，前面代码已经删除过旧文件
+                    .setAutoCallbackToUIThread(true)//回调UI线程
+                    .setWifiRequired(false)//是否只能WiFi下载
             downloadTask.headers?.map?.forEach {
                 taskBuilder.addHeader(it.key, it.value)
             }
