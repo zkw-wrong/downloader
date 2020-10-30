@@ -119,7 +119,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                     this.totalLength = 0
                 }
                 updateDbDataAndNotify(this)
-                Logger.d(logTag, "onStart ${this.id} ${this.notificationTitle} ${this.absolutePath}")
+                Logger.d(logTag, "onStart ${this.id} ${this.downloadTaskStatus.name} ${this.notificationTitle} ${this.absolutePath}")
             }
         }
 
@@ -191,7 +191,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                 }
                 DownloadDataManager.instance.addAll(list)
                 DownloadManager.downloadServiceInitCallback?.loadCompat()
-                Logger.d(logTag, "initialService task size: ${ DownloadDataManager.instance.size()}")
+                Logger.d(logTag, "initialService task size: ${DownloadDataManager.instance.size()}")
             }
 
             override fun failed() {
@@ -458,9 +458,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                         DownloadTaskStatus.Stop -> {
                         }
                         DownloadTaskStatus.Downloading -> notifyHelper.hintTaskIngNotify(downloadTask)
-                        DownloadTaskStatus.Success -> {
-                            notifyHelper.hintDownloadCompleteNotify(downloadTask)
-                        }
+                        DownloadTaskStatus.Success -> notifyHelper.hintDownloadCompleteNotify(downloadTask)
                         DownloadTaskStatus.Failed -> notifyHelper.hintDownloadFailed(downloadTask)
                         else -> {
                         }
