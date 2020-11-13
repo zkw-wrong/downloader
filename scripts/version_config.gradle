@@ -18,5 +18,5 @@ ext {
 
     apkmatrix_base = "1.9"
     apkmatrix_dialog_version = "1.1.1"
-    apkmatrix_downloader_version = "4.1.7"
+    apkmatrix_downloader_version = "4.1.8"
 }
