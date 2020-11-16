@@ -19,9 +19,15 @@ allprojects {
         jcenter()
         mavenCentral()
         maven { url 'https://jitpack.io' }
-        // maven { url 'http://maven.302e.com:3080/repository/maven-public/' }
-          maven { url 'http://maven.302e.com/repository/maven-public/' }
+        maven {
+            url isLinux() ? 'http://maven.302e.com:/repository/maven-public/' : 'http://maven.302e.com:3080/repository/maven-public/'
+        }
     }
+}
+
+def static isLinux() {
+    println("os.OperatingSystem=${org.gradle.internal.os.OperatingSystem.current()}")
+    return org.gradle.internal.os.OperatingSystem.current().isLinux()
 }
 
 task clean(type: Delete) {

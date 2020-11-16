@@ -13,11 +13,9 @@ import com.apkmatrix.components.downloader.utils.CommonUtils
 import com.apkmatrix.components.downloader.utils.FsUtils
 import com.apkmatrix.components.downloader.utils.Logger
 import com.apkmatrix.components.downloader.utils.NotifyHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
+import kotlin.coroutines.resume
 import com.liulishuo.okdownload.DownloadTask as OkDownloadTask
 
 /**
@@ -30,6 +28,13 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
     private val notifyHelper by lazy { NotifyHelper(mService) }
     private val customDownloadListener4WithSpeed by lazy {
         CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
+    }
+    private var serviceInitState = ServiceInitState.NotInit
+
+    private enum class ServiceInitState {
+        NotInit,
+        Ing,
+        End,
     }
 
     companion object {
@@ -46,8 +51,6 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             const val ACTION_STOP = "$ServiceFlag stop"
             const val ACTION_RESUME = "$ServiceFlag resume"
             const val ACTION_DELETE = "$ServiceFlag delete"
-            const val ACTION_START_ALL = "$ServiceFlag start_all"
-            const val ACTION_STOP_ALL = "$ServiceFlag stop_all"
             const val ACTION_DELETE_ALL = "$ServiceFlag delete_all"
             const val ACTION_FILE_RENAME = "$ServiceFlag file_rename"
         }
@@ -178,38 +181,46 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
     }
 
     private fun initialService() {
-        isInitDownloadServiceCompat = false
-        DownloadDataManager.instance.clear()
-        DownloadDataManager.instance.clear()
-        notifyHelper.init()
-        TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
-        initialData(object : InitDataCallBack {
-            override fun success(list: List<DownloadTask>) {
-                isInitDownloadServiceCompat = true
-                list.forEach {
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
+                Logger.d(logTag, "initialService start")
+                serviceInitState = ServiceInitState.Ing
+                isInitDownloadServiceCompat = false
+                notifyHelper.init()
+                TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
+                val tasks = getDbTaskData()
+                tasks.forEach {
                     notifyHelper.cancel(it.notificationId)
                 }
-                DownloadDataManager.instance.addAll(list)
+                DownloadDataManager.instance.clear()
+                DownloadDataManager.instance.addAll(tasks)
+                serviceInitState = ServiceInitState.End
+                isInitDownloadServiceCompat = true
                 DownloadManager.downloadServiceInitCallback?.loadCompat()
-                Logger.d(logTag, "initialService task size: ${DownloadDataManager.instance.size()}")
-            }
-
-            override fun failed() {
+                Logger.d(logTag, "initialService end task size: ${DownloadDataManager.instance.size()}")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                serviceInitState = ServiceInitState.NotInit
                 isInitDownloadServiceCompat = false
             }
-        })
+        }
     }
 
     fun handlerIntent(intent: Intent) {
-        if (intent.action == ActionType.ACTION_INIT) {
+        val action = intent.action ?: return
+        if (serviceInitState == ServiceInitState.NotInit &&
+                action == ActionType.ACTION_INIT) {
             initialService()
-        } else if (intent.action == ActionType.ACTION_UPDATE_TASK_DATA) {
-            updateTaskData()
-        }
-        if (!isInitDownloadServiceCompat) {
             return
         }
-        when (intent.action) {
+        if (action == ActionType.ACTION_UPDATE_TASK_DATA) {
+            updateTaskData()
+            return
+        }
+        if (serviceInitState != ServiceInitState.End) {
+            return
+        }
+        when (action) {
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
                     startNewTask(this)
@@ -231,12 +242,6 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                     delete(this, isDeleteFile)
                 }
             }
-            ActionType.ACTION_START_ALL -> {
-                startAll()
-            }
-            ActionType.ACTION_STOP_ALL -> {
-                stopAll()
-            }
             ActionType.ACTION_DELETE_ALL -> {
                 deleteAll()
             }
@@ -251,30 +256,30 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         }
     }
 
-    private fun initialData(initDataCallBack: InitDataCallBack) {
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val initTask = withContext(Dispatchers.IO) { AppDbHelper.queryInitDownloadTask() }
-                initDataCallBack.success(initTask.allTasks)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                initDataCallBack.failed()
+    private suspend fun getDbTaskData(): List<DownloadTask> {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { it1 ->
+                it1.invokeOnCancellation {
+                    it1.cancel()
+                }
+                val allTasks = AppDbHelper.queryInitDownloadTask().allTasks
+                it1.resume(allTasks)
             }
         }
     }
 
     private fun updateTaskData() {
-        initialData(object : InitDataCallBack {
-            override fun success(list: List<DownloadTask>) {
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
+                val tasks = getDbTaskData()
                 DownloadDataManager.instance.clear()
-                DownloadDataManager.instance.addAll(list)
+                DownloadDataManager.instance.addAll(tasks)
                 DownloadManager.downloadTaskUpdateDataCallback?.success()
-            }
-
-            override fun failed() {
+            } catch (e: Exception) {
+                e.printStackTrace()
                 DownloadManager.downloadTaskUpdateDataCallback?.failed()
             }
-        })
+        }
     }
 
     private fun startNewTask(downloadTask: DownloadTask) {
@@ -332,10 +337,6 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         }
     }
 
-    private fun startAll() {
-        TaskManager.instance.startOnParallel()
-    }
-
     private fun stop(taskId: String) {
         TaskManager.instance.stop(taskId)
         DownloadManager.getDownloadTask(taskId)?.let {
@@ -348,15 +349,6 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
     private fun resume(taskId: String) {
         TaskManager.instance.resume(taskId)
         DownloadManager.getDownloadTask(taskId)?.let {
-            if (it.showNotification) {
-                notifyHelper.cancel(it.notificationId)
-            }
-        }
-    }
-
-    private fun stopAll() {
-        TaskManager.instance.stopAll()
-        DownloadDataManager.instance.getAll().forEach {
             if (it.showNotification) {
                 notifyHelper.cancel(it.notificationId)
             }

@@ -1,7 +1,5 @@
 package com.apkmatrix.components.downloader.misc
 
-import com.apkmatrix.components.downloader.db.DownloadTask
-
 /**
  * @author xiongke
  * @date 2020/6/1
@@ -12,10 +10,5 @@ interface DownloadServiceInitCallback {
 
 interface DownloadTaskUpdateDataCallback {
     fun success()
-    fun failed()
-}
-
-interface InitDataCallBack {
-    fun success(list: List<DownloadTask>)
     fun failed()
 }
