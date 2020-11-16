@@ -29,10 +29,10 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
     private val customDownloadListener4WithSpeed by lazy {
         CustomDownloadListener4WithSpeed().apply { this.setTaskListener(getCustomTaskListener()) }
     }
-    private var serviceInitState = ServiceInitState.NotStart
+    private var serviceInitState = ServiceInitState.NotInit
 
     private enum class ServiceInitState {
-        NotStart,
+        NotInit,
         Ing,
         End,
     }
@@ -42,6 +42,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
         private const val EXTRA_PARAM_FILE_NAME = "file_name"
+        var isInitDownloadServiceCompat = false
 
         object ActionType {
             const val ACTION_INIT = "$ServiceFlag init"
@@ -181,38 +182,45 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
 
     private fun initialService() {
         GlobalScope.launch(Dispatchers.Main) {
-            serviceInitState = ServiceInitState.Ing
-            DownloadDataManager.instance.clear()
-            notifyHelper.init()
-            TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
             try {
+                Logger.d(logTag, "initialService start")
+                serviceInitState = ServiceInitState.Ing
+                isInitDownloadServiceCompat = false
+                notifyHelper.init()
+                TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
                 val tasks = getDbTaskData()
                 tasks.forEach {
                     notifyHelper.cancel(it.notificationId)
                 }
+                DownloadDataManager.instance.clear()
                 DownloadDataManager.instance.addAll(tasks)
                 serviceInitState = ServiceInitState.End
+                isInitDownloadServiceCompat = true
                 DownloadManager.downloadServiceInitCallback?.loadCompat()
-                Logger.d(logTag, "initialService task size: ${DownloadDataManager.instance.size()}")
+                Logger.d(logTag, "initialService end task size: ${DownloadDataManager.instance.size()}")
             } catch (e: Exception) {
                 e.printStackTrace()
-                serviceInitState = ServiceInitState.NotStart
+                serviceInitState = ServiceInitState.NotInit
+                isInitDownloadServiceCompat = false
             }
         }
     }
 
     fun handlerIntent(intent: Intent) {
-        if (serviceInitState == ServiceInitState.NotStart) {
-            if (intent.action == ActionType.ACTION_INIT) {
-                initialService()
-            } else if (intent.action == ActionType.ACTION_UPDATE_TASK_DATA) {
-                updateTaskData()
-            }
+        val action = intent.action ?: return
+        if (serviceInitState == ServiceInitState.NotInit &&
+                action == ActionType.ACTION_INIT) {
+            initialService()
+            return
+        }
+        if (action == ActionType.ACTION_UPDATE_TASK_DATA) {
+            updateTaskData()
+            return
         }
         if (serviceInitState != ServiceInitState.End) {
             return
         }
-        when (intent.action) {
+        when (action) {
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
                     startNewTask(this)
