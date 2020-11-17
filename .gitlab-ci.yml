@@ -21,6 +21,8 @@ after_script:
   - curl "https://oapi.dingtalk.com/robot/send?access_token=c50941d88b0e1073def3176116e9da51a5da11852e5e0e565e2f78e418e25b74" -XPOST -H 'content-type:application/json' -d '{"msgtype":"text","text":{"content":"Downloader下载库编译完成：http://maven.302e.com:3080/#browse/browse:maven-releases:com/apkmatrix/components/downloader"},"at":{"atMobiles":[],"isAtAll":false}}'
 
 build-release:
+  tags:
+    - vpn
   stage: build
   script:
     - ./gradlew :downloader:uploadArchives
