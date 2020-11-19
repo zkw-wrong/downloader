@@ -23,7 +23,6 @@ class DownloadService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Logger.d(logTag, "onStartCommand ${intent?.action}")
         intent?.let {
             getDownloadServiceAssistUtils()?.handlerIntent(it)
         }

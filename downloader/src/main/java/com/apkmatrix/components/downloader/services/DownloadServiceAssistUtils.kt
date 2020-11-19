@@ -180,11 +180,12 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
 
     private fun initialService() {
         if (serviceIngState == ServiceIngState.Ing) {
+            Logger.d(logTag, "service initial ing")
             return
         }
         GlobalScope.launch(Dispatchers.Main) {
             try {
-                Logger.d(logTag, "initialService start")
+                Logger.d(logTag, "service initial start")
                 serviceIngState = ServiceIngState.Ing
                 isInitDownloadServiceCompat = false
                 notifyHelper.init()
@@ -197,7 +198,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                 DownloadDataManager.instance.addAll(tasks)
                 isInitDownloadServiceCompat = true
                 DownloadManager.downloadServiceInitCallback?.loadCompat()
-                Logger.d(logTag, "initialService end task size: ${DownloadDataManager.instance.size()}")
+                Logger.d(logTag, "service initial end task size: ${DownloadDataManager.instance.size()}")
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -217,8 +218,10 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             return
         }
         if (!isInitDownloadServiceCompat) {
+            Logger.d(logTag, "service not initial")
             return
         }
+        Logger.d(logTag, "action->${action}")
         when (action) {
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
