@@ -43,6 +43,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         var isInitServiceComplete = false
 
         object ActionType {
+            const val ACTION_EMPTY = "empty"
             const val ACTION_UPDATE_TASK_DATA = "update_task_data"
             const val ACTION_NEW_START = "new_start"
             const val ACTION_STOP = "stop"
@@ -53,7 +54,9 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         }
 
         fun newEmptyIntent(mContext: Context): Intent {
-            return Intent(mContext, DownloadService::class.java)
+            return Intent(mContext, DownloadService::class.java).apply {
+                this.action = ActionType.ACTION_EMPTY
+            }
         }
 
         fun newUpdateTaskDataIntent(mContext: Context): Intent {
@@ -210,6 +213,12 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
 
     fun handlerIntent(intent: Intent) {
         val action = intent.action
+        if (action.isNullOrEmpty()) {
+            return
+        }
+        if (action == ActionType.ACTION_EMPTY) {
+            return
+        }
         if (action == ActionType.ACTION_UPDATE_TASK_DATA) {
             updateTaskData()
             return
@@ -223,7 +232,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             Logger.d(logTag, "service not initial")
             return
         }
-        Logger.d(logTag, "action:$action")
+        Logger.d(logTag, action)
         when (action) {
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
