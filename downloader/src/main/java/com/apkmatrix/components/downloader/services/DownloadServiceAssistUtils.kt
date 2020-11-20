@@ -212,7 +212,10 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
     }
 
     fun handlerIntent(intent: Intent) {
-        val action = intent.action ?: return
+        val action = intent.action
+        if (action.isNullOrEmpty()) {
+            return
+        }
         if (action == ActionType.ACTION_EMPTY) {
             return
         }
@@ -229,7 +232,7 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             Logger.d(logTag, "service not initial")
             return
         }
-        Logger.d(logTag, "action:$action")
+        Logger.d(logTag, action)
         when (action) {
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
