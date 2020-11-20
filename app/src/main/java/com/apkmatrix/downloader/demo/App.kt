@@ -29,7 +29,7 @@ class App : Application() {
         super.onCreate()
         mContext = this
         DownloadManager.initial(this, newOkHttpClientBuilder(), object : DownloadServiceInitCallback {
-            override fun loadCompat() {
+            override fun loadComplete() {
                 Toast.makeText(this@App, "loadCompat", Toast.LENGTH_LONG).show()
             }
         })

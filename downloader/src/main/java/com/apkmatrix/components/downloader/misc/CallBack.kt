@@ -5,7 +5,7 @@ package com.apkmatrix.components.downloader.misc
  * @date 2020/6/1
  */
 interface DownloadServiceInitCallback {
-    fun loadCompat()
+    fun loadComplete()
 }
 
 interface DownloadTaskUpdateDataCallback {

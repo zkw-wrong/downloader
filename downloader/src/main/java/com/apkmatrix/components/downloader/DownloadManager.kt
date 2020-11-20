@@ -8,7 +8,6 @@ import com.apkmatrix.components.appbaseinterface.BaseAppInterface
 import com.apkmatrix.components.downloader.db.DownloadDatabase
 import com.apkmatrix.components.downloader.db.DownloadTask
 import com.apkmatrix.components.downloader.misc.*
-import com.apkmatrix.components.downloader.services.DownloadService
 import com.apkmatrix.components.downloader.services.DownloadServiceAssistUtils
 import com.apkmatrix.components.downloader.utils.ActivityManager
 import com.apkmatrix.components.downloader.utils.CommonUtils
@@ -33,7 +32,7 @@ object DownloadManager {
         DownloadDatabase.initial(application)
         ActivityManager.initial(application)
         TaskManager.init(application, builder)
-        this.startInitialTask(application)
+        this.startDownloadService(application)
     }
 
     fun setDebug(isDebug: Boolean) {
@@ -43,7 +42,7 @@ object DownloadManager {
         }
     }
 
-    fun isInitDownloadServiceCompat() = DownloadServiceAssistUtils.isInitDownloadServiceCompat
+    fun isInitDownloadServiceComplete() = DownloadServiceAssistUtils.isInitServiceComplete
 
     fun startUpdateDownloadTaskData(mContext: Context, downloadTaskUpdateDataCallback: DownloadTaskUpdateDataCallback?) {
         this.downloadTaskUpdateDataCallback = downloadTaskUpdateDataCallback
@@ -77,12 +76,12 @@ object DownloadManager {
         return null
     }
 
-    private fun startInitialTask(mContext: Context) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newInitIntent(mContext, DownloadService::class.java))
+    private fun startDownloadService(mContext: Context) {
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newEmptyIntent(mContext))
     }
 
     private fun startUpdateDownloadTaskData(mContext: Context) {
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newUpdateTaskDataIntent(mContext, DownloadService::class.java))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newUpdateTaskDataIntent(mContext))
     }
 
     suspend fun tryRequestStoragePermission(mContext: Context): Boolean {
@@ -107,8 +106,7 @@ object DownloadManager {
             if (!DialogUtils.mobileNetworkDialog(mContext, mobileNetworkSilent)) {
                 return@withContext
             }
-            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext,
-                    DownloadService::class.java, builder.build()))
+            CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStartNewTaskIntent(mContext, builder.build()))
         }
     }
 
@@ -119,7 +117,7 @@ object DownloadManager {
         if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext, DownloadService::class.java, id))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newStopIntent(mContext, id))
     }
 
     fun resumeTask(mContext: Context, id: String, permissionSilent: Boolean = false) {
@@ -129,7 +127,7 @@ object DownloadManager {
         if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext, DownloadService::class.java, id))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newResumeIntent(mContext, id))
     }
 
     fun deleteTask(mContext: Context, id: String, isDeleteFile: Boolean = true, permissionSilent: Boolean = false) {
@@ -139,7 +137,7 @@ object DownloadManager {
         if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext, DownloadService::class.java, id, isDeleteFile))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteIntent(mContext, id, isDeleteFile))
     }
 
     fun deleteAllTask(mContext: Context, permissionSilent: Boolean = false) {
@@ -149,7 +147,7 @@ object DownloadManager {
         if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext, DownloadService::class.java))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newDeleteAllIntent(mContext))
     }
 
     fun renameTaskFile(mContext: Context, id: String, fileName: String, permissionSilent: Boolean = false) {
@@ -159,6 +157,6 @@ object DownloadManager {
         if (!DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)) {
             return
         }
-        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext, DownloadService::class.java, id, fileName))
+        CommonUtils.startService(mContext, DownloadServiceAssistUtils.newRenameIntent(mContext, id, fileName))
     }
 }

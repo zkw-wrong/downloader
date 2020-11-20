@@ -16,6 +16,7 @@ class DownloadService : Service() {
     override fun onCreate() {
         super.onCreate()
         Logger.d(logTag, "onCreate")
+        getDownloadServiceAssistUtils()?.initialService()
     }
 
     override fun onBind(intent: Intent?): IBinder? {

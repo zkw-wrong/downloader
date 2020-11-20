@@ -40,10 +40,9 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         private const val EXTRA_PARAM_ACTION = "download_param_action"
         private const val EXTRA_PARAM_IS_DELETE = "is_delete"
         private const val EXTRA_PARAM_FILE_NAME = "file_name"
-        var isInitDownloadServiceCompat = false
+        var isInitServiceComplete = false
 
         object ActionType {
-            const val ACTION_INIT = "init"
             const val ACTION_UPDATE_TASK_DATA = "update_task_data"
             const val ACTION_NEW_START = "new_start"
             const val ACTION_STOP = "stop"
@@ -53,55 +52,53 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
             const val ACTION_FILE_RENAME = "file_rename"
         }
 
-        fun newInitIntent(mContext: Context, clazz: Class<*>): Intent {
-            return Intent(mContext, clazz).apply {
-                this.action = ActionType.ACTION_INIT
-            }
+        fun newEmptyIntent(mContext: Context): Intent {
+            return Intent(mContext, DownloadService::class.java)
         }
 
-        fun newUpdateTaskDataIntent(mContext: Context, clazz: Class<*>): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newUpdateTaskDataIntent(mContext: Context): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_UPDATE_TASK_DATA
             }
         }
 
-        fun newStartNewTaskIntent(mContext: Context, clazz: Class<*>, downloadTask: DownloadTask): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newStartNewTaskIntent(mContext: Context, downloadTask: DownloadTask): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_NEW_START
                 this.putExtra(EXTRA_PARAM_ACTION, downloadTask)
             }
         }
 
-        fun newStopIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newStopIntent(mContext: Context, taskId: String): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_STOP
                 this.putExtra(EXTRA_PARAM_ACTION, taskId)
             }
         }
 
-        fun newResumeIntent(mContext: Context, clazz: Class<*>, taskId: String): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newResumeIntent(mContext: Context, taskId: String): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_RESUME
                 this.putExtra(EXTRA_PARAM_ACTION, taskId)
             }
         }
 
-        fun newDeleteIntent(mContext: Context, clazz: Class<*>, taskId: String, isDeleteFile: Boolean): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newDeleteIntent(mContext: Context, taskId: String, isDeleteFile: Boolean): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_DELETE
                 this.putExtra(EXTRA_PARAM_ACTION, taskId)
                 this.putExtra(EXTRA_PARAM_IS_DELETE, isDeleteFile)
             }
         }
 
-        fun newDeleteAllIntent(mContext: Context, clazz: Class<*>): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newDeleteAllIntent(mContext: Context): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_DELETE_ALL
             }
         }
 
-        fun newRenameIntent(mContext: Context, clazz: Class<*>, taskId: String, fileName: String): Intent {
-            return Intent(mContext, clazz).apply {
+        fun newRenameIntent(mContext: Context, taskId: String, fileName: String): Intent {
+            return Intent(mContext, DownloadService::class.java).apply {
                 this.action = ActionType.ACTION_FILE_RENAME
                 this.putExtra(EXTRA_PARAM_ACTION, taskId)
                 this.putExtra(EXTRA_PARAM_FILE_NAME, fileName)
@@ -178,16 +175,20 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
         }
     }
 
-    private fun initialService() {
+    fun initialService() {
+        if (isInitServiceComplete) {
+            Logger.d(logTag, "service initial complete")
+            return
+        }
         if (serviceIngState == ServiceIngState.Ing) {
             Logger.d(logTag, "service initial ing")
             return
         }
+        serviceIngState = ServiceIngState.Ing
+        isInitServiceComplete = false
         GlobalScope.launch(Dispatchers.Main) {
             try {
                 Logger.d(logTag, "service initial start")
-                serviceIngState = ServiceIngState.Ing
-                isInitDownloadServiceCompat = false
                 notifyHelper.init()
                 TaskManager.instance.setDownloadListener(customDownloadListener4WithSpeed)
                 val tasks = getDbTaskData()
@@ -196,8 +197,8 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
                 }
                 DownloadDataManager.instance.clear()
                 DownloadDataManager.instance.addAll(tasks)
-                isInitDownloadServiceCompat = true
-                DownloadManager.downloadServiceInitCallback?.loadCompat()
+                isInitServiceComplete = true
+                DownloadManager.downloadServiceInitCallback?.loadComplete()
                 Logger.d(logTag, "service initial end task size: ${DownloadDataManager.instance.size()}")
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -209,19 +210,15 @@ internal class DownloadServiceAssistUtils(private val mService: Service) {
 
     fun handlerIntent(intent: Intent) {
         val action = intent.action ?: return
-        if (!isInitDownloadServiceCompat && action == ActionType.ACTION_INIT) {
-            initialService()
-            return
-        }
         if (action == ActionType.ACTION_UPDATE_TASK_DATA) {
             updateTaskData()
             return
         }
-        if (!isInitDownloadServiceCompat) {
+        if (!isInitServiceComplete) {
             Logger.d(logTag, "service not initial")
             return
         }
-        Logger.d(logTag, "action->${action}")
+        Logger.d(logTag, action)
         when (action) {
             ActionType.ACTION_NEW_START -> {
                 intent.getParcelableExtra<DownloadTask>(EXTRA_PARAM_ACTION)?.apply {
