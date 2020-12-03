@@ -101,6 +101,7 @@ object DownloadManager {
                 return@withContext
             }
             if (!tryRequestStoragePermission(mContext)) {
+                DialogUtils.checkExternalStorageUsable(mContext, permissionSilent)
                 return@withContext
             }
             if (!DialogUtils.mobileNetworkDialog(mContext, mobileNetworkSilent)) {
